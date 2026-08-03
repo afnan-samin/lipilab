@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Bangla Converter</title>
+    <title>LIPILAB – Advanced Bangla Converter</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         @font-face {
@@ -54,11 +54,25 @@
             margin: auto auto 20px auto;
         }
         
-        .header {
+       .header {
             text-align: center;
-            flex-grow: 1;
+            margin-bottom: 20px;
         }
-        
+
+        .header h1 {
+            margin: 0;
+            font-size: 42px;
+            font-weight: 800;
+            color: #222;
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            margin-top: 4px;
+            font-size: 18px;
+            color: #666;
+            font-weight: 500;
+        }        
         .toggle-btn {
             background: transparent;
             border: 1px solid var(--border-color);
@@ -270,7 +284,8 @@
 <div class="top-bar">
     <div style="width: 40px;"></div>
     <div class="header">
-        <h2>Advanced Bangla Converter</h2>
+        <h1>LIPILAB</h1>
+        <p>Advanced Bangla Converter</p>
     </div>
     <button class="toggle-btn" onclick="toggleDarkMode()">🌙</button>
 </div>
@@ -286,7 +301,7 @@
 <div class="container">
     <div class="box">
         <h3>
-            প্রশ্নোত্তর (Input) 
+           Input
             <span class="stats" id="inputStats">Words: 0 | Chars: 0</span>
         </h3>
         <textarea id="inputText" placeholder="Enter Text or Upload File..."></textarea>
@@ -310,16 +325,16 @@
     
     <div class="box">
         <h3>
-            উত্তর (Output)
+            Output
             <span class="stats" id="outputStats">Words: 0 | Chars: 0</span>
         </h3>
-        <textarea id="outputText" class="output-area" readonly placeholder="Output will appear here..."></textarea>
+        <textarea id="outputText" class="output-area" readonly placeholder="..."></textarea>
         <button class="download-btn" onclick="downloadDoc()">Download .docx</button>
     </div>
 </div>
 
 <div class="footer">
-    developed by: s m afnan samin with GLM-5.2
+    Developed by: S M Afnan Samin
 </div>
 
 <script>
