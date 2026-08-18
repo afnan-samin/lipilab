@@ -18,17 +18,27 @@
 
 ### What stays free, no account needed
 - Textarea live conversion — **unchanged, unlimited, 100% client-side** (this is the existing, working product — do not gate or limit it)
-- File/DOCX upload conversion — **first 5,000 words free**, enforced **server-side** (client-side-only enforcement is trivially bypassed and must not be relied on). **Open question (see §10):** is this cap per-file, or a cumulative per-account/lifetime allowance? Must be confirmed before building the enforcement logic — the two interpretations require different tracking (stateless per-request check vs. cumulative usage counter).
+- File/DOCX upload conversion — **5,000 words free per conversion action** (confirmed: per-action, not cumulative — see §1.0a for how amounts beyond this are handled)
 - Basic output font selection: a small default set (e.g. SutonnyMJ + one alternative for Bangla, Times New Roman + one alternative for English)
 - Ads shown (see §4)
 - Future_Add items marked **Free** in the triage table (§6): expanded Bijoy font detection, PDF export, unmappable-character detail modal, full state persistence, undo/redo buttons
 - Spell Check **Normal** (client-side dictionary check — never costs points, since it never touches the backend)
 
-### What requires an account + costs points
-- File/DOCX conversion **beyond** the free word threshold — per-word rate (admin-configurable, §1.3)
-- Spell Check **Advanced** (LLM-backed) — per-word rate
-- MCQ Serial — per-question rate, with a configured minimum charge per job (so a 3-question upload still costs something reasonable, not effectively free)
-- Full output font library, batch multi-file processing, split/diff view — these remain **feature-gates on having an account**, not per-use point costs (doesn't make sense to meter a UI feature like font selection per word)
+### 1.0a Handling Conversions Above 5,000 Words — Three Paths
+Confirmed model: a single conversion action covers up to 5,000 words free. For documents larger than that, the user is offered three explicit paths (do not force only one):
+
+1. **Free, auto-chunked, cooldown + optional rewarded-ad-to-skip.** The client automatically splits the document into 5,000-word chunks **at sentence/paragraph boundaries** (do not require the user to manually cut the file — this must be system-automated, reusing the existing run/paragraph-aware text extraction, not a raw character-count cut that could split mid-word or mid-sentence). Chunks process sequentially with a progress indicator ("Batch 3/20"). **Important correction from earlier draft:** conversion itself is near-instant, so gating every batch behind a mandatory rewarded ad produces back-to-back ads with virtually no work happening between them (worse than the original timer idea, and looks like abnormal ad-request patterns to ad networks). Instead: after each batch, impose a **cooldown** (e.g. 3–5 minutes) before the next batch auto-starts, free, no ad required. During the cooldown, offer an explicit **"Watch an ad to skip the wait"** button — an opt-in rewarded ad that immediately unlocks the next batch. This preserves user choice (wait for free vs. trade an ad-view for time) instead of forcing an ad per batch regardless of elapsed time, and reads as normal rewarded-ad usage to ad network policy, not ad-farming.
+2. **Small one-time fee / points**, deducted per word beyond the free 5,000 (§1.3 for rate) — processes as a single, instant, non-chunked, ad-free job.
+3. **Premium account** — unlimited-word conversion, always instant, always ad-free, plus all other premium feature-gates (§ below). This is the intended "path of least friction" — funnel free users toward this over time by making paths 1 and 2 slightly more effortful/costly by comparison, without making them punishing.
+
+### What requires an account + costs points, or a monthly quota
+- File/DOCX conversion beyond the free per-action threshold via path 2 above — per-word rate (§1.3)
+- Spell Check **Advanced** (LLM-backed) — **monthly free quota for registered (non-premium) accounts** (see §1.0b), then points beyond quota
+- MCQ Serial — same pattern: monthly free quota, then points (per-question rate + minimum charge per job) beyond it
+- Full output font library, batch multi-file processing, split/diff view — these remain **feature-gates on having a Premium account**, not per-use point costs (doesn't make sense to meter a UI feature like font selection per word)
+
+### 1.0b Why Spell-Check/MCQ Use a Quota Model, Not the Same Ad-Gated Free Path as Conversion
+This is a deliberate, cost-driven distinction, not an inconsistency: plain conversion has near-zero marginal server cost (deterministic algorithm, no external API), so an unlimited-but-slower ad-supported free path is financially safe. Spell Check Advanced and MCQ Serial call a paid external LLM API per use — an unlimited "watch ads to use forever" path here has **unbounded cost exposure** if ad revenue per view doesn't reliably cover the LLM cost per call. A **fixed monthly quota** bounds the worst case precisely (quota × per-unit cost = maximum possible monthly cost per free account), which is why quota, not ad-gating, is the right mechanism for these two features specifically. Start the quota conservatively (small default, admin-configurable) and tune upward once real LLM pricing and usage data exist (this depends on the still-open LLM provider decision).
 
 ### 1.1 Wallet & Ledger (correctness-critical — do not skip this design)
 - **Never store only a mutable balance number.** Use an **append-only transaction ledger**: every purchase, deduction, refund, or admin adjustment is its own row (`id, user_id, type, amount, balance_after, reference_job_id, created_at`). The user's current balance is either computed from the ledger or cached and reconciled against it — the ledger is the source of truth, so support/disputes ("where did my points go") can always be answered by querying it.
@@ -36,16 +46,34 @@
 - **Concurrency safety:** balance check + deduction must happen inside a single DB transaction with row-level locking (or an equivalent atomic operation) to prevent two simultaneous requests from both passing a balance check against a stale balance and over-drawing the account.
 
 ### 1.2 Buying Points
-- Recommend a **payment aggregator** (SSLCommerz or ShurjoPay) rather than integrating bKash/Nagad/cards separately — one integration covers all major Bangladeshi payment methods, far less engineering effort than direct gateway-by-gateway integration.
-- Points sold in packages (e.g. fixed BDT amounts, possibly with bonus points on larger packages) — exact pricing/bundle structure is a business decision, left configurable rather than hardcoded (§1.3).
+- Payment aggregator confirmed direction: SSLCommerz or ShurjoPay (exact choice still open, §10) rather than integrating bKash/Nagad/cards separately.
+- **Proposed starting exchange rate: 1 BDT = 2,000 points**, with conversion priced at 1 point/word (confirmed by the user). This targets a "small, impulse-buy" fee — converting a full 100,000-word document (95,000 words beyond the free threshold) would cost roughly 47–48 BDT under this rate. Treat this as a starting point to validate against real usage and competitor pricing, not a final number — it's admin-configurable, not hardcoded.
+- **Proposed package structure** (bonus points for larger purchases, standard practice to encourage bigger top-ups):
+
+  | Package | Points (incl. bonus) | Effective bonus |
+  |---|---|---|
+  | 20 BDT | 40,000 | base rate, no bonus |
+  | 50 BDT | 110,000 | ~10% |
+  | 100 BDT | 240,000 | ~20% |
+
+  These exact figures need a second look once real hosting/payment-gateway fees and competitor pricing are known — flag them as provisional in the admin config, not fixed constants in code.
+- **Spell Check Advanced / MCQ Serial must use a separate, higher point-rate than conversion**, because their real per-unit cost (external LLM API billing) is far higher than conversion's near-zero marginal cost. Do not reuse the 1-point/word conversion rate for these features. Correct formula once an LLM provider is chosen: `point-rate (in BDT-equivalent) ≥ LLM API cost per unit + desired margin`. Exact numbers are blocked on the still-open LLM provider/pricing decision (§10).
 
 ### 1.3 Admin Panel — Pricing & Wallet Controls
-- Admin can configure, without a code deploy: per-word conversion rate (above free threshold), per-word Advanced-spell-check rate, per-MCQ rate + minimum charge per job. Changes apply to new transactions only, never retroactively.
+- Admin can configure, without a code deploy: per-word conversion rate (above free threshold), point package sizes/bonuses, per-word Advanced-spell-check rate, per-MCQ rate + minimum charge per job, and the monthly free quota size for Spell Check Advanced / MCQ Serial (§1.0b). Changes apply to new transactions only, never retroactively.
 - Admin can view any user's balance + full transaction history (for support).
 - Admin can manually credit or adjust a user's balance (support/goodwill cases) — this itself creates a ledger entry (`type: admin_adjustment`), never a silent balance edit.
 
+### 1.4 User Panel — Usage History
+- New user-facing history view (separate from the admin-facing transaction view in §1.3, though backed by the same ledger + job records): a table of the user's own past jobs — date, file name, operation type (Convert / Spell Check / MCQ Serial), word or question count processed, points deducted, and status (success/failed — failed jobs show `0 points deducted` per §1.1's no-charge-on-failure rule). This is effectively a per-user filtered view over the ledger (§1.1) joined to job records — no new data model needed beyond what §1.1 already requires, just a scoped query and a UI table.
+
 ### Auth
-- Simple email/password (or email+OTP) registration/login, per the prior expansion prompt's §6 — carry that section forward unchanged. Account is now required specifically to hold a points balance and purchase history, in addition to its earlier role gating Advanced features.
+- Simple email/password (or email+OTP) registration/login, per the prior expansion prompt's §6 — carry that section forward unchanged. Account is now required specifically to hold a points balance and purchase/usage history, in addition to its earlier role gating Advanced features.
+
+### 1.5 LLM Provider — Current Testing Setup, Production Caveat
+- Development/testing is currently using OpenRouter with `deepseek/deepseek-v4-flash:free` — confirmed to exist on OpenRouter (1M context, tool/reasoning support). Fine for development.
+- **Do not architect production pricing or capacity planning around this specific free model.** OpenRouter's `:free` model variants are provider-controlled and are commonly rotated, rate-limited, or discontinued without notice — at least one tracking source indicates this exact model's free availability has already been inconsistent. The backend's model selection must be a **config value, not a hardcoded string**, so swapping to a paid tier (e.g. the standard `deepseek/deepseek-v4-flash`, priced roughly $0.08/M input tokens per current OpenRouter listings, or another provider entirely) requires an admin-config change, not a code change.
+- Once a production model/pricing is locked in, revisit §1.2's point-rate formula for Spell Check Advanced/MCQ Serial (currently blocked on this).
 
 ---
 
@@ -141,15 +169,18 @@
 2. Bundled font licensing — need confirmation these legacy Bijoy-family font files are legally redistributable before shipping them for download.
 3. AdSense application status — has this been submitted/approved yet, or should Adsterra/Monetag be the launch default with AdSense as a later swap-in?
 4. Does the info box (§7) show once (dismissible, remembered via localStorage) or persist always? Does the marketing-site palette (§8) apply to the tool UI too, or stay separate?
-5. Carry forward all open questions from the prior `lipilab-expansion-master-prompt.md` §11 (LLM provider choice, MCQ sort-command scope — quota numbers are now superseded by the points-pricing decision in §1.3).
-6. **Is the 5,000-word free threshold per-file or cumulative per-account?** (§1, flagged as blocking the enforcement design)
-7. Points-to-BDT exchange rate and package sizes (§1.2) — needed before payment integration is wired up.
-8. Exact per-word / per-question rates for conversion, Advanced spell-check, and MCQ serial (§1.3) — needed before the pricing config is seeded with real values.
+5. Carry forward remaining open questions from the prior `lipilab-expansion-master-prompt.md` §11: **LLM provider choice** (blocks the Advanced spell-check/MCQ point-rate and monthly-quota-size decisions, §1.0b/§1.2) and **MCQ sort-command scope**.
+6. ~~Is the 5,000-word free threshold per-file or cumulative?~~ **Resolved: per conversion action** (§1.0a).
+7. Final payment aggregator choice — SSLCommerz vs ShurjoPay (direction confirmed, specific choice still open).
+8. Validate the proposed exchange rate and package bonuses (§1.2) against real hosting/payment-gateway fees once known — currently a reasoned starting estimate, not final.
+9. Monthly free-quota size for Spell Check Advanced / MCQ Serial (§1.0b) — blocked on LLM provider/cost decision, same as #5.
 
 ---
 
 ## 11. Decision Log
 
-*Small updates going forward are appended here with a date, instead of rewriting the whole document. A full section rewrite only happens for major pivots (the way §1 was rewritten from a flat Premium-tier model to the points system below).*
+*Small updates going forward are appended here with a date, instead of rewriting the whole document. A full section rewrite only happens for major pivots.*
 
 - **v2 → v2.1**: Replaced flat Free/Premium tier gating with a points/credits (pay-as-you-go) model for file conversion, Advanced spell-check, and MCQ serial. Feature-gates (font library, batch processing, split/diff view) remain account-based, not point-metered. Added wallet/ledger design, payment aggregator recommendation, and admin pricing controls (§1, §1.1–§1.3).
+- **v2.1 → v2.2**: Confirmed 5,000-word free cap is per-conversion-action, not cumulative. Defined three explicit paths for overage (free auto-chunked+rewarded-ads / paid points / premium) instead of forcing manual multi-upload (§1.0a). Established that Spell Check Advanced/MCQ Serial use a monthly free quota rather than the ad-gated path, with cost-based reasoning (§1.0b) — because their marginal cost (external LLM billing) is unbounded-risk under an ads-only free model, unlike conversion. Proposed a concrete starting exchange rate (1 BDT = 2,000 points) and package/bonus structure (§1.2), flagged as provisional. Added user-facing usage history view (§1.4), reusing the ledger from §1.1 — no new data model.
+- **v2.2 → v2.3**: Corrected the free-path ad mechanic (§1.0a) — since conversion is near-instant, a mandatory ad per batch produced back-to-back ads with no real work between them. Changed to a cooldown-between-batches model with an optional "watch ad to skip the wait" button, preserving user choice and avoiding ad-network abuse patterns. Recorded current LLM testing setup (OpenRouter, `deepseek/deepseek-v4-flash:free`) and flagged that production must not depend on this specific free model staying free/available (§1.5).
