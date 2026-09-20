@@ -1384,7 +1384,9 @@ function fpAudioSig() {
         var d = buf.getChannelData(0);
         var sum = 0;
         for (var i = 0; i < d.length; i += 97) sum += Math.abs(d[i]);
-        resolve('audio:' + sum.toFixed(6));
+        // Quantized: raw float wobbles slightly per page load — rounding
+        // keeps the signal stable so one device keeps one hash.
+        resolve('audio:' + Math.round(sum));
       }).catch(function () { resolve('no-audio'); });
     } catch (e) { resolve('no-audio'); }
   });
