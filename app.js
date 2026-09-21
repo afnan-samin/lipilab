@@ -1372,7 +1372,7 @@ function exportPdf() {
 }
 
 /* ------------------------------------------------------------
-   11c. POINTS (device-local) — 100 koti daily, 1 point per word.
+   11c. POINTS (device-local) — 10 hajar daily, 1 point per word.
    Balance resets every night 12 (BD time). Ledger saved locally.
    Live mode: each completed word is charged immediately on input.
    Manual/upload mode: Convert click charges all uncharged words.
@@ -2316,7 +2316,6 @@ function init() {
     document.addEventListener('visibilitychange', function () {
       if (document.hidden && pendingSpend > 0) flushNow();
     });
-    safeInitStep(initAuth, 'auth-state');
   }, 'points-init');
   requestAnimationFrame(function () { safeInitStep(updateDirectionPillPosition, 'direction-pill'); });
 }
