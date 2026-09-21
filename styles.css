@@ -222,6 +222,7 @@ button{ font-family:inherit; }
   width:auto; padding:0 10px; gap:6px; font-size:12.5px; font-weight:600; color:var(--text-secondary);
 }
 .panel__header-actions label.icon-btn--sm{ box-shadow:var(--shadow-sm); }
+
 .panel__body{ padding:0 16px; flex:1; display:flex; }
 .panel__textarea{
   width:100%; min-height:260px; resize:vertical; border:1px solid var(--border); border-radius:var(--radius-md);
@@ -321,7 +322,10 @@ button{ font-family:inherit; }
   -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
   border:1px solid var(--border); border-radius:var(--radius-md);
   color:var(--text-faint); position:relative; overflow:hidden;
+  user-select:none; -webkit-user-select:none;
 }
+.pl-slot svg{ user-select:none; -webkit-user-select:none; pointer-events:none; }
+.pl-slot svg text{ user-select:none; -webkit-user-select:none; }
 .pl-empty{
   display:flex; align-items:center; justify-content:center; text-align:center;
   width:100%; min-height:inherit; padding:14px 10px;
@@ -570,8 +574,43 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
   .tools-nav__btn{ padding:6px 4px; font-size:12px; }
 }
 
+/* ---- Print → Save as PDF (Office style): output text only ---- */
+#print-doc{ display:none; }
+@media print{
+  @page{ size:A4; margin:15mm; }
+  html, body{ background:#fff !important; }
+  .bg-layer, .app-header, .tools-nav, .app-toolbar, .app-statusbar,
+  .pl-slot, .post-note, .post-note--show, .gate-veil, .ask-overlay,
+  .shortcuts-panel, .toast-container, .info-box, .app-credit, .app-footer,
+  .panel--input, .panel-divider,
+  .panel__header, .panel__footer,
+  .features-overlay{ display:none !important; }
+  .app-shell{ display:block; max-width:none; margin:0; padding:0; min-height:0; }
+  #main-content{ display:block; }
+  .tool-view, #view-converter.tool-view{ display:block; }
+  .tool-view[hidden], #view-converter.tool-view[hidden]{ display:none; }
+  .panel{ box-shadow:none; border:0; }
+  .panel--output{ break-inside:auto; }
+  .panel__body{ display:block; padding:0; }
+  #output-textarea{
+    border:0; background:#fff; color:#000;
+    resize:none; overflow:visible;
+    min-height:0; font-size:14pt; line-height:1.8;
+    white-space:pre-wrap; overflow-wrap:break-word;
+  }
+  /* DOCX template mode: formatted document (tables kept) instead. */
+  body.print-docx #output-textarea{ display:none !important; }
+  body.print-docx #print-doc{ display:block; }
+  #print-doc .print-doc{ font-size:12pt; line-height:1.7; color:#000; }
+  #print-doc .print-doc p{ margin:0 0 6pt; overflow-wrap:break-word; }
+  #print-doc .print-doc table{ border-collapse:collapse; width:100%; margin:8pt 0; }
+  #print-doc .print-doc td{ vertical-align:top; }
+}
+
 /* ---- Thin black strokes (tools nav, converter panels) ---- */
 .tools-nav{ border:1.5px solid #111; }
+.tools-nav .has-soon{ position:relative; overflow:visible; }
+.tools-nav .has-soon .soon-tag{ top:-9px; right:-8px; }
 .panel{ border:1.5px solid #111; }
 
 /* ---- Features button + notice-board popup ---- */
@@ -618,6 +657,19 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
   font-family:'Noto Sans Bengali',var(--font-body); font-size:12.5px; font-weight:700; cursor:pointer;
 }
 .features-lang:hover{ border-color:var(--accent); color:var(--accent); }
+
+/* ---- PDF direct-download stage (offscreen render target for html2pdf.js) ---- */
+#pdf-stage{ position:fixed; left:-10000px; top:0; width:180mm; background:#fff; color:#000; }
+.pdf-doc{ font-family:'Times New Roman','Noto Sans Bengali',serif; font-size:12pt; line-height:1.7; color:#000; background:#fff; word-wrap:break-word; }
+.pdf-p{ margin:0 0 6pt; white-space:pre-wrap; }
+.pdf-empty{ min-height:12pt; }
+.pdf-num{ font-weight:700; }
+.pdf-tab{ display:inline-block; width:18pt; }
+.pdf-tbl{ width:100%; border-collapse:collapse; margin:8pt 0; }
+.pdf-tbl td{ vertical-align:top; padding:4pt 6pt; }
+.pdf-pagebreak{ page-break-before:always; }
+.pdf-hdr{ font-size:10pt; color:#333; border-bottom:1pt solid #999; margin-bottom:8pt; padding-bottom:4pt; }
+.pdf-ftr{ font-size:10pt; color:#333; border-top:1pt solid #999; margin-top:8pt; padding-top:4pt; }
 .features-close{
   width:30px; height:30px; border-radius:50%; border:1.5px solid var(--border);
   background:var(--surface-alt); color:var(--text); font-size:17px; line-height:1; cursor:pointer;

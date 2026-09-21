@@ -248,7 +248,9 @@ var appState = {
   liveMode: true,
   docxZip: null,
   docxFile: null,
-  parsedData: []
+  parsedData: [],
+  patchedDocxXml: null,   // last converted word/document.xml (for table PDF)
+  patchedDirection: null
 };
 
 var STORAGE_TEXT_KEY = 'lipilab:input-text';
@@ -262,10 +264,17 @@ var MODE_LABELS = {
    5. UTILITIES
 ------------------------------------------------------------ */
 function showToast(message) {
+  var MAX_TOASTS = 3;
+  var container = els.toastContainer;
+  var existing = container.querySelectorAll('.toast');
+  // Limit: remove oldest if at capacity
+  if (existing.length >= MAX_TOASTS) {
+    existing[0].remove();
+  }
   var toast = document.createElement('div');
   toast.className = 'toast';
   toast.textContent = message;
-  els.toastContainer.appendChild(toast);
+  container.appendChild(toast);
   setTimeout(function () {
     toast.classList.add('toast--out');
     setTimeout(function () { toast.remove(); }, 200);
@@ -875,19 +884,101 @@ function setRunFont(rFontsEl, fontName) {
   rFontsEl.setAttribute('w:cs', fontName);
 }
 
+function runFontKey(runEl) {
+  var rPrEl = runEl.getElementsByTagName('w:rPr')[0] || null;
+  var name = getRunFontName(rPrEl);
+  return (name || '').toLowerCase();
+}
+
+// True only for runs holding nothing but properties + text (no tab,
+// break, drawing, bookmark, field, etc.).
+function runIsPlainText(runEl) {
+  var kids = runEl.childNodes;
+  var hasT = false;
+  for (var i = 0; i < kids.length; i++) {
+    var k = kids[i];
+    if (!k || k.nodeType !== 1) continue;
+    var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
+    if (n === 'rPr') continue;
+    if (n === 't') { hasT = true; continue; }
+    return false;
+  }
+  return hasT;
+}
+
+function runText(runEl) {
+  var ts = runEl.getElementsByTagName('w:t');
+  var s = '';
+  for (var i = 0; i < ts.length; i++) s += ts[i].textContent;
+  return s;
+}
+
+/* Cross-run merge (Task A fix): Word splits words across runs
+   (spellcheck artifacts like w:proofErr, formatting edits), and
+   converting each fragment alone garbles words (e.g. "Dw" → "উি").
+   This pre-pass joins consecutive same-font plain-text runs inside
+   each paragraph into the first run (which keeps its formatting);
+   emptied runs keep their structure with blank text. Structural runs
+   (tabs, breaks, drawings…) always break a group and are untouched.
+   Known tradeoff: fragments with different styling take the first
+   run's style. */
+function mergeSameFontRuns(doc) {
+  var paras = doc.getElementsByTagName('w:p');
+  for (var pi = 0; pi < paras.length; pi++) {
+    var kids = paras[pi].childNodes;
+    var firstRun = null, firstT = null, fontKey = null;
+    var flush = function () { firstRun = null; firstT = null; fontKey = null; };
+    for (var i = 0; i < kids.length; i++) {
+      var k = kids[i];
+      if (!k || k.nodeType !== 1) continue;
+      var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
+      if (n === 'proofErr') continue; // spellcheck marker: no text, never breaks a word
+      if (n !== 'r' || !runIsPlainText(k)) { flush(); continue; }
+      var fk = runFontKey(k);
+      var ts = k.getElementsByTagName('w:t');
+      if (firstRun && fk === fontKey) {
+        var txt = runText(k);
+        if (txt) {
+          firstT.textContent = firstT.textContent + txt;
+          firstT.setAttributeNS(XML_NS, 'xml:space', 'preserve');
+        }
+        for (var j = 0; j < ts.length; j++) {
+          ts[j].textContent = '';
+          ts[j].setAttributeNS(XML_NS, 'xml:space', 'preserve');
+        }
+      } else {
+        firstRun = k;
+        firstT = ts[0];
+        fontKey = fk;
+      }
+    }
+  }
+}
+
 function splitRunForConversion(runEl, doc, direction) {
-  var tEl = runEl.getElementsByTagName('w:t')[0];
-  if (!tEl) return; // w:tab, w:br, drawings, etc. — nothing to convert
-  var originalText = tEl.textContent;
+  var tEls = runEl.getElementsByTagName('w:t');
+  if (!tEls.length) return; // w:tab, w:br, drawings, etc. — nothing to convert
+  var originalText = '';
+  for (var ti = 0; ti < tEls.length; ti++) originalText += tEls[ti].textContent;
   if (!originalText) return;
 
   var rPrEl = runEl.getElementsByTagName('w:rPr')[0] || null;
 
+  // A run can hold several w:t nodes (Word splits text inside runs too).
+  // Converted text always goes into the first one; the rest are emptied.
+  function setRunText(converted) {
+    tEls[0].textContent = converted;
+    tEls[0].setAttributeNS(XML_NS, 'xml:space', 'preserve');
+    for (var k = 1; k < tEls.length; k++) {
+      tEls[k].textContent = '';
+      tEls[k].setAttributeNS(XML_NS, 'xml:space', 'preserve');
+    }
+  }
+
   if (direction === 'bijoy2uni') {
     var currentFont = getRunFontName(rPrEl);
     if (!isBijoyFontName(currentFont)) return; // not Bijoy-tagged — leave untouched
-    tEl.textContent = ConvertToUnicode(originalText);
-    tEl.setAttributeNS(XML_NS, 'xml:space', 'preserve');
+    setRunText(ConvertToUnicode(originalText));
     if (!rPrEl) { rPrEl = doc.createElementNS(WORD_NS, 'w:rPr'); runEl.insertBefore(rPrEl, runEl.firstChild); }
     setRunFont(ensureRunFonts(rPrEl, doc), UNICODE_TARGET_FONT);
     return;
@@ -900,8 +991,7 @@ function splitRunForConversion(runEl, doc, direction) {
 
   if (tokens.length === 1) {
     // whole run is a single Bangla token — convert in place, no split needed
-    tEl.textContent = ConvertToASCII(tokens[0].raw);
-    tEl.setAttributeNS(XML_NS, 'xml:space', 'preserve');
+    setRunText(ConvertToASCII(tokens[0].raw));
     if (!rPrEl) { rPrEl = doc.createElementNS(WORD_NS, 'w:rPr'); runEl.insertBefore(rPrEl, runEl.firstChild); }
     setRunFont(ensureRunFonts(rPrEl, doc), 'SutonnyMJ');
     return;
@@ -932,6 +1022,7 @@ function splitRunForConversion(runEl, doc, direction) {
 function patchDocumentXmlString(xmlString, direction) {
   var doc = new DOMParser().parseFromString(xmlString, 'application/xml');
   if (doc.getElementsByTagName('parsererror').length) throw new Error('Could not parse DOCX XML');
+  mergeSameFontRuns(doc); // join split words first (see above)
   var runs = Array.prototype.slice.call(doc.getElementsByTagName('w:r'));
   runs.forEach(function (r) { splitRunForConversion(r, doc, direction); });
   var serialized = new XMLSerializer().serializeToString(doc);
@@ -1004,45 +1095,66 @@ function loadDocxFile(file) {
 function clearDocxTemplate() {
   appState.docxZip = null;
   appState.docxFile = null;
+  appState.patchedDocxXml = null;
+  appState.patchedDirection = null;
+  var box = document.getElementById('print-doc');
+  if (box) box.innerHTML = '';
+  try { document.body.classList.remove('print-docx'); } catch (e) { /* non-fatal */ }
   els.docxStrip.classList.remove('show');
   lockInputForDocx(false);
   setConvertButtonMode(false);
 }
 
-function convertDocxTemplate() {
-  if (quotaLocked) { setStatusQuotaExhausted(); showQuotaExhaustedToast(0); return; }
-  if (!appState.docxZip || !appState.docxFile) { showToast('No DOCX template loaded.'); return; }
+/* Patches DOCX parts and resolves { zip, mainXml, direction } without
+   downloading — shared by DOCX download and table-preserving PDF print. */
+function patchDocxParts() {
   var mode = resolveMode();
   var direction = mode === 'unicode-to-bijoy' ? 'uni2bijoy' : 'bijoy2uni';
   setEncodingBadge(mode);
-  showProcessing(true, 'Converting DOCX…');
-
-  var patchedMainXml = null;
-
-  JSZip.loadAsync(appState.docxFile).then(function (freshZip) {
+  return JSZip.loadAsync(appState.docxFile).then(function (freshZip) {
     return findHeaderFooterParts(freshZip).then(function (extraParts) {
       var partsToPatch = ['word/document.xml'].concat(extraParts);
+      var state = { mainXml: null, extras: [] };
       var jobs = partsToPatch.map(function (path) {
         var partFile = freshZip.file(path);
         if (!partFile) return Promise.resolve();
         return partFile.async('string').then(function (xml) {
           var patched = patchDocumentXmlString(xml, direction);
-          if (path === 'word/document.xml') patchedMainXml = patched;
+          if (path === 'word/document.xml') state.mainXml = patched;
+          else state.extras.push({ path: path, xml: patched });
           freshZip.file(path, patched);
         });
       });
-      return Promise.all(jobs).then(function () { return freshZip; });
+      return Promise.all(jobs).then(function () {
+        return { zip: freshZip, mainXml: state.mainXml, direction: direction, extras: state.extras };
+      });
     });
-  }).then(function (zip) {
-    return zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', compression: 'DEFLATE', compressionOptions: { level: 6 } });
-  }).then(function (blob) {
-    if (patchedMainXml) {
-      els.outputTextarea.value = extractPreviewText(patchedMainXml);
-      updateStats();
-    }
-    var url = URL.createObjectURL(blob);
+  });
+}
+
+function rememberPatchedDocx(r) {
+  appState.patchedDocxXml = r.mainXml;
+  appState.patchedDirection = r.direction;
+  if (r.mainXml) {
+    els.outputTextarea.value = extractPreviewText(r.mainXml);
+    updateStats();
+  }
+}
+
+function convertDocxTemplate() {
+  if (quotaLocked) { setStatusQuotaExhausted(); showQuotaExhaustedToast(0); return; }
+  if (!appState.docxZip || !appState.docxFile) { showToast('No DOCX template loaded.'); return; }
+  showProcessing(true, 'Converting DOCX…');
+
+  patchDocxParts().then(function (r) {
+    rememberPatchedDocx(r);
+    return r.zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', compression: 'DEFLATE', compressionOptions: { level: 6 } }).then(function (blob) {
+      return { blob: blob, direction: r.direction };
+    });
+  }).then(function (out) {
+    var url = URL.createObjectURL(out.blob);
     var a = document.createElement('a');
-    var suffix = direction === 'uni2bijoy' ? 'bijoy' : 'unicode';
+    var suffix = out.direction === 'uni2bijoy' ? 'bijoy' : 'unicode';
     a.href = url;
     a.download = appState.docxFile.name.replace(/\.docx$/i, '') + '_' + suffix + '.docx';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
@@ -1279,96 +1391,397 @@ function switchToolView(view) {
   if (els.toolbar) els.toolbar.hidden = (view !== 'converter');
 }
 
-// PDF export via CDN jsPDF: renders output text to a canvas image
-// (keeps Bangla shaping intact) and saves one A4 page.
-function loadPartnerScript(src, attr) {
-  return new Promise(function (resolve, reject) {
-    var existing = document.querySelector('script[' + attr + ']');
-    if (existing) { resolve(); return; }
-    var s = document.createElement('script');
-    s.src = src;
-    s.setAttribute(attr, '1');
-    s.onload = resolve;
-    s.onerror = function () { reject(new Error('Failed to load ' + src)); };
-    document.head.appendChild(s);
-  });
+/* ------------------------------------------------------------
+   PDF — DIRECT DOWNLOAD (same one-click rule as DOCX).
+   Plain text  → tokens from appState.parsedData (SutonnyMJ /
+   Times New Roman per token, exactly like buildBlankDocxBlob).
+   DOCX upload → patched word/document.xml rendered to HTML
+   (paragraphs, tables, bold/italic/underline/size/color/align/
+   lists preserved), then html2pdf.js saves a real .pdf file.
+   No print dialog, no "Save as PDF" step, no custom layout.
+------------------------------------------------------------ */
+var printTitleBackup = null; // kept for the legacy print-CSS fallback path
+
+// html2pdf.js renders in sRGB and drops color profiles, so brand
+// purples shift slightly. Pure black text (#000) is unaffected,
+// which is why the whole PDF stage forces black-on-white.
+function pdfFontStack(fontName) {
+  if (isBijoyFontName(fontName)) return "'SutonnyMJ','Noto Sans Bengali',serif";
+  if (/times new roman/i.test(fontName || '')) return "'Times New Roman','Noto Sans Bengali',serif";
+  return "'Noto Sans Bengali','Times New Roman',serif";
 }
-function wrapPdfLines(text, measure, maxWidthPx) {
-  var paragraphs = text.split('\n');
-  var out = [];
-  paragraphs.forEach(function (para) {
-    if (para === '') { out.push(''); return; }
-    var words = para.split(/(\s+)/);
-    var line = '';
-    words.forEach(function (word) {
-      var candidate = line ? line + word : word;
-      if (measure.measureText(candidate).width > maxWidthPx && line) {
-        out.push(line);
-        line = word;
-      } else {
-        line = candidate;
+
+function pdfStyleForRun(runEl, fontFallback) {
+  var st = [];
+  var rPrEl = runEl.getElementsByTagName('w:rPr')[0] || null;
+  var font = getRunFontName(rPrEl) || fontFallback || 'Times New Roman';
+  st.push('font-family:' + pdfFontStack(font));
+  var sz = null, color = null, b = false, it = false, u = false;
+  if (rPrEl) {
+    var kids = rPrEl.childNodes;
+    for (var i = 0; i < kids.length; i++) {
+      var k = kids[i];
+      if (!k || k.nodeType !== 1) continue;
+      var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
+      if (n === 'b' || n === 'bCs') b = true;
+      else if (n === 'i' || n === 'iCs') it = true;
+      else if (n === 'u' && (k.getAttribute('w:val') || 'single') !== 'none') u = true;
+      else if (n === 'sz' || n === 'szCs') {
+        var v = parseInt(k.getAttribute('w:val') || '', 10);
+        if (v > 0) sz = Math.max(8, Math.min(36, v / 2));
+      } else if (n === 'color') {
+        var c = k.getAttribute('w:val');
+        if (c && c !== 'auto') color = '#' + c;
       }
-    });
-    out.push(line);
-  });
+    }
+  }
+  if (sz) st.push('font-size:' + sz + 'pt');
+  if (b) st.push('font-weight:bold');
+  if (it) st.push('font-style:italic');
+  if (u) st.push('text-decoration:underline');
+  if (color) st.push('color:' + color);
+  return st.join(';');
+}
+
+function pdfTextOfRun(runEl) {
+  // Returns RAW text: PUA markers for tab/break. Caller escapes
+  // first, then swaps markers for HTML (so tags never get escaped).
+  var out = '';
+  var kids = runEl.childNodes;
+  for (var i = 0; i < kids.length; i++) {
+    var k = kids[i];
+    if (!k || k.nodeType !== 1) continue;
+    var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
+    if (n === 't') out += k.textContent;
+    else if (n === 'tab') out += '\uE000';
+    else if (n === 'br') out += '\uE001';
+  }
   return out;
 }
-function renderTextToCanvas(text, fontFamily, fontSize, maxWidthPx) {
-  var dpr = Math.min(window.devicePixelRatio || 1, 2);
-  var fontReady = Promise.resolve();
-  if (document.fonts && typeof document.fonts.load === 'function') {
-    fontReady = document.fonts.load((fontSize * dpr) + 'px "' + fontFamily + '"');
+
+function pdfEscapedRunHtml(raw) {
+  return escapeHtml(raw).split('\uE000').join('<span class="pdf-tab">&nbsp;&nbsp;&nbsp;&nbsp;</span>').split('\uE001').join('<br/>').split('\n').join('<br/>');
+}
+
+// w:pPr → { align, numId/ilvl } — alignment + list numbering source.
+function pdfParaProps(pEl) {
+  var info = { align: 'left', numId: null, ilvl: 0 };
+  var pPr = pEl.getElementsByTagName('w:pPr')[0] || null;
+  if (!pPr) return info;
+  var kids = pPr.childNodes;
+  for (var i = 0; i < kids.length; i++) {
+    var k = kids[i];
+    if (!k || k.nodeType !== 1) continue;
+    var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
+    if (n === 'jc') {
+      var v = k.getAttribute('w:val') || 'left';
+      info.align = (v === 'center' || v === 'right' || v === 'both') ? v : 'left';
+    } else if (n === 'numPr') {
+      var ids = k.getElementsByTagName('w:numId');
+      var lvls = k.getElementsByTagName('w:ilvl');
+      if (ids.length) info.numId = ids[0].getAttribute('w:val');
+      if (lvls.length) info.ilvl = parseInt(lvls[0].getAttribute('w:val') || '0', 10) || 0;
+    }
   }
-  return fontReady.then(function () {
-    var measure = document.createElement('canvas').getContext('2d');
-    measure.font = fontSize + 'px "' + fontFamily + '"';
-    var lines = wrapPdfLines(text, measure, maxWidthPx);
-    var lineHeight = Math.ceil(fontSize * 1.6);
-    var width = Math.ceil(maxWidthPx);
-    var height = Math.max(lineHeight, lines.length * lineHeight) + lineHeight;
-    var canvas = document.createElement('canvas');
-    canvas.width = Math.ceil(width * dpr);
-    canvas.height = Math.ceil(height * dpr);
-    var ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, width, height);
-    ctx.fillStyle = '#1e1b2e';
-    ctx.font = fontSize + 'px "' + fontFamily + '"';
-    ctx.textBaseline = 'top';
-    lines.forEach(function (line, i) { ctx.fillText(line, 0, i * lineHeight); });
-    return canvas;
+  return info;
+}
+
+// word/numbering.xml → { numId: { ilvl: { fmt, start } } }.
+// fmt: decimal / lowerLetter / upperLetter / lowerRoman / upperRoman / bullet.
+function pdfNumberingMap(zip) {
+  var f = zip.file('word/numbering.xml');
+  if (!f) return Promise.resolve({});
+  return f.async('string').then(function (xml) {
+    var map = {};
+    var doc = new DOMParser().parseFromString(xml, 'application/xml');
+    if (doc.getElementsByTagName('parsererror').length) return map;
+    var absDefs = {};
+    var absNums = Array.prototype.slice.call(doc.getElementsByTagName('w:abstractNum'));
+    absNums.forEach(function (a) {
+      var id = a.getAttribute('w:abstractNumId');
+      var lvls = {};
+      var lvlEls = Array.prototype.slice.call(a.getElementsByTagName('w:lvl'));
+      lvlEls.forEach(function (l) {
+        var ilvl = l.getAttribute('w:ilvl');
+        var fmt = 'bullet', start = 1;
+        var fmtEls = l.getElementsByTagName('w:numFmt');
+        var startEls = l.getElementsByTagName('w:start');
+        if (fmtEls.length) fmt = fmtEls[0].getAttribute('w:val') || 'bullet';
+        if (startEls.length) start = parseInt(startEls[0].getAttribute('w:val') || '1', 10) || 1;
+        lvls[ilvl] = { fmt: fmt, start: start };
+      });
+      absDefs[id] = lvls;
+    });
+    var nums = Array.prototype.slice.call(doc.getElementsByTagName('w:num'));
+    nums.forEach(function (nm) {
+      var id = nm.getAttribute('w:numId');
+      var abs = nm.getElementsByTagName('w:abstractNumId');
+      if (abs.length) map[id] = absDefs[abs[0].getAttribute('w:val')] || {};
+    });
+    return map;
+  }).catch(function () { return {}; });
+}
+
+var ROMAN = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+function toRoman(n) {
+  n = Math.max(1, n); var s = '';
+  for (var i = 0; i < ROMAN.length; i++) {
+    while (n >= ROMAN[i][0]) { s += ROMAN[i][1]; n -= ROMAN[i][0]; }
+  }
+  return s;
+}
+function pdfNumLabel(fmt, n) {
+  if (fmt === 'bullet' || fmt === 'none') return '•';
+  if (fmt === 'lowerLetter' || fmt === 'upperLetter') {
+    var s = '', x = n;
+    while (x > 0) { var m = (x - 1) % 26; s = String.fromCharCode((fmt === 'lowerLetter' ? 97 : 65) + m) + s; x = Math.floor((x - 1) / 26); }
+    return s + '.';
+  }
+  if (fmt === 'lowerRoman') return toRoman(n).toLowerCase() + '.';
+  if (fmt === 'upperRoman') return toRoman(n) + '.';
+  return n + '.'; // decimal + anything else
+}
+
+function pdfCellBorders(tcPrEl) {
+  if (!tcPrEl) return 'border:1pt solid #000';
+  var tcB = tcPrEl.getElementsByTagName('w:tcBorders')[0] || null;
+  if (!tcB) return 'border:1pt solid #000';
+  var out = [];
+  ['top', 'left', 'bottom', 'right'].forEach(function (e) {
+    var els = tcB.getElementsByTagName('w:' + e);
+    var val = els.length ? (els[0].getAttribute('w:val') || 'single') : 'single';
+    out.push('border-' + e + ((val === 'nil' || val === 'none') ? ':none' : ':1pt solid #000'));
+  });
+  return out.join(';');
+}
+
+// One <w:p> → <p class="pdf-p">. numState tracks live counters per numId.
+function pdfParaNode(pEl, fontFallback, numMap, numState) {
+  var props = pdfParaProps(pEl);
+  var align = props.align === 'both' ? 'justify' : props.align;
+  var runEls = [];
+  Array.prototype.slice.call(pEl.childNodes).forEach(function (k) {
+    if (!k || k.nodeType !== 1) return;
+    var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
+    if (n === 'r') runEls.push(k);
+    else if (n === 'hyperlink') {
+      Array.prototype.slice.call(k.getElementsByTagName('w:r')).forEach(function (r) { runEls.push(r); });
+    }
+  });
+  var inner = runEls.map(function (run) {
+    return '<span style="' + pdfStyleForRun(run, fontFallback) + '">' +
+      pdfEscapedRunHtml(pdfTextOfRun(run)) + '</span>';
+  }).join('');
+  var isEmpty = runEls.length === 0 || !pEl.textContent;
+  var prefix = '';
+  if (props.numId !== null && numMap && numState) {
+    var key = props.numId + ':' + props.ilvl;
+    var def = (numMap[props.numId] || {})[String(props.ilvl)] || { fmt: 'bullet', start: 1 };
+    if (numState[key] === undefined) numState[key] = def.start;
+    else numState[key]++;
+    var indent = 18 + props.ilvl * 18;
+    prefix = '<span class="pdf-num" style="display:inline-block;min-width:' + indent + 'pt">' +
+      escapeHtml(pdfNumLabel(def.fmt, numState[key])) + '&nbsp;&nbsp;</span>';
+  }
+  var cls = 'pdf-p' + (isEmpty ? ' pdf-empty' : '');
+  return '<p class="' + cls + '" style="text-align:' + align + '">' +
+    prefix + (isEmpty ? '&nbsp;' : inner) + '</p>';
+}
+
+// Full patched word/document.xml → HTML. Tables stay tables,
+// headers/footers appended as .pdf-hdr/.pdf-ftr, page breaks kept.
+function docxXmlToHtml(mainXml, extras, fontFallback, numMap) {
+  var doc = new DOMParser().parseFromString(mainXml, 'application/xml');
+  numMap = numMap || {};
+  var numState = {};
+  var html = '';
+  (extras || []).forEach(function (ex) {
+    var isHdr = /header/i.test(ex.path);
+    var isFtr = /footer/i.test(ex.path);
+    if (!isHdr && !isFtr) return;
+    var d = new DOMParser().parseFromString(ex.xml, 'application/xml');
+    var ps = Array.prototype.slice.call(d.getElementsByTagName('w:p'));
+    html += '<div class="' + (isHdr ? 'pdf-hdr' : 'pdf-ftr') + '">' +
+      ps.map(function (p) { return pdfParaNode(p, fontFallback, numMap, numState); }).join('') + '</div>';
+  });
+  var body = doc.getElementsByTagName('w:body')[0];
+  var kids = body ? body.childNodes : [];
+  for (var i = 0; i < kids.length; i++) {
+    var k = kids[i];
+    if (!k || k.nodeType !== 1) continue;
+    var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
+    if (n === 'p') html += pdfParaNode(k, fontFallback, numMap, numState);
+    else if (n === 'tbl') {
+      var rows = Array.prototype.slice.call(k.getElementsByTagName('w:tr'));
+      html += '<table class="pdf-tbl" border="1" cellpadding="4" cellspacing="0">';
+      html += rows.map(function (tr) {
+        var cells = Array.prototype.slice.call(tr.childNodes).filter(function (c) {
+          if (!c || c.nodeType !== 1) return false;
+          var cn = c.localName || (c.nodeName && c.nodeName.split(':').pop()) || '';
+          return cn === 'tc';
+        });
+        return '<tr>' + cells.map(function (tc) {
+          return pdfCellNode(tc, fontFallback, numMap, numState);
+        }).join('') + '</tr>';
+      }).join('') + '</table>';
+    }
+  }
+  return html;
+}
+
+// One table cell → <td> (borders, shading, width kept).
+function pdfCellNode(tc, fontFallback, numMap, numState) {
+  var tcPr = tc.getElementsByTagName('w:tcPr')[0] || null;
+  var style = pdfCellBorders(tcPr);
+  if (tcPr) {
+    var shd = tcPr.getElementsByTagName('w:shd');
+    if (shd.length) {
+      var fill = shd[0].getAttribute('w:fill');
+      if (fill && fill !== 'auto') style += ';background-color:#' + fill;
+    }
+    var wEls = tcPr.getElementsByTagName('w:tcW');
+    if (wEls.length && wEls[0].getAttribute('w:type') === 'dxa') {
+      var w = parseInt(wEls[0].getAttribute('w:w') || '0', 10);
+      if (w > 0) style += ';width:' + (w / 20).toFixed(1) + 'pt';
+    }
+  }
+  var paras = Array.prototype.slice.call(tc.getElementsByTagName('w:p'));
+  var cellHtml = paras.map(function (p) { return pdfParaNode(p, fontFallback, numMap, numState); }).join('');
+  return '<td style="' + style + '">' + (cellHtml || '&nbsp;') + '</td>';
+}
+
+// Plain-text path: same tokens DOCX uses, one <p> per \n so line
+// breaks survive (white-space:pre-wrap alone collapses on canvas).
+function tokensToPdfHtml(tokens) {
+  var html = '';
+  tokens.forEach(function (item) {
+    var parts = String(item.text).split('\n');
+    parts.forEach(function (part, i) {
+      if (i > 0) html += '<p class="pdf-p pdf-empty">&nbsp;</p>';
+      if (part) {
+        html += '<p class="pdf-p" style="font-family:' + pdfFontStack(item.font) + '">' +
+          escapeHtml(part) + '</p>';
+      }
+    });
+  });
+  return html || '<p class="pdf-p">&nbsp;</p>';
+}
+
+function pdfStage() {
+  var st = document.getElementById('pdf-stage');
+  if (!st) {
+    st = document.createElement('div');
+    st.id = 'pdf-stage';
+    st.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(st);
+  }
+  return st;
+}
+
+function savePdfFromHtml(innerHtml, fileName) {
+  var st = pdfStage();
+  st.innerHTML = '<div class="pdf-doc">' + innerHtml + '</div>';
+  var node = st.firstChild;
+  function done() { showProcessing(false); st.innerHTML = ''; showToast('PDF downloaded!'); }
+  function fallbackPrint() {
+    var box = document.getElementById('print-doc');
+    try {
+      if (box) box.innerHTML = '<div class="print-doc">' + innerHtml + '</div>';
+      document.body.classList.add('print-docx');
+      try { printTitleBackup = document.title; document.title = fileName.replace(/\.pdf$/i, ''); } catch (e) { printTitleBackup = null; }
+      showProcessing(false);
+      showToast('Print dialog opened — choose "Save as PDF"');
+      window.print();
+    } catch (e2) { showProcessing(false); showToast('Error: ' + e2.message); }
+  }
+  try {
+    if (typeof html2pdf === 'undefined') { fallbackPrint(); return; }
+    var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+    fontsReady.then(function () {
+      try {
+        html2pdf().set({
+          margin: [15, 15, 15, 15],
+          filename: fileName,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['css', 'legacy'] }
+        }).from(node).save().then(done).catch(function () {
+          showToast('PDF failed, opening print instead');
+          fallbackPrint();
+        });
+      } catch (e) { fallbackPrint(); }
+    });
+  } catch (e) { fallbackPrint(); }
+}
+
+function downloadPlainPdf() {
+  var mode = resolveMode();
+  if (appState.parsedData.length === 0) convertPlainTextSync(els.inputTextarea.value);
+  if (appState.parsedData.length === 0 || !els.outputTextarea.value.trim()) {
+    showToast('Nothing to download'); return;
+  }
+  showProcessing(true, 'Building PDF…');
+  savePdfFromHtml(tokensToPdfHtml(appState.parsedData),
+    'LipiLab_converted_' + (mode === 'unicode-to-bijoy' ? 'bijoy' : 'unicode') + '.pdf');
+}
+
+function downloadDocxPdf() {
+  if (!appState.docxZip || !appState.docxFile) { showToast('No DOCX template loaded.'); return; }
+  showProcessing(true, 'Preparing PDF…');
+  patchDocxParts().then(function (r) {
+    rememberPatchedDocx(r);
+    return pdfNumberingMap(r.zip).then(function (numMap) {
+      var mode = resolveMode();
+      var fallback = mode === 'unicode-to-bijoy' ? 'SutonnyMJ' : 'Times New Roman';
+      var html = docxXmlToHtml(r.mainXml, r.extras, fallback, numMap);
+      var base = appState.docxFile.name.replace(/\.docx$/i, '');
+      savePdfFromHtml(html, base + '_' + (r.direction === 'uni2bijoy' ? 'bijoy' : 'unicode') + '.pdf');
+    });
+  }).catch(function (err) {
+    showProcessing(false);
+    showToast('Error: ' + err.message);
   });
 }
-function outputFontSizePx() {
-  var active = document.querySelector('.font-size-btn[data-panel="output"].font-size-btn--active');
-  var size = active ? active.getAttribute('data-size') : 'medium';
-  return size === 'small' ? 13 : (size === 'large' ? 20 : 16);
+
+function downloadPdf() {
+  // Same routing rule as the .docx button: template loaded → formatted PDF.
+  if (appState.docxZip && appState.docxFile) { downloadDocxPdf(); return; }
+  downloadPlainPdf();
 }
-function exportPdf() {
-  var text = els.outputTextarea.value;
-  if (!text.trim()) { showToast('Nothing to download'); return; }
-  showProcessing(true, 'Preparing PDF…');
-  loadPartnerScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'data-pdf-lib')
-    .then(function () {
-      var jsPDF = window.jspdf && window.jspdf.jsPDF;
-      if (!jsPDF) throw new Error('PDF library not available');
-      var isBijoyOutput = resolveMode() === 'unicode-to-bijoy';
-      var fontFamily = isBijoyOutput ? 'SutonnyMJ' : 'Noto Sans Bengali';
-      var fontSize = outputFontSizePx();
-      var pageW = 595.28; // A4 in points
-      var margin = 48;
-      var maxWidthPx = (pageW - margin * 2) * 96 / 72;
-      return renderTextToCanvas(text, fontFamily, fontSize, maxWidthPx).then(function (canvas) {
-        var doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-        var imgW = pageW - margin * 2;
-        var imgH = canvas.height * imgW / canvas.width;
-        doc.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, imgW, imgH);
-        doc.save('LipiLab_converted_' + (isBijoyOutput ? 'bijoy' : 'unicode') + '.pdf');
-      });
-    })
-    .then(function () { showProcessing(false); showToast('PDF downloaded'); })
-    .catch(function (err) { showProcessing(false); showToast('Error: ' + err.message); });
+
+// Legacy print entry points (kept only as offline fallback callers).
+function printPdf() {
+  downloadPdf();
+}
+
+function printDocxPdf() {
+  downloadDocxPdf();
+}
+
+function fitOutputForPrint() {
+  // Textareas don't auto-expand on paper — grow it to full content height.
+  try {
+    var ta = els.outputTextarea;
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+  } catch (e) { /* non-fatal */ }
+}
+
+function restoreOutputAfterPrint() {
+  try {
+    els.outputTextarea.style.height = '';
+    document.body.classList.remove('print-docx');
+    if (printTitleBackup !== null) {
+      document.title = printTitleBackup;
+      printTitleBackup = null;
+    }
+  } catch (e) { /* non-fatal */ }
+}
+
+if (typeof window !== 'undefined' && window.addEventListener) {
+  window.addEventListener('beforeprint', fitOutputForPrint);
+  window.addEventListener('afterprint', restoreOutputAfterPrint);
 }
 
 /* ------------------------------------------------------------
@@ -2127,7 +2540,7 @@ function wireEvents() {
     els.infoBoxToggle.setAttribute('aria-expanded', String(!expanded));
     els.infoBox.classList.toggle('info-box--collapsed', expanded);
   });
-  if (els.downloadPdfBtn) els.downloadPdfBtn.addEventListener('click', exportPdf);
+  if (els.downloadPdfBtn) els.downloadPdfBtn.addEventListener('click', comingSoon);
   if (els.toolsNav) els.toolsNav.addEventListener('click', function (e) {
     var btn = e.target.closest ? e.target.closest('.tools-nav__btn') : null;
     if (!btn || btn.hidden) return;
