@@ -1143,6 +1143,113 @@ function comingSoon() {
   showToast('Coming soon');
 }
 
+/* ------------------------------------------------------------
+   Features notice-board popup — opens out of the header button,
+   closes back into it (only via the cross; backdrop clicks and
+   keys never dismiss it). EN/BN toggle with site fonts.
+------------------------------------------------------------ */
+var FEATURES_CONTENT = {
+  en: {
+    board: 'Notice Board',
+    title: 'What can LipiLab do?',
+    items: [
+      'Unicode ↔ Bijoy instant conversion with Auto-detect — just type or paste.',
+      'Live mode shows results as you type, or press Convert for manual control.',
+      'DOCX round-trip: upload a .docx, convert, download — formatting stays intact.',
+      'Export output as .txt, .docx or .pdf in one click.',
+      'File upload, paste, clear, swap, undo/redo and full keyboard shortcuts.',
+      'Dark mode, Auto direction mode and live stats (chars + words).',
+      '100% private — everything runs inside your browser, nothing is uploaded.',
+      'Free forever, unlimited, no signup needed.'
+    ],
+    foot: 'Coming soon: Spell Check and MCQ Serial.'
+  },
+  bn: {
+    board: 'নোটিশ বোর্ড',
+    title: 'LipiLab দিয়ে কি কি করা যায়?',
+    items: [
+      'ইউনিকোড ↔ বিজয় মুহূর্তে রূপান্তর, Auto-detect সহ — শুধু লিখুন বা পেস্ট করুন।',
+      'Live mode এ লেখার সাথে সাথে ফলাফল, অথবা Convert চেপে নিজে কন্ট্রোল করুন।',
+      'DOCX round-trip: .docx upload করে convert করে download করুন — formatting intact থাকে।',
+      'এক ক্লিকে .txt, .docx বা .pdf হিসেবে download।',
+      'File upload, paste, clear, swap, undo/redo আর পুরো keyboard shortcut।',
+      'Dark mode, Auto direction mode আর live stats (chars + words)।',
+      '১০০% private — সব কিছু browser এর ভেতরেই হয়, কিছুই upload হয় না।',
+      'সম্পূর্ণ ফ্রি, unlimited, signup লাগে না।'
+    ],
+    foot: 'শীঘ্রই আসছে: Spell Check আর MCQ Serial।'
+  }
+};
+var featuresLang = 'en';
+
+var featEls = {};
+function grabFeatEls() {
+  featEls.overlay = document.getElementById('features-overlay');
+  featEls.card = document.getElementById('features-card');
+  featEls.openBtn = document.getElementById('features-open-btn');
+  featEls.closeBtn = document.getElementById('features-close');
+  featEls.langBtn = document.getElementById('features-lang');
+  featEls.board = document.getElementById('features-board');
+  featEls.title = document.getElementById('features-title');
+  featEls.list = document.getElementById('features-list');
+  featEls.foot = document.getElementById('features-foot');
+}
+
+function renderFeatures() {
+  grabFeatEls();
+  var c = FEATURES_CONTENT[featuresLang] || FEATURES_CONTENT.en;
+  if (featEls.card) featEls.card.setAttribute('data-lang', featuresLang);
+  if (featEls.board) featEls.board.textContent = c.board;
+  if (featEls.title) featEls.title.textContent = c.title;
+  if (featEls.foot) featEls.foot.textContent = c.foot;
+  if (featEls.list) {
+    featEls.list.innerHTML = '';
+    c.items.forEach(function (t) {
+      var li = document.createElement('li');
+      li.textContent = t;
+      featEls.list.appendChild(li);
+    });
+  }
+  if (featEls.langBtn) featEls.langBtn.textContent = featuresLang === 'en' ? 'বাংলা' : 'English';
+}
+
+function openFeatures() {
+  grabFeatEls();
+  if (!featEls.overlay || !featEls.card) return;
+  renderFeatures();
+  featEls.overlay.classList.remove('closing');
+  featEls.overlay.hidden = false;
+  void featEls.card.offsetWidth; // restart the pop-in animation
+  featEls.overlay.classList.add('show');
+  if (featEls.closeBtn) featEls.closeBtn.focus();
+}
+
+function closeFeatures() {
+  grabFeatEls();
+  if (!featEls.overlay || featEls.overlay.hidden) return;
+  featEls.overlay.classList.remove('show');
+  featEls.overlay.classList.add('closing');
+  setTimeout(function () {
+    grabFeatEls();
+    if (!featEls.overlay) return;
+    featEls.overlay.hidden = true;
+    featEls.overlay.classList.remove('closing');
+    if (featEls.openBtn) featEls.openBtn.focus();
+  }, 200);
+}
+
+function wireFeatures() {
+  grabFeatEls();
+  if (featEls.openBtn) featEls.openBtn.addEventListener('click', openFeatures);
+  if (featEls.closeBtn) featEls.closeBtn.addEventListener('click', closeFeatures);
+  if (featEls.langBtn) featEls.langBtn.addEventListener('click', function () {
+    featuresLang = featuresLang === 'en' ? 'bn' : 'en';
+    renderFeatures();
+  });
+  // Intentionally NO backdrop-click and NO Escape dismissal —
+  // this board only closes via the cross button.
+}
+
 var TOOL_VIEW_IDS = {
   converter: 'view-converter',
   spellcheck: 'view-spell',
@@ -2005,6 +2112,8 @@ function wireEvents() {
   });
 
   wireFontSizeButtons();
+
+  wireFeatures();
 
   // Extra tools wiring (account excluded).
   if (els.undoBtn) els.undoBtn.addEventListener('click', undo);
