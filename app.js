@@ -65,7 +65,6 @@ function IsSpace(n) { return n === " " || n === "\t" || n === "\n" || n === "\r"
 function IsBanglaKar(n) { return IsBanglaPreKar(n) || (n === "া" || n === "ো" || n === "ৌ" || n === "ৗ" || n === "ু" || n === "ূ" || n === "ী" || n === "ৃ") ? !0 : !1 }
 function IsBanglaPostKar(n) { return n === "া" || n === "ো" || n === "ৌ" || n === "ৗ" || n === "ু" || n === "ূ" || n === "ী" || n === "ৃ" ? !0 : !1 }
 function IsBanglaNukta(n) { return n === "ং" || n === "ঃ" || n === "ঁ" ? !0 : !1 }
-function IsBanglaFola(n) { return n === "্য" || n === "্র" ? !0 : !1 }
 
 function buildConversionPatterns(n) {
     function r(n) {
@@ -372,11 +371,9 @@ function applyEncodingFonts() {
 }
 
 function lockInputForDocx(locked) {
-  // Quota lock always wins — never unlock the field while points are empty.
-  var effective = locked || quotaLocked;
-  els.inputTextarea.readOnly = effective;
-  els.inputTextarea.classList.toggle('panel__textarea--locked', effective);
-  if (effective) els.inputTextarea.setAttribute('aria-readonly', 'true');
+  els.inputTextarea.readOnly = locked;
+  els.inputTextarea.classList.toggle('panel__textarea--locked', locked);
+  if (locked) els.inputTextarea.setAttribute('aria-readonly', 'true');
   else els.inputTextarea.removeAttribute('aria-readonly');
 }
 
@@ -474,8 +471,13 @@ function closeShortcuts() {
 var LARGE_TEXT_THRESHOLD = 20000; // characters — above this, convert in chunks with progress
 var conversionRunId = 0;
 
+// Shared guard: an empty box has nothing to convert or download.
+function hasConvertibleText(text) {
+  if (!text || !text.trim()) { showToast('Nothing to convert'); return false; }
+  return true;
+}
+
 function convertPlainText() {
-  if (quotaLocked && !FREE_MODE) { setStatusQuotaExhausted(); return; }
   var text = els.inputTextarea.value;
   if (text.length > LARGE_TEXT_THRESHOLD) {
     convertPlainTextChunked(text);
@@ -522,7 +524,6 @@ function convertPlainTextSync(text) {
   setWarningBadge(mode === 'unicode-to-bijoy' ? unmappable : 0);
   showConversionSuccess(mode);
   maybeShowPostNote();
-  chargeAfterConvert();
   persistState();
 }
 
@@ -1391,373 +1392,7 @@ function switchToolView(view) {
   if (els.toolbar) els.toolbar.hidden = (view !== 'converter');
 }
 
-/* ------------------------------------------------------------
-   PDF — DIRECT DOWNLOAD (same one-click rule as DOCX).
-   Plain text  → tokens from appState.parsedData (SutonnyMJ /
-   Times New Roman per token, exactly like buildBlankDocxBlob).
-   DOCX upload → patched word/document.xml rendered to HTML
-   (paragraphs, tables, bold/italic/underline/size/color/align/
-   lists preserved), then html2pdf.js saves a real .pdf file.
-   No print dialog, no "Save as PDF" step, no custom layout.
------------------------------------------------------------- */
-var printTitleBackup = null; // kept for the legacy print-CSS fallback path
-
-// html2pdf.js renders in sRGB and drops color profiles, so brand
-// purples shift slightly. Pure black text (#000) is unaffected,
-// which is why the whole PDF stage forces black-on-white.
-function pdfFontStack(fontName) {
-  if (isBijoyFontName(fontName)) return "'SutonnyMJ','Noto Sans Bengali',serif";
-  if (/times new roman/i.test(fontName || '')) return "'Times New Roman','Noto Sans Bengali',serif";
-  return "'Noto Sans Bengali','Times New Roman',serif";
-}
-
-function pdfStyleForRun(runEl, fontFallback) {
-  var st = [];
-  var rPrEl = runEl.getElementsByTagName('w:rPr')[0] || null;
-  var font = getRunFontName(rPrEl) || fontFallback || 'Times New Roman';
-  st.push('font-family:' + pdfFontStack(font));
-  var sz = null, color = null, b = false, it = false, u = false;
-  if (rPrEl) {
-    var kids = rPrEl.childNodes;
-    for (var i = 0; i < kids.length; i++) {
-      var k = kids[i];
-      if (!k || k.nodeType !== 1) continue;
-      var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
-      if (n === 'b' || n === 'bCs') b = true;
-      else if (n === 'i' || n === 'iCs') it = true;
-      else if (n === 'u' && (k.getAttribute('w:val') || 'single') !== 'none') u = true;
-      else if (n === 'sz' || n === 'szCs') {
-        var v = parseInt(k.getAttribute('w:val') || '', 10);
-        if (v > 0) sz = Math.max(8, Math.min(36, v / 2));
-      } else if (n === 'color') {
-        var c = k.getAttribute('w:val');
-        if (c && c !== 'auto') color = '#' + c;
-      }
-    }
-  }
-  if (sz) st.push('font-size:' + sz + 'pt');
-  if (b) st.push('font-weight:bold');
-  if (it) st.push('font-style:italic');
-  if (u) st.push('text-decoration:underline');
-  if (color) st.push('color:' + color);
-  return st.join(';');
-}
-
-function pdfTextOfRun(runEl) {
-  // Returns RAW text: PUA markers for tab/break. Caller escapes
-  // first, then swaps markers for HTML (so tags never get escaped).
-  var out = '';
-  var kids = runEl.childNodes;
-  for (var i = 0; i < kids.length; i++) {
-    var k = kids[i];
-    if (!k || k.nodeType !== 1) continue;
-    var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
-    if (n === 't') out += k.textContent;
-    else if (n === 'tab') out += '\uE000';
-    else if (n === 'br') out += '\uE001';
-  }
-  return out;
-}
-
-function pdfEscapedRunHtml(raw) {
-  return escapeHtml(raw).split('\uE000').join('<span class="pdf-tab">&nbsp;&nbsp;&nbsp;&nbsp;</span>').split('\uE001').join('<br/>').split('\n').join('<br/>');
-}
-
-// w:pPr → { align, numId/ilvl } — alignment + list numbering source.
-function pdfParaProps(pEl) {
-  var info = { align: 'left', numId: null, ilvl: 0 };
-  var pPr = pEl.getElementsByTagName('w:pPr')[0] || null;
-  if (!pPr) return info;
-  var kids = pPr.childNodes;
-  for (var i = 0; i < kids.length; i++) {
-    var k = kids[i];
-    if (!k || k.nodeType !== 1) continue;
-    var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
-    if (n === 'jc') {
-      var v = k.getAttribute('w:val') || 'left';
-      info.align = (v === 'center' || v === 'right' || v === 'both') ? v : 'left';
-    } else if (n === 'numPr') {
-      var ids = k.getElementsByTagName('w:numId');
-      var lvls = k.getElementsByTagName('w:ilvl');
-      if (ids.length) info.numId = ids[0].getAttribute('w:val');
-      if (lvls.length) info.ilvl = parseInt(lvls[0].getAttribute('w:val') || '0', 10) || 0;
-    }
-  }
-  return info;
-}
-
-// word/numbering.xml → { numId: { ilvl: { fmt, start } } }.
-// fmt: decimal / lowerLetter / upperLetter / lowerRoman / upperRoman / bullet.
-function pdfNumberingMap(zip) {
-  var f = zip.file('word/numbering.xml');
-  if (!f) return Promise.resolve({});
-  return f.async('string').then(function (xml) {
-    var map = {};
-    var doc = new DOMParser().parseFromString(xml, 'application/xml');
-    if (doc.getElementsByTagName('parsererror').length) return map;
-    var absDefs = {};
-    var absNums = Array.prototype.slice.call(doc.getElementsByTagName('w:abstractNum'));
-    absNums.forEach(function (a) {
-      var id = a.getAttribute('w:abstractNumId');
-      var lvls = {};
-      var lvlEls = Array.prototype.slice.call(a.getElementsByTagName('w:lvl'));
-      lvlEls.forEach(function (l) {
-        var ilvl = l.getAttribute('w:ilvl');
-        var fmt = 'bullet', start = 1;
-        var fmtEls = l.getElementsByTagName('w:numFmt');
-        var startEls = l.getElementsByTagName('w:start');
-        if (fmtEls.length) fmt = fmtEls[0].getAttribute('w:val') || 'bullet';
-        if (startEls.length) start = parseInt(startEls[0].getAttribute('w:val') || '1', 10) || 1;
-        lvls[ilvl] = { fmt: fmt, start: start };
-      });
-      absDefs[id] = lvls;
-    });
-    var nums = Array.prototype.slice.call(doc.getElementsByTagName('w:num'));
-    nums.forEach(function (nm) {
-      var id = nm.getAttribute('w:numId');
-      var abs = nm.getElementsByTagName('w:abstractNumId');
-      if (abs.length) map[id] = absDefs[abs[0].getAttribute('w:val')] || {};
-    });
-    return map;
-  }).catch(function () { return {}; });
-}
-
-var ROMAN = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
-function toRoman(n) {
-  n = Math.max(1, n); var s = '';
-  for (var i = 0; i < ROMAN.length; i++) {
-    while (n >= ROMAN[i][0]) { s += ROMAN[i][1]; n -= ROMAN[i][0]; }
-  }
-  return s;
-}
-function pdfNumLabel(fmt, n) {
-  if (fmt === 'bullet' || fmt === 'none') return '•';
-  if (fmt === 'lowerLetter' || fmt === 'upperLetter') {
-    var s = '', x = n;
-    while (x > 0) { var m = (x - 1) % 26; s = String.fromCharCode((fmt === 'lowerLetter' ? 97 : 65) + m) + s; x = Math.floor((x - 1) / 26); }
-    return s + '.';
-  }
-  if (fmt === 'lowerRoman') return toRoman(n).toLowerCase() + '.';
-  if (fmt === 'upperRoman') return toRoman(n) + '.';
-  return n + '.'; // decimal + anything else
-}
-
-function pdfCellBorders(tcPrEl) {
-  if (!tcPrEl) return 'border:1pt solid #000';
-  var tcB = tcPrEl.getElementsByTagName('w:tcBorders')[0] || null;
-  if (!tcB) return 'border:1pt solid #000';
-  var out = [];
-  ['top', 'left', 'bottom', 'right'].forEach(function (e) {
-    var els = tcB.getElementsByTagName('w:' + e);
-    var val = els.length ? (els[0].getAttribute('w:val') || 'single') : 'single';
-    out.push('border-' + e + ((val === 'nil' || val === 'none') ? ':none' : ':1pt solid #000'));
-  });
-  return out.join(';');
-}
-
-// One <w:p> → <p class="pdf-p">. numState tracks live counters per numId.
-function pdfParaNode(pEl, fontFallback, numMap, numState) {
-  var props = pdfParaProps(pEl);
-  var align = props.align === 'both' ? 'justify' : props.align;
-  var runEls = [];
-  Array.prototype.slice.call(pEl.childNodes).forEach(function (k) {
-    if (!k || k.nodeType !== 1) return;
-    var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
-    if (n === 'r') runEls.push(k);
-    else if (n === 'hyperlink') {
-      Array.prototype.slice.call(k.getElementsByTagName('w:r')).forEach(function (r) { runEls.push(r); });
-    }
-  });
-  var inner = runEls.map(function (run) {
-    return '<span style="' + pdfStyleForRun(run, fontFallback) + '">' +
-      pdfEscapedRunHtml(pdfTextOfRun(run)) + '</span>';
-  }).join('');
-  var isEmpty = runEls.length === 0 || !pEl.textContent;
-  var prefix = '';
-  if (props.numId !== null && numMap && numState) {
-    var key = props.numId + ':' + props.ilvl;
-    var def = (numMap[props.numId] || {})[String(props.ilvl)] || { fmt: 'bullet', start: 1 };
-    if (numState[key] === undefined) numState[key] = def.start;
-    else numState[key]++;
-    var indent = 18 + props.ilvl * 18;
-    prefix = '<span class="pdf-num" style="display:inline-block;min-width:' + indent + 'pt">' +
-      escapeHtml(pdfNumLabel(def.fmt, numState[key])) + '&nbsp;&nbsp;</span>';
-  }
-  var cls = 'pdf-p' + (isEmpty ? ' pdf-empty' : '');
-  return '<p class="' + cls + '" style="text-align:' + align + '">' +
-    prefix + (isEmpty ? '&nbsp;' : inner) + '</p>';
-}
-
-// Full patched word/document.xml → HTML. Tables stay tables,
-// headers/footers appended as .pdf-hdr/.pdf-ftr, page breaks kept.
-function docxXmlToHtml(mainXml, extras, fontFallback, numMap) {
-  var doc = new DOMParser().parseFromString(mainXml, 'application/xml');
-  numMap = numMap || {};
-  var numState = {};
-  var html = '';
-  (extras || []).forEach(function (ex) {
-    var isHdr = /header/i.test(ex.path);
-    var isFtr = /footer/i.test(ex.path);
-    if (!isHdr && !isFtr) return;
-    var d = new DOMParser().parseFromString(ex.xml, 'application/xml');
-    var ps = Array.prototype.slice.call(d.getElementsByTagName('w:p'));
-    html += '<div class="' + (isHdr ? 'pdf-hdr' : 'pdf-ftr') + '">' +
-      ps.map(function (p) { return pdfParaNode(p, fontFallback, numMap, numState); }).join('') + '</div>';
-  });
-  var body = doc.getElementsByTagName('w:body')[0];
-  var kids = body ? body.childNodes : [];
-  for (var i = 0; i < kids.length; i++) {
-    var k = kids[i];
-    if (!k || k.nodeType !== 1) continue;
-    var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
-    if (n === 'p') html += pdfParaNode(k, fontFallback, numMap, numState);
-    else if (n === 'tbl') {
-      var rows = Array.prototype.slice.call(k.getElementsByTagName('w:tr'));
-      html += '<table class="pdf-tbl" border="1" cellpadding="4" cellspacing="0">';
-      html += rows.map(function (tr) {
-        var cells = Array.prototype.slice.call(tr.childNodes).filter(function (c) {
-          if (!c || c.nodeType !== 1) return false;
-          var cn = c.localName || (c.nodeName && c.nodeName.split(':').pop()) || '';
-          return cn === 'tc';
-        });
-        return '<tr>' + cells.map(function (tc) {
-          return pdfCellNode(tc, fontFallback, numMap, numState);
-        }).join('') + '</tr>';
-      }).join('') + '</table>';
-    }
-  }
-  return html;
-}
-
-// One table cell → <td> (borders, shading, width kept).
-function pdfCellNode(tc, fontFallback, numMap, numState) {
-  var tcPr = tc.getElementsByTagName('w:tcPr')[0] || null;
-  var style = pdfCellBorders(tcPr);
-  if (tcPr) {
-    var shd = tcPr.getElementsByTagName('w:shd');
-    if (shd.length) {
-      var fill = shd[0].getAttribute('w:fill');
-      if (fill && fill !== 'auto') style += ';background-color:#' + fill;
-    }
-    var wEls = tcPr.getElementsByTagName('w:tcW');
-    if (wEls.length && wEls[0].getAttribute('w:type') === 'dxa') {
-      var w = parseInt(wEls[0].getAttribute('w:w') || '0', 10);
-      if (w > 0) style += ';width:' + (w / 20).toFixed(1) + 'pt';
-    }
-  }
-  var paras = Array.prototype.slice.call(tc.getElementsByTagName('w:p'));
-  var cellHtml = paras.map(function (p) { return pdfParaNode(p, fontFallback, numMap, numState); }).join('');
-  return '<td style="' + style + '">' + (cellHtml || '&nbsp;') + '</td>';
-}
-
-// Plain-text path: same tokens DOCX uses, one <p> per \n so line
-// breaks survive (white-space:pre-wrap alone collapses on canvas).
-function tokensToPdfHtml(tokens) {
-  var html = '';
-  tokens.forEach(function (item) {
-    var parts = String(item.text).split('\n');
-    parts.forEach(function (part, i) {
-      if (i > 0) html += '<p class="pdf-p pdf-empty">&nbsp;</p>';
-      if (part) {
-        html += '<p class="pdf-p" style="font-family:' + pdfFontStack(item.font) + '">' +
-          escapeHtml(part) + '</p>';
-      }
-    });
-  });
-  return html || '<p class="pdf-p">&nbsp;</p>';
-}
-
-function pdfStage() {
-  var st = document.getElementById('pdf-stage');
-  if (!st) {
-    st = document.createElement('div');
-    st.id = 'pdf-stage';
-    st.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(st);
-  }
-  return st;
-}
-
-function savePdfFromHtml(innerHtml, fileName) {
-  var st = pdfStage();
-  st.innerHTML = '<div class="pdf-doc">' + innerHtml + '</div>';
-  var node = st.firstChild;
-  function done() { showProcessing(false); st.innerHTML = ''; showToast('PDF downloaded!'); }
-  function fallbackPrint() {
-    var box = document.getElementById('print-doc');
-    try {
-      if (box) box.innerHTML = '<div class="print-doc">' + innerHtml + '</div>';
-      document.body.classList.add('print-docx');
-      try { printTitleBackup = document.title; document.title = fileName.replace(/\.pdf$/i, ''); } catch (e) { printTitleBackup = null; }
-      showProcessing(false);
-      showToast('Print dialog opened — choose "Save as PDF"');
-      window.print();
-    } catch (e2) { showProcessing(false); showToast('Error: ' + e2.message); }
-  }
-  try {
-    if (typeof html2pdf === 'undefined') { fallbackPrint(); return; }
-    var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
-    fontsReady.then(function () {
-      try {
-        html2pdf().set({
-          margin: [15, 15, 15, 15],
-          filename: fileName,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak: { mode: ['css', 'legacy'] }
-        }).from(node).save().then(done).catch(function () {
-          showToast('PDF failed, opening print instead');
-          fallbackPrint();
-        });
-      } catch (e) { fallbackPrint(); }
-    });
-  } catch (e) { fallbackPrint(); }
-}
-
-function downloadPlainPdf() {
-  var mode = resolveMode();
-  if (appState.parsedData.length === 0) convertPlainTextSync(els.inputTextarea.value);
-  if (appState.parsedData.length === 0 || !els.outputTextarea.value.trim()) {
-    showToast('Nothing to download'); return;
-  }
-  showProcessing(true, 'Building PDF…');
-  savePdfFromHtml(tokensToPdfHtml(appState.parsedData),
-    'LipiLab_converted_' + (mode === 'unicode-to-bijoy' ? 'bijoy' : 'unicode') + '.pdf');
-}
-
-function downloadDocxPdf() {
-  if (!appState.docxZip || !appState.docxFile) { showToast('No DOCX template loaded.'); return; }
-  showProcessing(true, 'Preparing PDF…');
-  patchDocxParts().then(function (r) {
-    rememberPatchedDocx(r);
-    return pdfNumberingMap(r.zip).then(function (numMap) {
-      var mode = resolveMode();
-      var fallback = mode === 'unicode-to-bijoy' ? 'SutonnyMJ' : 'Times New Roman';
-      var html = docxXmlToHtml(r.mainXml, r.extras, fallback, numMap);
-      var base = appState.docxFile.name.replace(/\.docx$/i, '');
-      savePdfFromHtml(html, base + '_' + (r.direction === 'uni2bijoy' ? 'bijoy' : 'unicode') + '.pdf');
-    });
-  }).catch(function (err) {
-    showProcessing(false);
-    showToast('Error: ' + err.message);
-  });
-}
-
-function downloadPdf() {
-  // Same routing rule as the .docx button: template loaded → formatted PDF.
-  if (appState.docxZip && appState.docxFile) { downloadDocxPdf(); return; }
-  downloadPlainPdf();
-}
-
-// Legacy print entry points (kept only as offline fallback callers).
-function printPdf() {
-  downloadPdf();
-}
-
-function printDocxPdf() {
-  downloadDocxPdf();
-}
+var printTitleBackup = null;
 
 function fitOutputForPrint() {
   // Textareas don't auto-expand on paper — grow it to full content height.
@@ -1778,7 +1413,6 @@ function restoreOutputAfterPrint() {
     }
   } catch (e) { /* non-fatal */ }
 }
-
 if (typeof window !== 'undefined' && window.addEventListener) {
   window.addEventListener('beforeprint', fitOutputForPrint);
   window.addEventListener('afterprint', restoreOutputAfterPrint);
@@ -2010,23 +1644,6 @@ function saveSrv() {
   } catch (e) { /* non-fatal */ }
 }
 
-function loadSrvCache() {
-  try {
-    var d = localStorage.getItem('lipilab:srv-date');
-    var b = parseInt(localStorage.getItem('lipilab:srv-balance'), 10);
-    var p = parseInt(localStorage.getItem('lipilab:pending-spend'), 10);
-    if (d === bdToday() && !isNaN(b)) {
-      srvBalance = Math.max(0, b);
-      pendingSpend = isNaN(p) ? 0 : Math.max(0, p);
-      srvDate = d;
-      srvReady = true;
-    } else {
-      pendingSpend = 0; // new day (or no cache) — yesterday's unflushed words forgiven
-    }
-  } catch (e) { pendingSpend = 0; }
-  syncDisplay();
-}
-
 async function refreshQuota() {
   var hash = await getDeviceHash();
   var r = await serverQuota(hash);
@@ -2072,16 +1689,6 @@ async function flushNow() {
   } finally {
     flushInFlight = false;
   }
-}
-
-function setStatusQuotaOffline() {
-  els.processingText.textContent = 'Quota server unreachable — retrying…';
-  els.processingProgress.classList.remove('processing-progress--show');
-  els.processingPercent.textContent = '';
-  els.processingSpinner.hidden = true;
-  els.processingSuccessIcon.hidden = true;
-  els.processingIndicator.classList.remove('processing-success', 'processing-idle');
-  els.processingIndicator.hidden = false;
 }
 
 function showConnectingToast() {
@@ -2155,26 +1762,6 @@ function renderWalletRefresh() {
   if (!box) return;
   var left = formatCountdown(msUntilBdMidnight());
   box.innerHTML = 'Refreshes at 12 AM (BD time) &bull; <strong>' + left + '</strong> left &bull; <strong>' + formatPoints(DAILY_POINTS) + '</strong> points';
-}
-function startWalletTick() {
-  if (walletTickTimer) return;
-  walletTickTimer = setInterval(function () {
-    // Rollover check + countdown refresh every second (cheap).
-    if (bdToday() !== quotaDate) {
-      quotaDate = bdToday();
-      quotaWatermark = 0;
-      pendingSpend = 0;
-      saveSrv();
-      PointsBackend.save(pointsBalance, pointsLedger);
-      renderPoints();
-      renderPointsHistory();
-      updateQuotaLock();
-      refreshQuota().catch(function () { /* offline: retried by interval */ });
-      showToast('New daily points added');
-    } else {
-      renderWalletRefresh();
-    }
-  }, 1000);
 }
 // Charged at every successful conversion (manual + live). Only a GROWING
 // word count costs: typing one word slowly costs 1 point total, never more.
@@ -2288,27 +1875,8 @@ function gateLiveCharge(text) {
   return true;
 }
 
-// Manual/upload gate (Convert click, DOCX): bulk-charge, then convert.
-function gateManualCharge(text) {
-  if (FREE_MODE) {
-    if (!text || !text.trim()) { showToast('Nothing to convert'); return false; }
-    return true;
-  }
-  if (!srvReady) { showConnectingToast(); return false; }
-  if (!text || !text.trim()) { showToast('Nothing to convert'); return false; }
-  var r = tryChargeDelta(text);
-  if (r === -1) {
-    setStatusQuotaExhausted();
-    updateQuotaLock();
-    showQuotaExhaustedToast(countWords(text) - quotaWatermark);
-    return false;
-  }
-  return true;
-}
-
 // Back-compat wrappers (old call sites).
 function chargePointsDelta(text) { gateLiveCharge(text); return 0; }
-function chargeAfterConvert() { gateLiveCharge(els.inputTextarea.value); }
 var historyPage = 1;
 var historyPerPage = 25;
 var expandedBatches = {}; // batchKey -> true (in-memory only)
@@ -2396,10 +1964,9 @@ function wireEvents() {
   });
 
   els.convertBtn.addEventListener('click', function () {
-    if (quotaLocked) { showQuotaExhaustedToast(0); return; }
     var text = els.inputTextarea.value;
-    if (appState.docxZip) { if (!gateManualCharge(text)) return; convertDocxTemplate(); return; }
-    if (!gateManualCharge(text)) return;
+    if (!hasConvertibleText(text)) return;
+    if (appState.docxZip) { convertDocxTemplate(); return; }
     convertPlainText();
   });
 
@@ -2507,10 +2074,9 @@ function wireEvents() {
   });
 
   els.downloadDocxBtn.addEventListener('click', function () {
-    if (quotaLocked) { showQuotaExhaustedToast(0); return; }
-    if (appState.docxZip) { if (!gateManualCharge(els.inputTextarea.value)) return; convertDocxTemplate(); return; }
+    if (appState.docxZip) { convertDocxTemplate(); return; }
     if (appState.parsedData.length === 0) {
-      if (!gateManualCharge(els.inputTextarea.value)) return;
+      if (!hasConvertibleText(els.inputTextarea.value)) return;
       convertPlainText();
     }
     if (appState.parsedData.length === 0) { showToast('Nothing to download'); return; }
@@ -2561,33 +2127,6 @@ function wireEvents() {
     var b = document.getElementById(id);
     if (b) b.addEventListener('click', comingSoon);
   });
-  var historyRefreshBtn = document.getElementById('history-refresh-btn');
-  if (historyRefreshBtn) historyRefreshBtn.addEventListener('click', renderPointsHistory);
-  var historyPerPageSel = document.getElementById('history-perpage');
-  if (historyPerPageSel) {
-    historyPerPageSel.value = String(historyPerPage);
-    historyPerPageSel.addEventListener('change', function () {
-      historyPerPage = parseInt(historyPerPageSel.value, 10) || 25;
-      historyPage = 1;
-      try { localStorage.setItem('lipilab:points-perpage', String(historyPerPage)); } catch (e) { /* non-fatal */ }
-      renderPointsHistory();
-    });
-  }
-  var historyPrevBtn = document.getElementById('history-prev');
-  if (historyPrevBtn) historyPrevBtn.addEventListener('click', function () {
-    if (historyPage > 1) { historyPage--; renderPointsHistory(); }
-  });
-  var historyNextBtn = document.getElementById('history-next');
-  if (historyNextBtn) historyNextBtn.addEventListener('click', function () { historyPage++; renderPointsHistory(); });
-  var historyList = document.getElementById('history-list');
-  if (historyList) historyList.addEventListener('click', function (e) {
-    var head = e.target.closest ? e.target.closest('.ledger-group__head') : null;
-    if (!head) return;
-    var key = head.getAttribute('data-batch');
-    if (expandedBatches[key]) delete expandedBatches[key];
-    else expandedBatches[key] = true;
-    renderPointsHistory();
-  });
   ['spell-clear-btn', 'mcq-clear-btn'].forEach(function (id) {
     var b = document.getElementById(id);
     if (b) b.addEventListener('click', function () {
@@ -2601,11 +2140,8 @@ function wireEvents() {
   els.inputTextarea.addEventListener('input', function () {
     updateStats();
     persistState();
-    if (quotaLocked) { showQuotaExhaustedToast(0); return; }
-    // Live mode: charge each newly completed word immediately, then preview.
-    // Manual mode (live off): no charge here — Convert click bulk-charges.
+    // Live mode: preview the conversion while typing. Manual mode: wait for Convert.
     if (appState.liveMode) {
-      if (!gateLiveCharge(els.inputTextarea.value)) return;
       setStatusIdle();
       scheduleLiveConvert();
     } else {
@@ -2674,62 +2210,6 @@ function init() {
   safeInitStep(initRefreshGuard, 'refresh-guard');
   safeInitStep(initGatekeep, 'gatekeep');
   safeInitStep(function () { syncUndoBase(); updateUndoButtons(); }, 'undo-init');
-  safeInitStep(function () {
-    var stored = PointsBackend.load();
-    if (stored.tampered) {
-      // Hand-edited wallet — lock quota until the next BD-midnight refresh.
-      quotaDate = bdToday();
-      pointsBalance = 0;
-      quotaWatermark = 0;
-      pointsLedger = [];
-      PointsBackend.save(0, []);
-      renderPoints();
-      renderPointsHistory();
-      updateQuotaLock();
-      startWalletTick();
-      showToast('Invalid wallet data detected — quota locked until refresh.');
-      return;
-    }
-    quotaDate = stored.date || bdToday();
-    pointsBalance = stored.balance;
-    quotaWatermark = stored.watermark || 0;
-    // Migrate old demo ledgers: drop rows from the tiny-balance era,
-    // keep real history. Cap to newest entries.
-    pointsLedger = (stored.ledger || []).filter(function (e) { return e && typeof e.b === 'number'; });
-    if (pointsLedger.length > POINTS_LEDGER_MAX) {
-      pointsLedger = pointsLedger.slice(pointsLedger.length - POINTS_LEDGER_MAX);
-    }
-    // Restored text from a previous session was never paid for on this
-    // load — clamp watermark so the first Convert charges it correctly.
-    try {
-      var restoredWords = countWords(els.inputTextarea.value);
-      if (quotaWatermark > restoredWords) quotaWatermark = restoredWords;
-    } catch (e) { /* non-fatal */ }
-    PointsBackend.save(pointsBalance, pointsLedger);
-    try {
-      var rawPer = parseInt(localStorage.getItem('lipilab:points-perpage'), 10);
-      if ([25, 50, 100, 500, 1000].indexOf(rawPer) !== -1) historyPerPage = rawPer;
-    } catch (e) { /* non-fatal */ }
-    var perSel = document.getElementById('history-perpage');
-    if (perSel) perSel.value = String(historyPerPage);
-    loadSrvCache(); // same-day server cache (fast display), then authoritative refresh
-    renderPoints();
-    renderPointsHistory();
-    updateQuotaLock();
-    if (FREE_MODE) return; // free version: no server, no auth, no tickers
-    startWalletTick();
-    refreshQuota().then(function () { updateQuotaLock(); }).catch(function () {
-      if (!srvReady) {
-        setStatusQuotaOffline();
-        showToast('Quota server unreachable — conversions paused.');
-      }
-    });
-    setInterval(function () { refreshQuota().catch(function () {}); }, 60000);
-    setInterval(function () { if (pendingSpend > 0) flushNow(); }, 30000);
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden && pendingSpend > 0) flushNow();
-    });
-  }, 'points-init');
   requestAnimationFrame(function () { safeInitStep(updateDirectionPillPosition, 'direction-pill'); });
 }
 

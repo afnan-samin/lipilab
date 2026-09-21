@@ -655,18 +655,6 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
 }
 .features-lang:hover{ border-color:var(--accent); color:var(--accent); }
 
-/* ---- PDF direct-download stage (offscreen render target for html2pdf.js) ---- */
-#pdf-stage{ position:fixed; left:-10000px; top:0; width:180mm; background:#fff; color:#000; }
-.pdf-doc{ font-family:'Times New Roman','Noto Sans Bengali',serif; font-size:12pt; line-height:1.7; color:#000; background:#fff; word-wrap:break-word; }
-.pdf-p{ margin:0 0 6pt; white-space:pre-wrap; }
-.pdf-empty{ min-height:12pt; }
-.pdf-num{ font-weight:700; }
-.pdf-tab{ display:inline-block; width:18pt; }
-.pdf-tbl{ width:100%; border-collapse:collapse; margin:8pt 0; }
-.pdf-tbl td{ vertical-align:top; padding:4pt 6pt; }
-.pdf-pagebreak{ page-break-before:always; }
-.pdf-hdr{ font-size:10pt; color:#333; border-bottom:1pt solid #999; margin-bottom:8pt; padding-bottom:4pt; }
-.pdf-ftr{ font-size:10pt; color:#333; border-top:1pt solid #999; margin-top:8pt; padding-top:4pt; }
 .features-close{
   width:30px; height:30px; border-radius:50%; border:1.5px solid var(--border);
   background:var(--surface-alt); color:var(--text); font-size:17px; line-height:1; cursor:pointer;

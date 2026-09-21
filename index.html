@@ -12,9 +12,6 @@
 <!-- JSZip: needed for both blank-DOCX generation and DOCX template round-trip patching -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-<!-- html2pdf.js (html2canvas + jsPDF): direct PDF download with full formatting, no print dialog -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
 <!-- UI + Bangla web fonts (CDN only — no local asset files) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,7 +28,7 @@
 </div>
 
   <div class="pl-slot pl-slot--rail pl-slot--rail-left" id="rail-left" aria-label="Notice">
-  <svg viewBox="0 0 160 1000" width="100%" style="display:block;height:100%;border-radius:0" role="img" aria-label="LipiLab Pro vertical banner" preserveAspectRatio="xMidYMid meet">
+  <svg viewBox="0 0 160 1000" width="100%" style="display:block;height:100%;border-radius:0" role="img" aria-label="LipiLab vertical banner" preserveAspectRatio="xMidYMid meet">
     <defs>
       <linearGradient id="hsRailL" x1="0" y1="0" x2="160" y2="1000" gradientUnits="userSpaceOnUse">
         <stop offset="0" stop-color="#f4f0ff"/><stop offset="1" stop-color="#ded2fb"/>
@@ -47,37 +44,32 @@
     <circle cx="-5" cy="950" r="85" fill="#6c63ff" opacity="0.07">
       <animate attributeName="cy" values="950;926;950" dur="7s" repeatCount="indefinite"/>
     </circle>
-    <rect x="56" y="70" width="48" height="48" rx="12" fill="#6c63ff"/>
-    <text x="80" y="102" text-anchor="middle" font-family="'Noto Sans Bengali',sans-serif" font-size="32" font-weight="700" fill="#ffffff">ল</text>
-    <text x="80" y="170" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="30" font-weight="800" fill="#2b2660">LipiLab</text>
-    <text x="80" y="204" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="30" font-weight="800" fill="#2b2660">Pro</text>
-    <text x="80" y="254" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#2b2660">Unicode ↔ Bijoy</text>
-    <text x="80" y="278" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">in seconds</text>
-    <text x="80" y="302" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">+ full Word magic</text>
-    <text x="80" y="352" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ 100% Free forever</text>
-    <text x="80" y="380" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ No signup needed</text>
-    <text x="80" y="408" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ Fully private</text>
-    <text x="80" y="436" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ Works offline</text>
+    <text x="80" y="140" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="32" font-weight="800" fill="#2b2660">LipiLab</text>
+    <text x="80" y="224" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#2b2660">Unicode ↔ Bijoy</text>
+    <text x="80" y="248" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">in seconds</text>
+    <text x="80" y="272" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">+ full Word magic</text>
+    <text x="80" y="322" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ 100% Free forever</text>
+    <text x="80" y="350" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ No signup needed</text>
+    <text x="80" y="378" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ Fully private</text>
+    <text x="80" y="406" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ Works offline</text>
     <g>
       <animate attributeName="opacity" values="1;0.88;1" dur="2.4s" repeatCount="indefinite"/>
-      <rect x="20" y="470" width="120" height="48" rx="24" fill="url(#hsRailLBtn)"/>
-      <text x="80" y="500" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Start Free</text>
+      <rect x="20" y="440" width="120" height="48" rx="24" fill="url(#hsRailLBtn)"/>
+      <text x="80" y="470" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Start Free</text>
     </g>
-    <line x1="40" y1="560" x2="120" y2="560" stroke="#8a84ad" stroke-width="1" opacity="0.4"/>
-    <text x="80" y="600" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="800" fill="#2b2660">Why LipiLab?</text>
-    <text x="80" y="630" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Design never breaks</text>
-    <text x="80" y="654" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Bangla stays Bangla</text>
-    <text x="80" y="678" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">English stays English</text>
-    <text x="80" y="892" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="800" letter-spacing="1.5" fill="#000000">FREE FOREVER<animate attributeName="opacity" values="1;0.3;1" dur="1.4s" repeatCount="indefinite"/><animate attributeName="fill" values="#000000;#dc2626;#000000" dur="1.4s" repeatCount="indefinite"/></text>
-    <rect x="30" y="902" width="100" height="28" rx="14" fill="none" stroke="#dc2626" stroke-width="2"></rect>
-    <text x="80" y="921" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="800" letter-spacing="0.5" fill="#dc2626">100% FREE</text>
+    <line x1="40" y1="530" x2="120" y2="530" stroke="#8a84ad" stroke-width="1" opacity="0.4"/>
+    <text x="80" y="570" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="800" fill="#2b2660">Why LipiLab?</text>
+    <text x="80" y="600" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Design never breaks</text>
+    <text x="80" y="624" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Bangla stays Bangla</text>
+    <text x="80" y="648" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">English stays English</text>
+    <text x="80" y="914" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="800" letter-spacing="1.5" fill="#2b2660">FREE FOREVER</text>
     <text x="80" y="946" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" fill="#5f5890">Your data stays in your browser.</text>
     <text x="80" y="962" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" fill="#5f5890">100% private — nothing uploaded.</text>
   </svg>
   <!-- PARTNER MEDIA CODE GOES HERE (tall media unit, ~160x600). Real code in PARTNER.railLeft replaces this demo. -->
 </div>
   <div class="pl-slot pl-slot--rail pl-slot--rail-right" id="rail-right" aria-label="Notice">
-  <svg viewBox="0 0 160 1000" width="100%" style="display:block;height:100%;border-radius:0" role="img" aria-label="LipiLab Pro vertical banner" preserveAspectRatio="xMidYMid meet">
+  <svg viewBox="0 0 160 1000" width="100%" style="display:block;height:100%;border-radius:0" role="img" aria-label="LipiLab vertical banner" preserveAspectRatio="xMidYMid meet">
     <defs>
       <linearGradient id="hsRailR" x1="0" y1="0" x2="160" y2="1000" gradientUnits="userSpaceOnUse">
         <stop offset="0" stop-color="#ded2fb"/><stop offset="1" stop-color="#f4f0ff"/>
@@ -93,28 +85,25 @@
     <circle cx="165" cy="950" r="85" fill="#6c63ff" opacity="0.07">
       <animate attributeName="cy" values="950;926;950" dur="5.5s" repeatCount="indefinite"/>
     </circle>
-    <rect x="56" y="70" width="48" height="48" rx="12" fill="#6c63ff"/>
-    <text x="80" y="102" text-anchor="middle" font-family="'Noto Sans Bengali',sans-serif" font-size="32" font-weight="700" fill="#ffffff">ল</text>
-    <text x="80" y="170" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="30" font-weight="800" fill="#2b2660">LipiLab</text>
-    <text x="80" y="204" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="30" font-weight="800" fill="#2b2660">Pro</text>
-    <text x="80" y="254" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#2b2660">Bijoy → Unicode</text>
-    <text x="80" y="278" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">one-click magic</text>
-    <text x="80" y="302" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">any file, any size</text>
-    <text x="80" y="352" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ DOCX ready</text>
-    <text x="80" y="380" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ Dark mode</text>
-    <text x="80" y="408" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ No limits</text>
-    <text x="80" y="436" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ No signup</text>
+    <text x="80" y="140" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="32" font-weight="800" fill="#2b2660">LipiLab</text>
+    <text x="80" y="224" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#2b2660">Bijoy → Unicode</text>
+    <text x="80" y="248" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">one-click magic</text>
+    <text x="80" y="272" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">any file, any size</text>
+    <text x="80" y="322" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ DOCX ready</text>
+    <text x="80" y="350" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ Dark mode</text>
+    <text x="80" y="378" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ No limits</text>
+    <text x="80" y="406" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ No signup</text>
     <g>
       <animate attributeName="opacity" values="1;0.88;1" dur="2.8s" repeatCount="indefinite"/>
-      <rect x="20" y="470" width="120" height="48" rx="24" fill="url(#hsRailRBtn)"/>
-      <text x="80" y="500" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Try Now</text>
+      <rect x="20" y="440" width="120" height="48" rx="24" fill="url(#hsRailRBtn)"/>
+      <text x="80" y="470" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Try Now</text>
     </g>
-    <line x1="40" y1="560" x2="120" y2="560" stroke="#8a84ad" stroke-width="1" opacity="0.4"/>
-    <text x="80" y="600" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="800" fill="#2b2660">Why LipiLab?</text>
-    <text x="80" y="630" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Tables stay tables</text>
-    <text x="80" y="654" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Bold stays bold</text>
-    <text x="80" y="678" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Columns stay columns</text>
-    <text x="80" y="914" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="900" letter-spacing="2" fill="#dc2626">FREE FOREVER<animate attributeName="opacity" values="1;0.25;1" dur="1.2s" repeatCount="indefinite"/><animate attributeName="fill" values="#dc2626;#a855f7;#6c63ff;#dc2626" dur="1.2s" repeatCount="indefinite"/><animate attributeName="font-size" values="20;21;20" dur="1.2s" repeatCount="indefinite"/></text>
+    <line x1="40" y1="530" x2="120" y2="530" stroke="#8a84ad" stroke-width="1" opacity="0.4"/>
+    <text x="80" y="570" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="800" fill="#2b2660">Why LipiLab?</text>
+    <text x="80" y="600" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Tables stay tables</text>
+    <text x="80" y="624" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Bold stays bold</text>
+    <text x="80" y="648" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Columns stay columns</text>
+    <text x="80" y="914" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="800" letter-spacing="1.5" fill="#2b2660">FREE FOREVER</text>
     <text x="80" y="940" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" fill="#5f5890">Your data stays in your browser.</text>
     <text x="80" y="956" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" fill="#5f5890">100% private — nothing uploaded.</text>
   </svg>
@@ -168,7 +157,7 @@
   </header>
 
   <div class="pl-slot pl-slot--wide" id="spot-top" aria-label="Notice">
-    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab Pro top banner">
+    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab top banner">
       <defs>
         <linearGradient id="hsWideTop" x1="0" y1="0" x2="728" y2="90" gradientUnits="userSpaceOnUse">
           <stop offset="0" stop-color="#f4f0ff"/><stop offset="1" stop-color="#e0d4fc"/>
@@ -184,10 +173,8 @@
       <circle cx="70" cy="114" r="62" fill="#6c63ff" opacity="0.07">
         <animate attributeName="cy" values="114;102;114" dur="7s" repeatCount="indefinite"/>
       </circle>
-      <rect x="24" y="23" width="44" height="44" rx="11" fill="#6c63ff"/>
-      <text x="46" y="55" text-anchor="middle" font-family="'Noto Sans Bengali',sans-serif" font-size="28" font-weight="700" fill="#ffffff">ল</text>
-      <text x="82" y="40" font-family="Sora,Arial,sans-serif" font-size="24" font-weight="800" fill="#2b2660">LipiLab Pro — Convert Without Limits</text>
-      <text x="82" y="63" font-family="Arial,sans-serif" font-size="14.5" fill="#5f5890">Unicode ↔ Bijoy + DOCX · 10,000 points daily, no signup</text>
+      <text x="28" y="40" font-family="Sora,Arial,sans-serif" font-size="24" font-weight="800" fill="#2b2660">LipiLab — Convert Without Limits</text>
+      <text x="28" y="63" font-family="Arial,sans-serif" font-size="14.5" fill="#5f5890">Unicode ↔ Bijoy + Word files · Free forever, no signup</text>
       <g>
         <animate attributeName="opacity" values="1;0.88;1" dur="2.4s" repeatCount="indefinite"/>
         <rect x="588" y="28" width="116" height="34" rx="17" fill="url(#hsWideTopBtn)"/>
@@ -438,7 +425,7 @@
   </main>
 
   <div class="pl-slot pl-slot--wide" id="spot-bottom" aria-label="Notice">
-    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab Pro bottom banner">
+    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab bottom banner">
       <defs>
         <linearGradient id="hsWideBottom" x1="0" y1="0" x2="728" y2="90" gradientUnits="userSpaceOnUse">
           <stop offset="0" stop-color="#e0d4fc"/><stop offset="1" stop-color="#f4f0ff"/>
@@ -454,10 +441,8 @@
       <circle cx="660" cy="114" r="62" fill="#6c63ff" opacity="0.07">
         <animate attributeName="cy" values="114;102;114" dur="5.5s" repeatCount="indefinite"/>
       </circle>
-      <rect x="24" y="23" width="44" height="44" rx="11" fill="#6c63ff"/>
-      <text x="46" y="55" text-anchor="middle" font-family="'Noto Sans Bengali',sans-serif" font-size="28" font-weight="700" fill="#ffffff">ল</text>
-      <text x="102" y="40" font-family="Sora,Arial,sans-serif" font-size="24" font-weight="800" fill="#2b2660">DOCX Round-Trip? Done in Seconds.</text>
-      <text x="102" y="63" font-family="Arial,sans-serif" font-size="14.5" fill="#5f5890">Upload · Convert · Download — formatting intact, fully private</text>
+      <text x="36" y="40" font-family="Sora,Arial,sans-serif" font-size="24" font-weight="800" fill="#2b2660">Word Files? Done in Seconds.</text>
+      <text x="36" y="63" font-family="Arial,sans-serif" font-size="14.5" fill="#5f5890">Upload · Convert · Download — tables and bold stay as they were</text>
       <g>
         <animate attributeName="opacity" values="1;0.88;1" dur="2.8s" repeatCount="indefinite"/>
         <rect x="588" y="28" width="116" height="34" rx="17" fill="url(#hsWideBottomBtn)"/>
@@ -557,7 +542,7 @@
     <span class="post-note__timer" id="post-note-timer">10s</span>
   </div>
   <div class="post-note__body" id="post-note-body">
-    <svg viewBox="0 0 300 100" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab Pro small banner">
+    <svg viewBox="0 0 300 100" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab small banner">
       <defs>
         <linearGradient id="hsPost" x1="0" y1="0" x2="300" y2="100" gradientUnits="userSpaceOnUse">
           <stop offset="0" stop-color="#f4f0ff"/><stop offset="1" stop-color="#e0d4fc"/>
@@ -570,10 +555,8 @@
       <circle cx="280" cy="0" r="46" fill="#6c63ff" opacity="0.10">
         <animate attributeName="cy" values="0;12;0" dur="5s" repeatCount="indefinite"/>
       </circle>
-      <rect x="14" y="30" width="40" height="40" rx="10" fill="#6c63ff"/>
-      <text x="34" y="59" text-anchor="middle" font-family="'Noto Sans Bengali',sans-serif" font-size="26" font-weight="700" fill="#ffffff">ল</text>
-      <text x="64" y="44" font-family="Sora,Arial,sans-serif" font-size="18" font-weight="800" fill="#2b2660">LipiLab Pro</text>
-      <text x="64" y="64" font-family="Arial,sans-serif" font-size="12.5" fill="#5f5890">10,000 points daily, no signup</text>
+      <text x="20" y="44" font-family="Sora,Arial,sans-serif" font-size="18" font-weight="800" fill="#2b2660">LipiLab</text>
+      <text x="20" y="64" font-family="Arial,sans-serif" font-size="12.5" fill="#5f5890">Free forever · Private · No signup</text>
       <g>
         <animate attributeName="opacity" values="1;0.88;1" dur="2.4s" repeatCount="indefinite"/>
         <rect x="206" y="36" width="82" height="28" rx="14" fill="url(#hsPostBtn)"/>
