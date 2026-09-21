@@ -1151,36 +1151,40 @@ function comingSoon() {
 var FEATURES_CONTENT = {
   en: {
     board: 'Notice Board',
-    title: 'What can LipiLab do?',
+    title: 'What can you do with LipiLab?',
     items: [
-      'Unicode ↔ Bijoy instant conversion with Auto-detect — just type or paste.',
-      'Live mode shows results as you type, or press Convert for manual control.',
-      'DOCX round-trip: upload a .docx, convert, download — formatting stays intact.',
-      'Export output as .txt, .docx or .pdf in one click.',
+      'Change Bangla writing both ways — Unicode to Bijoy, and Bijoy to Unicode. It detects the direction by itself.',
+      'Live mode — see the changed text as you type, or press Convert to do it yourself.',
+      'Work with Word files — upload your Word file, change it, download it again.',
+      'Your file stays as it was — bold stays bold, columns stay columns, tables stay tables. English stays English, Bangla stays Bangla.',
+      'Other sites break your file design — ours does not.',
+      'Download in one click — plain text (.txt), Word file (.docx) or PDF.',
       'File upload, paste, clear, swap, undo/redo and full keyboard shortcuts.',
-      'Dark mode, Auto direction mode and live stats (chars + words).',
-      '100% private — everything runs inside your browser, nothing is uploaded.',
-      'Free forever, unlimited, no signup needed.'
+      'Dark mode for the night, plus live count of letters and words.',
+      '100% private — everything happens inside your browser, your writing is never sent anywhere.',
+      'Fully free, unlimited, no account needed.'
     ],
     foot: 'Coming soon: Spell Check and MCQ Serial.'
   },
   bn: {
     board: 'নোটিশ বোর্ড',
-    title: 'LipiLab দিয়ে কি কি করা যায়?',
+    title: 'LipiLab দিয়ে কী কী করা যায়?',
     items: [
-      'ইউনিকোড ↔ বিজয় মুহূর্তে রূপান্তর, Auto-detect সহ — শুধু লিখুন বা পেস্ট করুন।',
-      'Live mode এ লেখার সাথে সাথে ফলাফল, অথবা Convert চেপে নিজে কন্ট্রোল করুন।',
-      'DOCX round-trip: .docx upload করে convert করে download করুন — formatting intact থাকে।',
-      'এক ক্লিকে .txt, .docx বা .pdf হিসেবে download।',
-      'File upload, paste, clear, swap, undo/redo আর পুরো keyboard shortcut।',
-      'Dark mode, Auto direction mode আর live stats (chars + words)।',
-      '১০০% private — সব কিছু browser এর ভেতরেই হয়, কিছুই upload হয় না।',
-      'সম্পূর্ণ ফ্রি, unlimited, signup লাগে না।'
+      'বাংলা লেখা দুই দিকে বদলানো — ইউনিকোড থেকে বিজয়, আবার বিজয় থেকে ইউনিকোড। কোন দিকে বদলাতে হবে, সেটা নিজে নিজে বুঝে নেয়।',
+      'লাইভ mode — লেখার সাথে সাথে বদলে যাওয়া লেখা দেখা যায়। নিজে করতে চাইলে Convert বোতাম চাপুন।',
+      'Word file নিয়ে কাজ — আপনার Word file upload করুন, বদলে আবার download করুন।',
+      'আপনার file যেমন ছিল তেমনই থাকবে — মোটা হরফ (bold) মোটাই থাকবে, কলাম কলামই থাকবে, টেবিল টেবিলই থাকবে। ইংরেজি ইংরেজিই থাকবে, বাংলা বাংলাই থাকবে।',
+      'অন্য অনেক সাইটে file বদলালে সাজানো ভেঙে যায় — আমাদের এখানে ভাঙে না।',
+      'এক ক্লিকে download — সাধারণ text (.txt), Word file (.docx) বা PDF।',
+      'File upload, paste, মুছুন, অদল-বদল, undo/redo আর পুরো keyboard shortcut।',
+      'রাতের জন্য dark mode, আর লেখার হিসাব — কয় অক্ষর, কয় শব্দ।',
+      '১০০% নিরাপদ (private) — সব কাজ আপনার browser এর ভেতরেই হয়, আপনার লেখা কোথাও পাঠানো হয় না।',
+      'সম্পূর্ণ ফ্রি, যত খুশি ব্যবহার করুন, account খোলা লাগে না।'
     ],
-    foot: 'শীঘ্রই আসছে: Spell Check আর MCQ Serial।'
+    foot: 'শীঘ্রই আসছে: বানান ঠিক করা (Spell Check) আর MCQ সিরিয়াল।'
   }
 };
-var featuresLang = 'en';
+var featuresLang = 'bn';
 
 var featEls = {};
 function grabFeatEls() {
