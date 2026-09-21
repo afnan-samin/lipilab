@@ -116,7 +116,6 @@ button{ font-family:inherit; }
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
-  .banner-anim{ display:none; } /* hide SVG banner motion (SMIL ignores the rules above) */
 }
 
 /* ---- Background layer ---- */
@@ -609,8 +608,6 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
 
 /* ---- Thin black strokes (tools nav, converter panels) ---- */
 .tools-nav{ border:1.5px solid #111; }
-.tools-nav .has-soon{ position:relative; overflow:visible; }
-.tools-nav .has-soon .soon-tag{ top:-9px; right:-8px; }
 .panel{ border:1.5px solid #111; }
 
 /* ---- Features button + notice-board popup ---- */
