@@ -466,7 +466,7 @@ var LARGE_TEXT_THRESHOLD = 20000; // characters — above this, convert in chunk
 var conversionRunId = 0;
 
 function convertPlainText() {
-  if (quotaLocked) { setStatusQuotaExhausted(); return; }
+  if (quotaLocked && !FREE_MODE) { setStatusQuotaExhausted(); return; }
   var text = els.inputTextarea.value;
   if (text.length > LARGE_TEXT_THRESHOLD) {
     convertPlainTextChunked(text);
@@ -1268,6 +1268,12 @@ function exportPdf() {
    FUTURE ADMIN MOVE: only PointsBackend.load/save talk to storage.
    Point them at the server later — no other code changes needed.
 ------------------------------------------------------------ */
+/* GitHub free version: converter + ads only. No points, no quota,
+   no login, no history, no server calls. The quota/auth code below
+   stays in the file (shared with the full version) but is fully
+   bypassed while this flag is true. */
+var FREE_MODE = true;
+
 var DAILY_POINTS = 10000; // 10 hajar per device per day
 
 /* Server-authoritative quota (Cloudflare Worker + D1).
@@ -1278,6 +1284,10 @@ var DAILY_POINTS = 10000; // 10 hajar per device per day
    rate limits. The device hash is never shown in any UI. */
 var QUOTA_API = 'https://lipilab-quota.myteletalk38.workers.dev';
 var QUOTA_CLIENT_KEY = 'a9f3k7zq2m8x4p6w1n5b0c3d7e2f6g8h1j9k4m2n7p5q8r3s6t1u4v9w2x7y5z3a8b6c4d2e9f7g5h3j1k8m1v8w6x4y2z9a7b5c3d1e8f6g4h2j9';
+
+/* No login in the free version: anonymous device quota only (bypassed
+   while FREE_MODE is true). Kept declared so quotaPost stays safe. */
+var authToken = null;
 var POINTS_LEDGER_MAX = 2000; // keep newest N entries; balance is always fully deducted
 var pointsBalance = DAILY_POINTS;
 var pointsLedger = []; // newest last: { w: word, d: -1, b: balanceAfter, t: timestamp, g: batchId }
@@ -1422,9 +1432,11 @@ function getDeviceHash() {
 }
 
 function quotaPost(path, body) {
+  var headers = { 'Content-Type': 'application/json' };
+  if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
   return fetch(QUOTA_API + path, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: headers,
     body: JSON.stringify(body)
   }).then(function (res) {
     return res.json().then(function (data) { return { status: res.status, data: data }; });
@@ -1653,6 +1665,19 @@ function setStatusQuotaExhausted() {
 }
 
 function updateQuotaLock() {
+  if (FREE_MODE) {
+    // Free version: quota never locks. Keep inputs usable.
+    quotaLocked = false;
+    if (els.convertBtn) els.convertBtn.disabled = false;
+    if (els.pasteBtn) {
+      els.pasteBtn.disabled = false;
+      els.pasteBtn.classList.remove('is-disabled');
+    }
+    var uploadLabel = document.querySelector('label[for="file-upload-input"]');
+    if (uploadLabel) uploadLabel.classList.remove('is-disabled');
+    if (els.fileUploadInput) els.fileUploadInput.disabled = false;
+    return;
+  }
   // Locked when out of points OR before the first server sync
   // (fail-closed: no verified balance, no conversion).
   var locked = pointsBalance <= 0 || !srvReady;
@@ -1698,6 +1723,7 @@ function pushHistory(words, batchId) {
 // Returns charged count (>=0), or -1 when balance is insufficient
 // (nothing deducted, caller must block the conversion).
 function tryChargeDelta(text) {
+  if (FREE_MODE) return 0; // free version: unlimited, nothing to charge
   var words = splitWords(text);
   var curr = words.length;
   if (curr < quotaWatermark) {
@@ -1726,6 +1752,7 @@ function showQuotaExhaustedToast(needed) {
 // Live-mode gate: charge newly completed words immediately.
 // Returns true when conversion may proceed, false when blocked.
 function gateLiveCharge(text) {
+  if (FREE_MODE) return true;
   if (!srvReady) { showConnectingToast(); return false; }
   var r = tryChargeDelta(text);
   if (r === -1) {
@@ -1739,6 +1766,10 @@ function gateLiveCharge(text) {
 
 // Manual/upload gate (Convert click, DOCX): bulk-charge, then convert.
 function gateManualCharge(text) {
+  if (FREE_MODE) {
+    if (!text || !text.trim()) { showToast('Nothing to convert'); return false; }
+    return true;
+  }
   if (!srvReady) { showConnectingToast(); return false; }
   if (!text || !text.trim()) { showToast('Nothing to convert'); return false; }
   var r = tryChargeDelta(text);
@@ -2159,6 +2190,7 @@ function init() {
     renderPoints();
     renderPointsHistory();
     updateQuotaLock();
+    if (FREE_MODE) return; // free version: no server, no auth, no tickers
     startWalletTick();
     refreshQuota().then(function () { updateQuotaLock(); }).catch(function () {
       if (!srvReady) {
@@ -2171,6 +2203,7 @@ function init() {
     document.addEventListener('visibilitychange', function () {
       if (document.hidden && pendingSpend > 0) flushNow();
     });
+    safeInitStep(initAuth, 'auth-state');
   }, 'points-init');
   requestAnimationFrame(function () { safeInitStep(updateDirectionPillPosition, 'direction-pill'); });
 }
