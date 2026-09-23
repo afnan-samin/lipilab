@@ -217,6 +217,7 @@ var els = {
   infoBox: document.getElementById('info-box'),
   infoBoxToggle: document.getElementById('info-box-toggle'),
   infoBoxBody: document.getElementById('info-box-body'),
+  featuresOpenBtn: document.getElementById('features-open-btn'),
   converterView: document.getElementById('view-converter'),
   toolsNav: document.getElementById('tools-nav'),
   statusbar: document.getElementById('app-statusbar'),
@@ -1257,116 +1258,15 @@ function comingSoon() {
 }
 
 /* ------------------------------------------------------------
-   Features notice-board popup — opens out of the header button,
-   closes back into it (only via the cross; backdrop clicks and
-   keys never dismiss it). EN/BN toggle with site fonts.
+   Features card — the header Features button scrolls to and
+   expands the collapsed Bangla features card below the workspace.
 ------------------------------------------------------------ */
-var FEATURES_CONTENT = {
-  en: {
-    board: 'Notice Board',
-    title: 'What can you do with LipiLab?',
-    items: [
-      'Change Bangla writing both ways — Unicode to Bijoy, and Bijoy to Unicode. It detects the direction by itself.',
-      'Live mode — see the changed text as you type, or press Convert to do it yourself.',
-      'Work with Word files — upload your Word file, change it, download it again.',
-      'Your file stays as it was — bold stays bold, columns stay columns, tables stay tables. English stays English, Bangla stays Bangla.',
-      'Other sites break your file design — ours does not.',
-      'Download in one click — plain text (.txt), Word file (.docx) or PDF.',
-      'File upload, paste, clear, swap, undo/redo and full keyboard shortcuts.',
-      'Dark mode for the night, plus live count of letters and words.',
-      '100% private — everything happens inside your browser, your writing is never sent anywhere.',
-      'Fully free, unlimited, no account needed.'
-    ],
-    foot: 'Coming soon: Spell Check and MCQ Serial.'
-  },
-  bn: {
-    board: 'নোটিশ বোর্ড',
-    title: 'LipiLab দিয়ে কী কী করা যায়?',
-    items: [
-      'ইউনিকোড থেকে বিজয়, বিজয় থেকে ইউনিকোড — বাংলা লেখা দুই দিকেই বদলানো যায়। কোন দিকে বদলাতে হবে সেটা নিজে নিজেই বুঝে নেয়।',
-      'লাইভ মোডে টাইপ করার সাথে সাথেই লেখা বদলে যায়। চাইলে Convert বোতাম চেপে নিজেও করতে পারবেন।',
-      'ওয়ার্ড ফাইল নিয়ে কাজ — ফাইল আপলোড করুন, রূপান্তর করুন, আবার ডাউনলোড করে নিন।',
-      'ফাইলের সাজসজ্জা অক্ষত থাকবে — বোল্ড বোল্ডই, কলাম কলামই, টেবিল টেবিলই। ইংরেজি ইংরেজি, বাংলা বাংলা, কিছুই অদলবদল হবে না।',
-      'অন্য সাইটে ফাইল কনভার্ট করলে ডিজাইন ভেঙে যায় — এখানে ভাঙে না।',
-      'এক ক্লিকে ডাউনলোড — সাধারণ লেখা (.txt), ওয়ার্ড (.docx) কিংবা PDF।',
-      'ফাইল আপলোড, পেস্ট, মুছে ফেলা, সোয়াপ, আন্ডো/রিডো — পুরোটাই কী-বোর্ড শর্টকাটে।',
-      'রাতের জন্য ডার্ক মোড, সাথে অক্ষর আর শব্দের লাইভ হিসাব।',
-      '১০০% প্রাইভেট — সব কাজ আপনার ব্রাউজারের ভেতরেই হয়, লেখা কোথাও পাঠানো হয় না।',
-      'সম্পূর্ণ ফ্রি, কোনো সীমা নেই, অ্যাকাউন্টও লাগবে না।'
-    ],
-    foot: 'শীঘ্রই আসছে: বানান ঠিককরণ (Spell Check) আর MCQ সিরিয়াল।'
-  }
-};
-var featuresLang = 'bn';
-
-var featEls = {};
-function grabFeatEls() {
-  featEls.overlay = document.getElementById('features-overlay');
-  featEls.card = document.getElementById('features-card');
-  featEls.openBtn = document.getElementById('features-open-btn');
-  featEls.closeBtn = document.getElementById('features-close');
-  featEls.langBtn = document.getElementById('features-lang');
-  featEls.board = document.getElementById('features-board');
-  featEls.title = document.getElementById('features-title');
-  featEls.list = document.getElementById('features-list');
-  featEls.foot = document.getElementById('features-foot');
+function setInfoBoxExpanded(expanded) {
+  if (!els.infoBox || !els.infoBoxToggle || !els.infoBoxBody) return;
+  els.infoBoxToggle.setAttribute('aria-expanded', String(expanded));
+  els.infoBox.classList.toggle('info-box--collapsed', !expanded);
+  els.infoBoxBody.hidden = !expanded;
 }
-
-function renderFeatures() {
-  grabFeatEls();
-  var c = FEATURES_CONTENT[featuresLang] || FEATURES_CONTENT.en;
-  if (featEls.card) featEls.card.setAttribute('data-lang', featuresLang);
-  if (featEls.board) featEls.board.textContent = c.board;
-  if (featEls.title) featEls.title.textContent = c.title;
-  if (featEls.foot) featEls.foot.textContent = c.foot;
-  if (featEls.list) {
-    featEls.list.innerHTML = '';
-    c.items.forEach(function (t) {
-      var li = document.createElement('li');
-      li.textContent = t;
-      featEls.list.appendChild(li);
-    });
-  }
-  if (featEls.langBtn) featEls.langBtn.textContent = featuresLang === 'en' ? 'বাংলা' : 'English';
-}
-
-function openFeatures() {
-  grabFeatEls();
-  if (!featEls.overlay || !featEls.card) return;
-  renderFeatures();
-  featEls.overlay.classList.remove('closing');
-  featEls.overlay.hidden = false;
-  void featEls.card.offsetWidth; // restart the pop-in animation
-  featEls.overlay.classList.add('show');
-  if (featEls.closeBtn) featEls.closeBtn.focus();
-}
-
-function closeFeatures() {
-  grabFeatEls();
-  if (!featEls.overlay || featEls.overlay.hidden) return;
-  featEls.overlay.classList.remove('show');
-  featEls.overlay.classList.add('closing');
-  setTimeout(function () {
-    grabFeatEls();
-    if (!featEls.overlay) return;
-    featEls.overlay.hidden = true;
-    featEls.overlay.classList.remove('closing');
-    if (featEls.openBtn) featEls.openBtn.focus();
-  }, 200);
-}
-
-function wireFeatures() {
-  grabFeatEls();
-  if (featEls.openBtn) featEls.openBtn.addEventListener('click', openFeatures);
-  if (featEls.closeBtn) featEls.closeBtn.addEventListener('click', closeFeatures);
-  if (featEls.langBtn) featEls.langBtn.addEventListener('click', function () {
-    featuresLang = featuresLang === 'en' ? 'bn' : 'en';
-    renderFeatures();
-  });
-  // Intentionally NO backdrop-click and NO Escape dismissal —
-  // this board only closes via the cross button.
-}
-
 var TOOL_VIEW_IDS = {
   converter: 'view-converter',
   spellcheck: 'view-spell',
@@ -1392,6 +1292,7 @@ function switchToolView(view) {
   if (els.toolbar) els.toolbar.hidden = (view !== 'converter');
 }
 
+
 var printTitleBackup = null;
 
 function fitOutputForPrint() {
@@ -1413,6 +1314,7 @@ function restoreOutputAfterPrint() {
     }
   } catch (e) { /* non-fatal */ }
 }
+
 if (typeof window !== 'undefined' && window.addEventListener) {
   window.addEventListener('beforeprint', fitOutputForPrint);
   window.addEventListener('afterprint', restoreOutputAfterPrint);
@@ -2096,15 +1998,15 @@ function wireEvents() {
 
   wireFontSizeButtons();
 
-  wireFeatures();
-
   // Extra tools wiring (account excluded).
   if (els.undoBtn) els.undoBtn.addEventListener('click', undo);
   if (els.redoBtn) els.redoBtn.addEventListener('click', redo);
   if (els.infoBoxToggle) els.infoBoxToggle.addEventListener('click', function () {
-    var expanded = els.infoBoxToggle.getAttribute('aria-expanded') === 'true';
-    els.infoBoxToggle.setAttribute('aria-expanded', String(!expanded));
-    els.infoBox.classList.toggle('info-box--collapsed', expanded);
+    setInfoBoxExpanded(els.infoBoxToggle.getAttribute('aria-expanded') !== 'true');
+  });
+  if (els.featuresOpenBtn) els.featuresOpenBtn.addEventListener('click', function () {
+    setInfoBoxExpanded(true);
+    if (els.infoBox) els.infoBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
   if (els.downloadPdfBtn) els.downloadPdfBtn.addEventListener('click', comingSoon);
   if (els.toolsNav) els.toolsNav.addEventListener('click', function (e) {

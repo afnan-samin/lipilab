@@ -15,7 +15,11 @@
 <!-- UI + Bangla web fonts (CDN only — no local asset files) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Kalpurush: SutonnyMJ-style Bangla webfont (SIL OFL) -->
+<link rel="preconnect" href="https://fonts.maateen.me">
+<link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet">
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -44,7 +48,7 @@
     <circle cx="-5" cy="950" r="85" fill="#6c63ff" opacity="0.07">
       <animate attributeName="cy" values="950;926;950" dur="7s" repeatCount="indefinite"/>
     </circle>
-    <text x="80" y="140" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="32" font-weight="800" fill="#2b2660">LipiLab</text>
+    <text x="80" y="140" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="32" font-weight="800" fill="#2b2660">LipiLab</text>
     <text x="80" y="224" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#2b2660">Unicode ↔ Bijoy</text>
     <text x="80" y="248" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">in seconds</text>
     <text x="80" y="272" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">+ full Word magic</text>
@@ -85,7 +89,7 @@
     <circle cx="165" cy="950" r="85" fill="#6c63ff" opacity="0.07">
       <animate attributeName="cy" values="950;926;950" dur="5.5s" repeatCount="indefinite"/>
     </circle>
-    <text x="80" y="140" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="32" font-weight="800" fill="#2b2660">LipiLab</text>
+    <text x="80" y="140" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="32" font-weight="800" fill="#2b2660">LipiLab</text>
     <text x="80" y="224" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#2b2660">Bijoy → Unicode</text>
     <text x="80" y="248" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">one-click magic</text>
     <text x="80" y="272" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">any file, any size</text>
@@ -149,7 +153,7 @@
           <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/>
         </svg>
       </button>
-      <button class="features-btn" id="features-open-btn" type="button" aria-haspopup="dialog" title="See what LipiLab can do">
+      <button class="features-btn" id="features-open-btn" type="button" aria-controls="info-box-body" title="Go to the LipiLab features list">
         <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/></svg>
         Features
       </button>
@@ -173,7 +177,7 @@
       <circle cx="70" cy="114" r="62" fill="#6c63ff" opacity="0.07">
         <animate attributeName="cy" values="114;102;114" dur="7s" repeatCount="indefinite"/>
       </circle>
-      <text x="28" y="40" font-family="Sora,Arial,sans-serif" font-size="24" font-weight="800" fill="#2b2660">LipiLab — Convert Without Limits</text>
+      <text x="28" y="40" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="800" fill="#2b2660">LipiLab — Convert Without Limits</text>
       <text x="28" y="63" font-family="Arial,sans-serif" font-size="14.5" fill="#5f5890">Unicode ↔ Bijoy + Word files · Free forever, no signup</text>
       <g>
         <animate attributeName="opacity" values="1;0.88;1" dur="2.4s" repeatCount="indefinite"/>
@@ -441,7 +445,7 @@
       <circle cx="660" cy="114" r="62" fill="#6c63ff" opacity="0.07">
         <animate attributeName="cy" values="114;102;114" dur="5.5s" repeatCount="indefinite"/>
       </circle>
-      <text x="36" y="40" font-family="Sora,Arial,sans-serif" font-size="24" font-weight="800" fill="#2b2660">Word Files? Done in Seconds.</text>
+      <text x="36" y="40" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="800" fill="#2b2660">Word Files? Done in Seconds.</text>
       <text x="36" y="63" font-family="Arial,sans-serif" font-size="14.5" fill="#5f5890">Upload · Convert · Download — tables and bold stay as they were</text>
       <g>
         <animate attributeName="opacity" values="1;0.88;1" dur="2.8s" repeatCount="indefinite"/>
@@ -452,18 +456,25 @@
     <!-- PARTNER MEDIA CODE GOES HERE (wide media unit). Real code in PARTNER.bottom replaces this demo. -->
   </div>
 
-  <div class="info-box" id="info-box" aria-labelledby="info-box-title">
-    <button class="info-box__toggle" id="info-box-toggle" type="button" aria-expanded="true" aria-controls="info-box-body">
+  <div class="info-box info-box--collapsed" id="info-box" aria-labelledby="info-box-title">
+    <button class="info-box__toggle" id="info-box-toggle" type="button" aria-expanded="false" aria-controls="info-box-body">
       <span class="info-box__chevron" aria-hidden="true">▾</span>
-      <span class="info-box__toggle-title" id="info-box-title">What is LipiLab?</span>
+      <span class="info-box__toggle-title" id="info-box-title">LipiLab দিয়ে কী কী করা যায়?</span>
     </button>
-    <div class="info-box__body" id="info-box-body">
-      <p class="info-box__lead">LipiLab is a free, offline, private converter for professional Bangla text — between Unicode and legacy Bijoy encodings, in plain text or DOCX.</p>
-      <ul class="info-box__tools">
-        <li>Converter — Unicode ↔ Bijoy text and DOCX (client-side only)</li>
-        <li>Spell Check — coming soon</li>
-        <li>MCQ Serial — coming soon</li>
+    <div class="info-box__body" id="info-box-body" hidden>
+      <ul class="info-box__features">
+        <li><strong>LipiLab</strong> হলো <strong>বাংলা লেখালেখির দৈনন্দিন কাজগুলো</strong> সহজ করার একটি টুল।</li>
+        <li>বাংলা লেখাকে <strong>ইউনিকোড থেকে বিজয়</strong> কিংবা <strong>বিজয় থেকে ইউনিকোডে</strong> রূপান্তর করতে চান? শুধু লেখা পেস্ট করলেই <strong>LipiLab</strong> নিজেই বুঝে নেয় কোন <strong>ফরম্যাট থেকে কোন ফরম্যাটে</strong> পরিবর্তন করতে হবে।</li>
+        <li>আপনি চাইলে <strong>Live Mode</strong> ব্যবহার করতে পারেন। এতে লেখার সাথে সাথে পরিবর্তিত ফলাফল দেখতে পাবেন। আর যদি নিজে নিয়ন্ত্রণ করতে চান, তাহলে <strong>Convert বাটন</strong> চাপলেই হবে।</li>
+        <li><strong>Word ফাইল</strong> নিয়েও ঝামেলা নেই। ফাইল আপলোড করুন, কনভার্ট করুন, তারপর আবার ডাউনলোড করে নিন। সবচেয়ে ভালো বিষয় হলো, আপনার ডকুমেন্টের <strong>ফরম্যাটিং নষ্ট হবে না</strong>। <strong>Bold, Italic, Table, Column</strong> বা অন্যান্য লেআউট যেমন ছিল, তেমনই থাকবে। ইংরেজি লেখা ইংরেজিতেই থাকবে, বাংলা লেখা বাংলাতেই।</li>
+        <li>অনেক <strong>অনলাইন কনভার্টারে</strong> ফাইলের <strong>সাজানো-গোছানো অবস্থা নষ্ট</strong> হয়ে যায়। <strong>LipiLab</strong> তৈরি করা হয়েছে সেই সমস্যাটা মাথায় রেখেই, যাতে আপনার <strong>ডকুমেন্ট আগের মতোই</strong> থাকে।</li>
+        <li>কাজ শেষ হলে <strong>এক ক্লিকেই</strong> ফলাফল ডাউনলোড করতে পারবেন। সাধারণ <strong>Text (.txt)</strong>, <strong>Word (.docx)</strong> কিংবা <strong>PDF</strong> — যেটা দরকার, সেটাই বেছে নিন।</li>
+        <li>দ্রুত কাজের জন্য রয়েছে <strong>Copy, Paste, Clear, Swap, Undo, Redo</strong> এবং পরিচিত <strong>Keyboard Shortcut</strong>-এর সুবিধা। পাশাপাশি লেখার <strong>অক্ষর ও শব্দ গণনা</strong>ও দেখতে পারবেন।</li>
+        <li>রাতে কাজ করতে স্বাচ্ছন্দ্য পেতে আছে <strong>Dark Mode</strong>।</li>
+        <li>সবচেয়ে গুরুত্বপূর্ণ বিষয় হলো, <strong>আপনার তথ্য আপনার কাছেই থাকে</strong>। LipiLab-এর সব প্রক্রিয়া আপনার <strong>ব্রাউজারের মধ্যেই</strong> সম্পন্ন হয়। কোনো লেখা বা ফাইল <strong>অন্য কোথাও পাঠানো হয় না</strong>।</li>
+        <li>আর হ্যাঁ, LipiLab <strong>সম্পূর্ণ ফ্রি</strong>। ব্যবহার করতে কোনো <strong>অ্যাকাউন্ট খোলারও দরকার নেই</strong>।</li>
       </ul>
+      <p class="info-box__foot">শিগগিরই যুক্ত হচ্ছে আরও কিছু সুবিধা, যেমন <strong>Spell Check</strong> এবং <strong>MCQ Serial Generator</strong>।</p>
     </div>
   </div>
 
@@ -509,21 +520,6 @@
   </div>
 </div>
 
-<div class="features-overlay" id="features-overlay" hidden>
-  <div class="features-card" id="features-card" role="dialog" aria-modal="true" aria-labelledby="features-title" data-lang="en">
-    <div class="features-card__bar">
-      <span class="features-card__pin" aria-hidden="true">📌</span>
-      <span class="features-card__board" id="features-board">Notice Board</span>
-      <span class="features-card__spacer"></span>
-      <button class="features-lang" id="features-lang" type="button">English</button>
-      <button class="features-close" id="features-close" type="button" aria-label="Close">×</button>
-    </div>
-    <h2 class="features-card__title" id="features-title"></h2>
-    <ul class="features-list" id="features-list"></ul>
-    <p class="features-card__foot" id="features-foot"></p>
-  </div>
-</div>
-
 <div class="toast-container" id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
 
 <div class="ask-overlay" id="ask-overlay" role="dialog" aria-modal="true" aria-labelledby="ask-title">
@@ -555,7 +551,7 @@
       <circle cx="280" cy="0" r="46" fill="#6c63ff" opacity="0.10">
         <animate attributeName="cy" values="0;12;0" dur="5s" repeatCount="indefinite"/>
       </circle>
-      <text x="20" y="44" font-family="Sora,Arial,sans-serif" font-size="18" font-weight="800" fill="#2b2660">LipiLab</text>
+      <text x="20" y="44" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="800" fill="#2b2660">LipiLab</text>
       <text x="20" y="64" font-family="Arial,sans-serif" font-size="12.5" fill="#5f5890">Free forever · Private · No signup</text>
       <g>
         <animate attributeName="opacity" values="1;0.88;1" dur="2.4s" repeatCount="indefinite"/>

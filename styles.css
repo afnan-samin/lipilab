@@ -40,9 +40,9 @@
   --radius-lg:22px;
   --radius-pill:10px;
 
-  --font-display:'Sora',system-ui,sans-serif;
-  --font-body:'Manrope',system-ui,sans-serif;
-  --font-bangla:'Noto Sans Bengali','Hind Siliguri',system-ui,sans-serif;
+  --font-display:'Arial','Kalpurush',Helvetica,sans-serif;
+  --font-body:'Arial','Kalpurush',Helvetica,sans-serif;
+  --font-bangla:'Kalpurush','Noto Sans Bengali','Hind Siliguri',system-ui,sans-serif;
   --font-mono:ui-monospace,'SF Mono','Cascadia Code',Consolas,monospace;
   --font-bijoy:'SutonnyMJ','Noto Sans Bengali',serif;
 
@@ -99,12 +99,14 @@ body{
   color:var(--text);
   font-family:var(--font-body);
   font-size:15px;
+  font-weight:600;
   line-height:1.5;
   transition:background-color var(--dur-med) var(--ease), color var(--dur-med) var(--ease);
   overflow-x:hidden;
 }
 h1,h2,h3{ margin:0; font-family:var(--font-display); }
 button{ font-family:inherit; }
+button, input, select, textarea{ font-weight:600; }
 ::selection{ background:var(--accent-soft); color:var(--accent); }
 
 .visually-hidden{
@@ -232,7 +234,7 @@ button{ font-family:inherit; }
 .panel__textarea--bijoy{ font-family:var(--font-bijoy); }
 .panel__textarea--output{ background:var(--surface-alt); }
 .panel__textarea--locked{ opacity:.75; cursor:not-allowed; }
-.panel__textarea::placeholder{ color:var(--text-faint); }
+.panel__textarea::placeholder{ color:var(--text-faint); font-weight:600; }
 .panel__footer{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px 16px; flex-wrap:wrap; }
 .panel__stats{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-secondary); }
 .stat__value{ font-weight:700; color:var(--text); }
@@ -547,16 +549,25 @@ button{ font-family:inherit; }
 .muted{ color:var(--text-secondary); font-size:12.5px; }
 .info-box{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; }
 .info-box__toggle{
-  width:100%; display:flex; align-items:center; gap:8px; background:none; border:0;
-  padding:12px 16px; cursor:pointer; font-weight:800; font-size:14px;
+  width:100%; display:flex; align-items:center; gap:8px; border:0;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg,rgba(108,99,255,.18),rgba(168,85,247,.12));
+  padding:14px 16px; cursor:pointer; font-weight:800; font-size:14px;
   color:var(--text); font-family:var(--font-display);
 }
 .info-box__chevron{ transition:transform var(--dur-fast) var(--ease); color:var(--accent); }
+.info-box__toggle-title{ display:block; text-align:left; line-height:1.35; font-weight:800; color:var(--text); }
 .info-box--collapsed .info-box__chevron{ transform:rotate(-90deg); }
 .info-box--collapsed .info-box__body{ display:none; }
 .info-box__body{ padding:0 16px 14px; }
-.info-box__lead{ margin:0 0 8px; font-size:13.5px; color:var(--text-secondary); }
-.info-box__tools{ margin:0; padding-left:18px; font-size:13px; color:var(--text-secondary); display:flex; flex-direction:column; gap:4px; }
+.info-box__toggle-title, .info-box__features, .info-box__foot{ font-family:'Kalpurush','Noto Sans Bengali',serif; }
+.info-box__toggle-title{ font-size:22px; }
+.info-box__features{ margin:0 0 10px; padding-left:20px; font-size:15px; line-height:1.65; font-weight:700; color:var(--text-secondary); }
+.info-box__features li{ margin:0 0 8px; }
+.info-box__features li:last-child{ margin-bottom:0; }
+.info-box__features li::marker{ color:var(--accent); }
+.info-box__features strong, .info-box__foot strong{ font-weight:800; color:var(--text); }
+.info-box__foot{ margin:0; padding-top:10px; border-top:1px dashed var(--border-strong); font-size:14px; font-weight:700; color:var(--text-faint); }
 .panel__textarea--locked{ opacity:.6; cursor:not-allowed; }
 .icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none; }
 label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none; }
@@ -582,8 +593,7 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
   .pl-slot, .post-note, .post-note--show, .gate-veil, .ask-overlay,
   .shortcuts-panel, .toast-container, .info-box, .app-credit, .app-footer,
   .panel--input, .panel-divider,
-  .panel__header, .panel__footer,
-  .features-overlay{ display:none !important; }
+  .panel__header, .panel__footer{ display:none !important; }
   .app-shell{ display:block; max-width:none; margin:0; padding:0; min-height:0; }
   #main-content{ display:block; }
   .tool-view, #view-converter.tool-view{ display:block; }
@@ -610,7 +620,7 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
 .tools-nav{ border:1.5px solid #111; }
 .panel{ border:1.5px solid #111; }
 
-/* ---- Features button + notice-board popup ---- */
+/* ---- Features button ---- */
 .features-btn{
   display:inline-flex; align-items:center; gap:6px;
   padding:9px 16px; border:0; border-radius:var(--radius-pill);
@@ -626,64 +636,6 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
   0%,100%{ box-shadow:0 4px 16px rgba(168,85,247,.45); }
   50%{ box-shadow:0 4px 28px rgba(108,99,255,.7); }
 }
-.features-overlay{
-  position:fixed; inset:0; z-index:75; background:rgba(20,17,35,.45); backdrop-filter:blur(2px);
-  display:flex; align-items:flex-start; justify-content:center; padding:90px 20px 20px;
-}
-.features-overlay[hidden]{ display:none; }
-.features-card{
-  width:min(480px,94vw); max-height:80vh; overflow-y:auto;
-  background:var(--surface); border:1.5px solid #111; border-radius:var(--radius-lg);
-  box-shadow:var(--shadow-lg); padding:20px 22px;
-  transform-origin:85% 0%;
-  transform:translateY(-30px) scale(.65); opacity:0;
-  transition:transform .28s var(--ease), opacity .22s var(--ease);
-}
-.features-overlay.show .features-card{ transform:translateY(0) scale(1); opacity:1; }
-.features-overlay.closing .features-card{ transform:translateY(-30px) scale(.65); opacity:0; transition-duration:.2s,.18s; }
-.features-card__bar{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
-.features-card__pin{ font-size:17px; }
-.features-card__board{
-  font-family:var(--font-display); font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
-  color:var(--text-secondary);
-}
-.features-card__spacer{ flex:1; }
-.features-lang{
-  padding:6px 12px; border-radius:var(--radius-pill); border:1.5px solid var(--border);
-  background:var(--surface-alt); color:var(--text-secondary);
-  font-family:'Noto Sans Bengali',var(--font-body); font-size:12.5px; font-weight:700; cursor:pointer;
-}
-.features-lang:hover{ border-color:var(--accent); color:var(--accent); }
-
-.features-close{
-  width:30px; height:30px; border-radius:50%; border:1.5px solid var(--border);
-  background:var(--surface-alt); color:var(--text); font-size:17px; line-height:1; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-}
-.features-close:hover{ border-color:var(--danger); color:var(--danger); }
-.features-card__title{ font-family:var(--font-display); font-size:19px; font-weight:800; color:var(--text); margin:0 0 12px; }
-.features-list{ list-style:none; margin:0 0 12px; padding:0; display:flex; flex-direction:column; gap:9px; }
-.features-list li{
-  display:flex; gap:9px; align-items:flex-start; font-size:13.5px; line-height:1.55; color:var(--text-secondary);
-  font-family:var(--font-body);
-}
-.features-list li::before{
-  content:"✓"; flex-shrink:0; width:20px; height:20px; border-radius:50%;
-  background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff;
-  font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; margin-top:1px;
-}
-.features-list li strong{ color:var(--text); }
-.features-card__foot{
-  margin:4px 0 0; padding-top:12px; border-top:1px dashed var(--border-strong);
-  font-size:12.5px; color:var(--text-faint);
-}
-.features-card[data-lang="bn"] .features-card__board,
-.features-card[data-lang="bn"] .features-card__title,
-.features-card[data-lang="bn"] .features-list li,
-.features-card[data-lang="bn"] .features-card__foot{
-  font-family:'Noto Sans Bengali','Tiro Bangla',serif;
-}
 @media (max-width:640px){
   .features-btn{ padding:8px 12px; font-size:12px; }
-  .features-overlay{ padding:70px 14px 14px; }
 }
