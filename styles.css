@@ -40,9 +40,9 @@
   --radius-lg:22px;
   --radius-pill:10px;
 
-  --font-display:'Arial','Kalpurush',Helvetica,sans-serif;
-  --font-body:'Arial','Kalpurush',Helvetica,sans-serif;
-  --font-bangla:'Kalpurush','Noto Sans Bengali','Hind Siliguri',system-ui,sans-serif;
+  --font-display:'Sora',system-ui,sans-serif;
+  --font-body:'Manrope',system-ui,sans-serif;
+  --font-bangla:'Noto Sans Bengali','Hind Siliguri',system-ui,sans-serif;
   --font-mono:ui-monospace,'SF Mono','Cascadia Code',Consolas,monospace;
   --font-bijoy:'SutonnyMJ','Noto Sans Bengali',serif;
 
@@ -99,14 +99,12 @@ body{
   color:var(--text);
   font-family:var(--font-body);
   font-size:15px;
-  font-weight:600;
   line-height:1.5;
   transition:background-color var(--dur-med) var(--ease), color var(--dur-med) var(--ease);
   overflow-x:hidden;
 }
 h1,h2,h3{ margin:0; font-family:var(--font-display); }
 button{ font-family:inherit; }
-button, input, select, textarea{ font-weight:600; }
 ::selection{ background:var(--accent-soft); color:var(--accent); }
 
 .visually-hidden{
@@ -234,7 +232,7 @@ button, input, select, textarea{ font-weight:600; }
 .panel__textarea--bijoy{ font-family:var(--font-bijoy); }
 .panel__textarea--output{ background:var(--surface-alt); }
 .panel__textarea--locked{ opacity:.75; cursor:not-allowed; }
-.panel__textarea::placeholder{ color:var(--text-faint); font-weight:600; }
+.panel__textarea::placeholder{ color:var(--text-faint); }
 .panel__footer{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px 16px; flex-wrap:wrap; }
 .panel__stats{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-secondary); }
 .stat__value{ font-weight:700; color:var(--text); }
@@ -550,24 +548,23 @@ button, input, select, textarea{ font-weight:600; }
 .info-box{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; }
 .info-box__toggle{
   width:100%; display:flex; align-items:center; gap:8px; border:0;
-  border-bottom:1px solid var(--border);
-  background:linear-gradient(135deg,rgba(108,99,255,.18),rgba(168,85,247,.12));
+  background:linear-gradient(135deg,rgba(108,99,255,.22),rgba(168,85,247,.16));
   padding:14px 16px; cursor:pointer; font-weight:800; font-size:14px;
-  color:var(--text); font-family:var(--font-display);
+  color:var(--text); font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif;
 }
-.info-box__chevron{ transition:transform var(--dur-fast) var(--ease); color:var(--accent); }
+.info-box__chevron{ transition:transform var(--dur-fast) var(--ease); color:var(--accent); font-weight:800; }
 .info-box__toggle-title{ display:block; text-align:left; line-height:1.35; font-weight:800; color:var(--text); }
 .info-box--collapsed .info-box__chevron{ transform:rotate(-90deg); }
 .info-box--collapsed .info-box__body{ display:none; }
-.info-box__body{ padding:0 16px 14px; }
-.info-box__toggle-title, .info-box__features, .info-box__foot{ font-family:'Kalpurush','Noto Sans Bengali',serif; }
+.info-box__body{ padding:0 16px 14px; font-weight:800; }
+.info-box__toggle-title, .info-box__features, .info-box__foot{ font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif; }
 .info-box__toggle-title{ font-size:22px; }
-.info-box__features{ margin:0 0 10px; padding-left:20px; font-size:15px; line-height:1.65; font-weight:700; color:var(--text-secondary); }
-.info-box__features li{ margin:0 0 8px; }
+.info-box__features{ margin:0 0 10px; padding-left:20px; font-size:15px; line-height:1.65; font-weight:800; color:var(--text-secondary); }
+.info-box__features li{ margin:0 0 8px; font-weight:800; }
 .info-box__features li:last-child{ margin-bottom:0; }
 .info-box__features li::marker{ color:var(--accent); }
 .info-box__features strong, .info-box__foot strong{ font-weight:800; color:var(--text); }
-.info-box__foot{ margin:0; padding-top:10px; border-top:1px dashed var(--border-strong); font-size:14px; font-weight:700; color:var(--text-faint); }
+.info-box__foot{ margin:0; padding-top:10px; border-top:1px dashed var(--border-strong); font-size:14px; font-weight:800; color:var(--text-faint); }
 .panel__textarea--locked{ opacity:.6; cursor:not-allowed; }
 .icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none; }
 label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none; }
