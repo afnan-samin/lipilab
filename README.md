@@ -88,7 +88,7 @@ Built with care for the Bangla typing community.
 <div align="center">
 <br>
 
-**LipiLab v1.0.0** · Free forever · Made in Bangladesh 🇧🇩
+**LipiLab v1.8.21** · Free forever · Made in Bangladesh
 
 ### [→ Try it live at lipilab.pro.bd](https://lipilab.pro.bd)
 

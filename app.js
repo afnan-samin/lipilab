@@ -203,6 +203,7 @@ var els = {
   docxStripText: document.getElementById('docx-strip-text'),
   docxStripClear: document.getElementById('docx-strip-clear'),
   inputTextarea: document.getElementById('input-textarea'),
+  sampleFillBtn: document.getElementById('sample-fill-btn'),
   inputCharCount: document.getElementById('input-char-count'),
   inputWordCount: document.getElementById('input-word-count'),
   swapBtn: document.getElementById('swap-btn'),
@@ -215,8 +216,6 @@ var els = {
   undoBtn: document.getElementById('undo-btn'),
   redoBtn: document.getElementById('redo-btn'),
   infoBox: document.getElementById('info-box'),
-  infoBoxToggle: document.getElementById('info-box-toggle'),
-  infoBoxBody: document.getElementById('info-box-body'),
   featuresOpenBtn: document.getElementById('features-open-btn'),
   converterView: document.getElementById('view-converter'),
   toolsNav: document.getElementById('tools-nav'),
@@ -338,6 +337,23 @@ function updateStats() {
   els.inputWordCount.textContent = inStats.words;
   els.outputCharCount.textContent = outStats.chars;
   els.outputWordCount.textContent = outStats.words;
+  syncEmptyHint();
+}
+
+var SAMPLE_BN = 'বাংলা ভাষা আমাদের মাতৃভাষা। LipiLab দিয়ে ইউনিকোড থেকে বিজয় এবং বিজয় থেকে ইউনিকোডে সহজেই রূপান্তর করা যায়।';
+
+function syncEmptyHint() {
+  if (!els.inputTextarea) return;
+  var body = els.inputTextarea.closest('.panel__body');
+  if (!body) return;
+  body.classList.toggle('has-text', els.inputTextarea.value.trim() !== '');
+}
+
+function fillSampleText() {
+  if (!els.inputTextarea || els.inputTextarea.readOnly) return;
+  els.inputTextarea.value = SAMPLE_BN;
+  els.inputTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+  els.inputTextarea.focus();
 }
 
 function resolveMode() {
@@ -432,9 +448,7 @@ function applyTheme(theme) {
 function initTheme() {
   var saved = null;
   try { saved = localStorage.getItem(THEME_KEY); } catch (e) { /* storage unavailable — non-fatal */ }
-  var systemDark = false;
-  try { systemDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) { /* matchMedia unavailable — non-fatal */ }
-  applyTheme(saved || (systemDark ? 'dark' : 'light'));
+  applyTheme(saved || 'dark');
 }
 
 function toggleTheme() {
@@ -480,6 +494,16 @@ function hasConvertibleText(text) {
 
 function convertPlainText() {
   var text = els.inputTextarea.value;
+  if (!text || !text.trim()) {
+    conversionRunId++;
+    els.outputTextarea.value = '';
+    appState.parsedData = [];
+    updateStats();
+    setWarningBadge(0);
+    setStatusIdle();
+    persistState();
+    return;
+  }
   if (text.length > LARGE_TEXT_THRESHOLD) {
     convertPlainTextChunked(text);
   } else {
@@ -1258,14 +1282,16 @@ function comingSoon() {
 }
 
 /* ------------------------------------------------------------
-   Features card — the header Features button scrolls to and
-   expands the collapsed Bangla features card below the workspace.
+   Features card is always open. Header Features button scrolls
+   to it, stopping just below the fixed header.
 ------------------------------------------------------------ */
-function setInfoBoxExpanded(expanded) {
-  if (!els.infoBox || !els.infoBoxToggle || !els.infoBoxBody) return;
-  els.infoBoxToggle.setAttribute('aria-expanded', String(expanded));
-  els.infoBox.classList.toggle('info-box--collapsed', !expanded);
-  els.infoBoxBody.hidden = !expanded;
+function scrollToFeatures() {
+  if (!els.infoBox) return;
+  var header = document.querySelector('.app-header');
+  var offset = 12;
+  if (header) offset += header.getBoundingClientRect().height;
+  var y = els.infoBox.getBoundingClientRect().top + window.pageYOffset - offset;
+  window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
 }
 var TOOL_VIEW_IDS = {
   converter: 'view-converter',
@@ -1966,7 +1992,7 @@ function wireEvents() {
 
   els.downloadTxtBtn.addEventListener('click', function () {
     var text = els.outputTextarea.value;
-    if (!text) { els.convertBtn.click(); return; }
+    if (!text || !text.trim()) { showToast('Nothing to download as txt file'); return; }
     var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
@@ -1978,10 +2004,11 @@ function wireEvents() {
   els.downloadDocxBtn.addEventListener('click', function () {
     if (appState.docxZip) { convertDocxTemplate(); return; }
     if (appState.parsedData.length === 0) {
-      if (!hasConvertibleText(els.inputTextarea.value)) return;
+      var inputText = els.inputTextarea.value;
+      if (!inputText || !inputText.trim()) { showToast('Nothing to download as docx file'); return; }
       convertPlainText();
     }
-    if (appState.parsedData.length === 0) { showToast('Nothing to download'); return; }
+    if (appState.parsedData.length === 0) { showToast('Nothing to download as docx file'); return; }
     showProcessing(true, 'Building DOCX…');
     buildBlankDocxBlob(appState.parsedData).then(function (blob) {
       var url = URL.createObjectURL(blob);
@@ -2001,20 +2028,17 @@ function wireEvents() {
   // Extra tools wiring (account excluded).
   if (els.undoBtn) els.undoBtn.addEventListener('click', undo);
   if (els.redoBtn) els.redoBtn.addEventListener('click', redo);
-  if (els.infoBoxToggle) els.infoBoxToggle.addEventListener('click', function () {
-    setInfoBoxExpanded(els.infoBoxToggle.getAttribute('aria-expanded') !== 'true');
+  if (els.featuresOpenBtn) els.featuresOpenBtn.addEventListener('click', scrollToFeatures);
+  if (els.downloadPdfBtn) els.downloadPdfBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    showToast('PDF download feature coming soon');
   });
-  if (els.featuresOpenBtn) els.featuresOpenBtn.addEventListener('click', function () {
-    setInfoBoxExpanded(true);
-    if (els.infoBox) els.infoBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-  if (els.downloadPdfBtn) els.downloadPdfBtn.addEventListener('click', comingSoon);
   if (els.toolsNav) els.toolsNav.addEventListener('click', function (e) {
     var btn = e.target.closest ? e.target.closest('.tools-nav__btn') : null;
     if (!btn || btn.hidden) return;
     var view = btn.getAttribute('data-view');
     // Spell Check + MCQ Serial are not ready — toast only, stay on current view.
-    if (view === 'spellcheck' || view === 'mcq') { showToast('Coming soon'); return; }
+    if (view === 'spellcheck' || view === 'mcq') { showToast('This feature is coming soon...'); return; }
     switchToolView(view);
   });
   document.querySelectorAll('.seg').forEach(function (seg) {
@@ -2038,6 +2062,10 @@ function wireEvents() {
       if (result) result.innerHTML = '';
     });
   });
+
+  if (els.sampleFillBtn) {
+    els.sampleFillBtn.addEventListener('click', fillSampleText);
+  }
 
   els.inputTextarea.addEventListener('input', function () {
     updateStats();

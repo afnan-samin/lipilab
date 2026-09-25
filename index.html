@@ -1,13 +1,23 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="Professional Bangla Unicode to Bijoy and Bijoy to Unicode text and DOCX conversion. Free, offline, private." />
 <meta name="theme-color" content="#6c63ff" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#8b80ff" media="(prefers-color-scheme: dark)" />
+<meta property="og:title" content="LipiLab — Bangla Unicode ↔ Bijoy Converter" />
+<meta property="og:description" content="Convert Bangla Unicode and Bijoy text and Word files. Free, private, no signup." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://lipilab.pro.bd" />
+<meta property="og:locale" content="en_US" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="LipiLab — Bangla Unicode ↔ Bijoy Converter" />
+<meta name="twitter:description" content="Convert Bangla Unicode and Bijoy text and Word files. Free, private, no signup." />
+<link rel="canonical" href="https://lipilab.pro.bd" />
 <title>LipiLab — Bangla Unicode ↔ Bijoy Converter</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='9' fill='%236c63ff'/%3E%3Ctext x='18' y='26' text-anchor='middle' font-family='sans-serif' font-size='20' font-weight='700' fill='white'%3E%E0%A6%B2%3C/text%3E%3C/svg%3E" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
 
 <!-- JSZip: needed for both blank-DOCX generation and DOCX template round-trip patching -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -21,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.maateen.me">
 <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet">
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=11">
 </head>
 <body>
 
@@ -35,40 +45,39 @@
   <svg viewBox="0 0 160 1000" width="100%" style="display:block;height:100%;border-radius:0" role="img" aria-label="LipiLab vertical banner" preserveAspectRatio="xMidYMid meet">
     <defs>
       <linearGradient id="hsRailL" x1="0" y1="0" x2="160" y2="1000" gradientUnits="userSpaceOnUse">
-        <stop offset="0" stop-color="#f4f0ff"/><stop offset="1" stop-color="#ded2fb"/>
+        <stop class="bn-bg-start" offset="0" stop-color="#f4f0ff"/><stop class="bn-bg-end" offset="1" stop-color="#ded2fb"/>
       </linearGradient>
       <linearGradient id="hsRailLBtn" x1="0" y1="0" x2="120" y2="48" gradientUnits="userSpaceOnUse">
         <stop offset="0" stop-color="#6c63ff"/><stop offset="1" stop-color="#a855f7"/>
       </linearGradient>
     </defs>
     <rect width="160" height="1000" fill="url(#hsRailL)"/>
-    <circle cx="165" cy="70" r="85" fill="#6c63ff" opacity="0.10">
+    <circle cx="165" cy="70" r="85" class="bn-orb" fill="#6c63ff" opacity="0.10">
       <animate attributeName="cy" values="70;94;70" dur="6s" repeatCount="indefinite"/>
     </circle>
-    <circle cx="-5" cy="950" r="85" fill="#6c63ff" opacity="0.07">
+    <circle cx="-5" cy="950" r="85" class="bn-orb" fill="#6c63ff" opacity="0.07">
       <animate attributeName="cy" values="950;926;950" dur="7s" repeatCount="indefinite"/>
     </circle>
-    <text x="80" y="140" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="32" font-weight="800" fill="#2b2660">LipiLab</text>
-    <text x="80" y="224" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#2b2660">Unicode ↔ Bijoy</text>
-    <text x="80" y="248" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">in seconds</text>
-    <text x="80" y="272" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">+ full Word magic</text>
-    <text x="80" y="322" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ 100% Free forever</text>
-    <text x="80" y="350" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ No signup needed</text>
-    <text x="80" y="378" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ Fully private</text>
-    <text x="80" y="406" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ Works offline</text>
-    <g>
-      <animate attributeName="opacity" values="1;0.88;1" dur="2.4s" repeatCount="indefinite"/>
+    <text x="80" y="140" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="32" font-weight="800" class="bn-title" fill="#2b2660">LipiLab</text>
+    <text x="80" y="224" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" class="bn-title" fill="#2b2660">Unicode ↔ Bijoy</text>
+    <text x="80" y="248" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" class="bn-sub" fill="#5f5890">in seconds</text>
+    <text x="80" y="272" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" class="bn-sub" fill="#5f5890">+ full Word magic</text>
+    <text x="80" y="322" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" class="bn-title" fill="#2b2660">✓ 100% Free forever</text>
+    <text x="80" y="350" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" class="bn-title" fill="#2b2660">✓ No signup needed</text>
+    <text x="80" y="378" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" class="bn-title" fill="#2b2660">✓ Fully private</text>
+    <text x="80" y="406" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" class="bn-title" fill="#2b2660">✓ Works offline</text>
+    <g class="bn-cta">
       <rect x="20" y="440" width="120" height="48" rx="24" fill="url(#hsRailLBtn)"/>
       <text x="80" y="470" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Start Free</text>
     </g>
-    <line x1="40" y1="530" x2="120" y2="530" stroke="#8a84ad" stroke-width="1" opacity="0.4"/>
-    <text x="80" y="570" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="800" fill="#2b2660">Why LipiLab?</text>
-    <text x="80" y="600" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Design never breaks</text>
-    <text x="80" y="624" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Bangla stays Bangla</text>
-    <text x="80" y="648" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">English stays English</text>
-    <text x="80" y="914" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="800" letter-spacing="1.5" fill="#2b2660">FREE FOREVER</text>
-    <text x="80" y="946" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" fill="#5f5890">Your data stays in your browser.</text>
-    <text x="80" y="962" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" fill="#5f5890">100% private — nothing uploaded.</text>
+    <line x1="40" y1="530" x2="120" y2="530" class="bn-line" stroke="#8a84ad" stroke-width="1" opacity="0.4"/>
+    <text x="80" y="570" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="800" class="bn-title" fill="#2b2660">Why LipiLab?</text>
+    <text x="80" y="600" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" class="bn-sub" fill="#5f5890">Design never breaks</text>
+    <text x="80" y="624" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" class="bn-sub" fill="#5f5890">Bangla stays Bangla</text>
+    <text x="80" y="648" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" class="bn-sub" fill="#5f5890">English stays English</text>
+    <text x="80" y="914" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="800" letter-spacing="1.5" class="bn-title" fill="#2b2660">FREE FOREVER</text>
+    <text x="80" y="946" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" class="bn-sub" fill="#5f5890">Your data stays in your browser.</text>
+    <text x="80" y="962" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" class="bn-sub" fill="#5f5890">100% private — nothing uploaded.</text>
   </svg>
   <!-- PARTNER MEDIA CODE GOES HERE (tall media unit, ~160x600). Real code in PARTNER.railLeft replaces this demo. -->
 </div>
@@ -76,47 +85,44 @@
   <svg viewBox="0 0 160 1000" width="100%" style="display:block;height:100%;border-radius:0" role="img" aria-label="LipiLab vertical banner" preserveAspectRatio="xMidYMid meet">
     <defs>
       <linearGradient id="hsRailR" x1="0" y1="0" x2="160" y2="1000" gradientUnits="userSpaceOnUse">
-        <stop offset="0" stop-color="#ded2fb"/><stop offset="1" stop-color="#f4f0ff"/>
+        <stop class="bn-bg-start" offset="0" stop-color="#ded2fb"/><stop class="bn-bg-end" offset="1" stop-color="#f4f0ff"/>
       </linearGradient>
       <linearGradient id="hsRailRBtn" x1="0" y1="0" x2="120" y2="48" gradientUnits="userSpaceOnUse">
         <stop offset="0" stop-color="#a855f7"/><stop offset="1" stop-color="#6c63ff"/>
       </linearGradient>
     </defs>
     <rect width="160" height="1000" fill="url(#hsRailR)"/>
-    <circle cx="-5" cy="70" r="85" fill="#6c63ff" opacity="0.10">
+    <circle cx="-5" cy="70" r="85" class="bn-orb" fill="#6c63ff" opacity="0.10">
       <animate attributeName="cy" values="70;94;70" dur="6.5s" repeatCount="indefinite"/>
     </circle>
-    <circle cx="165" cy="950" r="85" fill="#6c63ff" opacity="0.07">
+    <circle cx="165" cy="950" r="85" class="bn-orb" fill="#6c63ff" opacity="0.07">
       <animate attributeName="cy" values="950;926;950" dur="5.5s" repeatCount="indefinite"/>
     </circle>
-    <text x="80" y="140" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="32" font-weight="800" fill="#2b2660">LipiLab</text>
-    <text x="80" y="224" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#2b2660">Bijoy → Unicode</text>
-    <text x="80" y="248" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">one-click magic</text>
-    <text x="80" y="272" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" fill="#5f5890">any file, any size</text>
-    <text x="80" y="322" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ DOCX ready</text>
-    <text x="80" y="350" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ Dark mode</text>
-    <text x="80" y="378" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ No limits</text>
-    <text x="80" y="406" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" fill="#2b2660">✓ No signup</text>
-    <g>
-      <animate attributeName="opacity" values="1;0.88;1" dur="2.8s" repeatCount="indefinite"/>
+    <text x="80" y="140" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="32" font-weight="800" class="bn-title" fill="#2b2660">LipiLab</text>
+    <text x="80" y="224" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" class="bn-title" fill="#2b2660">Bijoy → Unicode</text>
+    <text x="80" y="248" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" class="bn-sub" fill="#5f5890">one-click magic</text>
+    <text x="80" y="272" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" class="bn-sub" fill="#5f5890">any file, any size</text>
+    <text x="80" y="322" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" class="bn-title" fill="#2b2660">✓ DOCX ready</text>
+    <text x="80" y="350" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" class="bn-title" fill="#2b2660">✓ Dark mode</text>
+    <text x="80" y="378" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" class="bn-title" fill="#2b2660">✓ No limits</text>
+    <text x="80" y="406" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" class="bn-title" fill="#2b2660">✓ No signup</text>
+    <g class="bn-cta">
       <rect x="20" y="440" width="120" height="48" rx="24" fill="url(#hsRailRBtn)"/>
       <text x="80" y="470" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Try Now</text>
     </g>
-    <line x1="40" y1="530" x2="120" y2="530" stroke="#8a84ad" stroke-width="1" opacity="0.4"/>
-    <text x="80" y="570" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="800" fill="#2b2660">Why LipiLab?</text>
-    <text x="80" y="600" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Tables stay tables</text>
-    <text x="80" y="624" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Bold stays bold</text>
-    <text x="80" y="648" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#5f5890">Columns stay columns</text>
-    <text x="80" y="914" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="800" letter-spacing="1.5" fill="#2b2660">FREE FOREVER</text>
-    <text x="80" y="940" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" fill="#5f5890">Your data stays in your browser.</text>
-    <text x="80" y="956" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" fill="#5f5890">100% private — nothing uploaded.</text>
+    <line x1="40" y1="530" x2="120" y2="530" class="bn-line" stroke="#8a84ad" stroke-width="1" opacity="0.4"/>
+    <text x="80" y="570" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="800" class="bn-title" fill="#2b2660">Why LipiLab?</text>
+    <text x="80" y="600" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" class="bn-sub" fill="#5f5890">Tables stay tables</text>
+    <text x="80" y="624" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" class="bn-sub" fill="#5f5890">Bold stays bold</text>
+    <text x="80" y="648" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" class="bn-sub" fill="#5f5890">Columns stay columns</text>
+    <text x="80" y="914" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="800" letter-spacing="1.5" class="bn-title" fill="#2b2660">FREE FOREVER</text>
+    <text x="80" y="940" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" class="bn-sub" fill="#5f5890">Your data stays in your browser.</text>
+    <text x="80" y="956" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" class="bn-sub" fill="#5f5890">100% private — nothing uploaded.</text>
   </svg>
   <!-- PARTNER MEDIA CODE GOES HERE (tall media unit, ~160x600). Real code in PARTNER.railRight replaces this demo. -->
 </div>
 
-<div class="app-shell">
-
-  <header class="app-header" role="banner">
+<header class="app-header" role="banner" style="top:0;left:0;right:0;margin:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;">
     <div class="app-header__brand">
       <svg class="app-logo" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
         <rect width="36" height="36" rx="9" fill="url(#logo-grad)" />
@@ -153,34 +159,35 @@
           <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/>
         </svg>
       </button>
-      <button class="features-btn" id="features-open-btn" type="button" aria-controls="info-box-body" title="Go to the LipiLab features list">
+      <button class="features-btn" id="features-open-btn" type="button" aria-controls="info-box" title="Go to the LipiLab features list">
         <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/></svg>
         Features
       </button>
     </nav>
   </header>
 
+<div class="app-shell">
+
   <div class="pl-slot pl-slot--wide" id="spot-top" aria-label="Notice">
     <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab top banner">
       <defs>
         <linearGradient id="hsWideTop" x1="0" y1="0" x2="728" y2="90" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#f4f0ff"/><stop offset="1" stop-color="#e0d4fc"/>
+          <stop class="bn-bg-start" offset="0" stop-color="#f4f0ff"/><stop class="bn-bg-end" offset="1" stop-color="#e0d4fc"/>
         </linearGradient>
         <linearGradient id="hsWideTopBtn" x1="0" y1="0" x2="116" y2="34" gradientUnits="userSpaceOnUse">
           <stop offset="0" stop-color="#6c63ff"/><stop offset="1" stop-color="#a855f7"/>
         </linearGradient>
       </defs>
       <rect width="728" height="90" fill="url(#hsWideTop)"/>
-      <circle cx="648" cy="-24" r="72" fill="#6c63ff" opacity="0.10">
+      <circle cx="648" cy="-24" r="72" class="bn-orb" fill="#6c63ff" opacity="0.10">
         <animate attributeName="cy" values="-24;-10;-24" dur="6s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="70" cy="114" r="62" fill="#6c63ff" opacity="0.07">
+      <circle cx="70" cy="114" r="62" class="bn-orb" fill="#6c63ff" opacity="0.07">
         <animate attributeName="cy" values="114;102;114" dur="7s" repeatCount="indefinite"/>
       </circle>
-      <text x="28" y="40" font-family="Sora,Arial,sans-serif" font-size="24" font-weight="800" fill="#2b2660">LipiLab — Convert Without Limits</text>
-      <text x="28" y="63" font-family="Arial,sans-serif" font-size="14.5" fill="#5f5890">Unicode ↔ Bijoy + Word files · Free forever, no signup</text>
-      <g>
-        <animate attributeName="opacity" values="1;0.88;1" dur="2.4s" repeatCount="indefinite"/>
+      <text x="28" y="40" font-family="Sora,Arial,sans-serif" font-size="24" font-weight="800" class="bn-title" fill="#2b2660">LipiLab — Convert Without Limits</text>
+      <text x="28" y="63" font-family="Arial,sans-serif" font-size="14.5" class="bn-sub" fill="#5f5890">Unicode ↔ Bijoy + Word files · Free forever, no signup</text>
+      <g class="bn-cta">
         <rect x="588" y="28" width="116" height="34" rx="17" fill="url(#hsWideTopBtn)"/>
         <text x="646" y="50" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff">Get Started</text>
       </g>
@@ -190,8 +197,12 @@
 
   <nav class="tools-nav" id="tools-nav" aria-label="Tools">
     <button class="tools-nav__btn is-active" data-view="converter" type="button">Converter</button>
-    <button class="tools-nav__btn" data-view="spellcheck" type="button" aria-label="Spell Check — coming soon" title="Spell Check — Coming soon" disabled>Spell Check <span style="color:#6c63ff;font-weight:700;">(Soon)</span></button>
-    <button class="tools-nav__btn" data-view="mcq" type="button" aria-label="MCQ Serial — coming soon" title="MCQ Serial — Coming soon" disabled>MCQ Serial <span style="color:#6c63ff;font-weight:700;">(Soon)</span></button>
+    <button class="tools-nav__btn tools-nav__btn--tease tools-nav__btn--tease-light" data-view="spellcheck" type="button" aria-label="Spell Check — coming soon" title="This feature is coming soon...">
+      <span class="tools-nav__tease" aria-hidden="true">Spell Check</span>
+    </button>
+    <button class="tools-nav__btn tools-nav__btn--tease tools-nav__btn--tease-heavy" data-view="mcq" type="button" aria-label="Coming soon" title="This feature is coming soon...">
+      <span class="tools-nav__tease" aria-hidden="true">MCQ Serial</span>
+    </button>
     <button class="tools-nav__btn" data-view="admin" type="button" hidden>Admin</button>
   </nav>
 
@@ -263,25 +274,20 @@
         <h2 class="panel__title" id="input-panel-title">Input</h2>
         <div class="panel__header-actions">
           <button class="icon-btn icon-btn--sm" id="undo-btn" type="button" aria-label="Undo" title="Undo" disabled>
-            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>
-            Undo
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>
           </button>
           <button class="icon-btn icon-btn--sm" id="redo-btn" type="button" aria-label="Redo" title="Redo" disabled>
-            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/></svg>
-            Redo
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/></svg>
           </button>
           <button class="icon-btn icon-btn--sm" id="paste-btn" type="button" aria-label="Paste from clipboard" title="Paste">
-            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
-            Paste
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
           </button>
           <label class="icon-btn icon-btn--sm" for="file-upload-input" title="Upload .txt or .docx file" tabindex="0" role="button" aria-label="Upload text or DOCX file">
             <input type="file" id="file-upload-input" class="visually-hidden" accept=".txt,.docx" tabindex="-1" />
-            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Upload
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           </label>
           <button class="icon-btn icon-btn--sm icon-btn--danger" id="clear-btn" type="button" aria-label="Clear input" title="Clear (Ctrl+Shift+C)">
-            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-            Clear
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
           </button>
         </div>
       </div>
@@ -297,6 +303,9 @@
       <div class="panel__body">
         <textarea class="panel__textarea" id="input-textarea" aria-labelledby="input-panel-title" aria-describedby="input-panel-stats"
                   placeholder="Type Unicode or Bijoy Bangla, or paste text..." spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="none"></textarea>
+        <div class="empty-hint" id="empty-hint">
+          <button type="button" class="empty-hint__btn" id="sample-fill-btn">Try a sample</button>
+        </div>
       </div>
 
       <div class="panel__footer">
@@ -323,22 +332,36 @@
       <div class="panel__header">
         <h2 class="panel__title" id="output-panel-title">Output</h2>
         <div class="panel__header-actions">
-          <button class="icon-btn icon-btn--sm" id="copy-btn" type="button" aria-label="Copy output" title="Copy output">
-            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            Copy
+          <button class="icon-btn icon-btn--sm" id="copy-btn" type="button" aria-label="Copy output" title="Copy">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           </button>
-          <button class="icon-btn icon-btn--sm" id="download-txt-btn" type="button" aria-label="Download as .txt" title="Download .txt (Ctrl+S)">
-            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            .txt
-          </button>
-          <button class="icon-btn icon-btn--sm" id="download-docx-btn" type="button" aria-label="Download as .docx" title="Download .docx">
-            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            .docx
-          </button>
-          <button class="icon-btn icon-btn--sm" id="download-pdf-btn" type="button" aria-label="PDF download coming soon" title="PDF download — Coming soon" aria-disabled="true" disabled>
-            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            .pdf <span style="color:#6c63ff;font-weight:700;">(Soon)</span>
-          </button>
+          <div class="download-group" role="group" aria-label="Download output">
+            <span class="download-group__lead" aria-hidden="true">
+              <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span class="download-group__colon">:</span>
+            </span>
+            <button class="icon-btn icon-btn--sm file-btn" id="download-txt-btn" type="button" aria-label="Download as .txt" title="Download .txt (Ctrl+S)">
+              <svg class="file-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#64748b" d="M6 2h8l6 6v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+                <path fill="#94a3b8" d="M14 2v6h6"/>
+                <text x="12" y="18" text-anchor="middle" font-size="6.2" font-weight="800" font-family="Arial,sans-serif" fill="#fff">TXT</text>
+              </svg>
+            </button>
+            <button class="icon-btn icon-btn--sm file-btn" id="download-docx-btn" type="button" aria-label="Download as .docx" title="Download .docx">
+              <svg class="file-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#2b579a" d="M6 2h8l6 6v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+                <path fill="#1e3f73" d="M14 2v6h6"/>
+                <text x="12" y="18" text-anchor="middle" font-size="5.6" font-weight="800" font-family="Arial,sans-serif" fill="#fff">DOC</text>
+              </svg>
+            </button>
+            <button class="icon-btn icon-btn--sm file-btn" id="download-pdf-btn" type="button" aria-label="PDF download coming soon" title="PDF download feature coming soon">
+              <svg class="file-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#e11d48" d="M6 2h8l6 6v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+                <path fill="#9f1239" d="M14 2v6h6"/>
+                <text x="12" y="18" text-anchor="middle" font-size="5.6" font-weight="800" font-family="Arial,sans-serif" fill="#fff">PDF</text>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -432,23 +455,22 @@
     <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab bottom banner">
       <defs>
         <linearGradient id="hsWideBottom" x1="0" y1="0" x2="728" y2="90" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#e0d4fc"/><stop offset="1" stop-color="#f4f0ff"/>
+          <stop class="bn-bg-start" offset="0" stop-color="#e0d4fc"/><stop class="bn-bg-end" offset="1" stop-color="#f4f0ff"/>
         </linearGradient>
         <linearGradient id="hsWideBottomBtn" x1="0" y1="0" x2="116" y2="34" gradientUnits="userSpaceOnUse">
           <stop offset="0" stop-color="#a855f7"/><stop offset="1" stop-color="#6c63ff"/>
         </linearGradient>
       </defs>
       <rect width="728" height="90" fill="url(#hsWideBottom)"/>
-      <circle cx="80" cy="-24" r="72" fill="#6c63ff" opacity="0.10">
+      <circle cx="80" cy="-24" r="72" class="bn-orb" fill="#6c63ff" opacity="0.10">
         <animate attributeName="cy" values="-24;-10;-24" dur="6.5s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="660" cy="114" r="62" fill="#6c63ff" opacity="0.07">
+      <circle cx="660" cy="114" r="62" class="bn-orb" fill="#6c63ff" opacity="0.07">
         <animate attributeName="cy" values="114;102;114" dur="5.5s" repeatCount="indefinite"/>
       </circle>
-      <text x="36" y="40" font-family="Sora,Arial,sans-serif" font-size="24" font-weight="800" fill="#2b2660">Word Files? Done in Seconds.</text>
-      <text x="36" y="63" font-family="Arial,sans-serif" font-size="14.5" fill="#5f5890">Upload · Convert · Download — tables and bold stay as they were</text>
-      <g>
-        <animate attributeName="opacity" values="1;0.88;1" dur="2.8s" repeatCount="indefinite"/>
+      <text x="36" y="40" font-family="Sora,Arial,sans-serif" font-size="24" font-weight="800" class="bn-title" fill="#2b2660">Word Files? Done in Seconds.</text>
+      <text x="36" y="63" font-family="Arial,sans-serif" font-size="14.5" class="bn-sub" fill="#5f5890">Upload · Convert · Download — tables and bold stay as they were</text>
+      <g class="bn-cta">
         <rect x="588" y="28" width="116" height="34" rx="17" fill="url(#hsWideBottomBtn)"/>
         <text x="646" y="50" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff">Try Free</text>
       </g>
@@ -456,12 +478,9 @@
     <!-- PARTNER MEDIA CODE GOES HERE (wide media unit). Real code in PARTNER.bottom replaces this demo. -->
   </div>
 
-  <div class="info-box info-box--collapsed" id="info-box" aria-labelledby="info-box-title">
-    <button class="info-box__toggle" id="info-box-toggle" type="button" aria-expanded="false" aria-controls="info-box-body">
-      <span class="info-box__chevron" aria-hidden="true">▾</span>
-      <span class="info-box__toggle-title" id="info-box-title">LipiLab দিয়ে কী কী করা যায়?</span>
-    </button>
-    <div class="info-box__body" id="info-box-body" hidden>
+  <div class="info-box" id="info-box" aria-labelledby="info-box-title">
+    <h2 class="info-box__title" id="info-box-title">LipiLab দিয়ে কী কী করা যায়?</h2>
+    <div class="info-box__body" id="info-box-body">
       <ul class="info-box__features">
         <li><strong>LipiLab</strong> হলো <strong>বাংলা লেখালেখির দৈনন্দিন কাজগুলো</strong> সহজ করার একটি টুল।</li>
         <li>বাংলা লেখাকে <strong>ইউনিকোড থেকে বিজয়</strong> কিংবা <strong>বিজয় থেকে ইউনিকোডে</strong> রূপান্তর করতে চান? শুধু লেখা পেস্ট করলেই <strong>LipiLab</strong> নিজেই বুঝে নেয় কোন <strong>ফরম্যাট থেকে কোন ফরম্যাটে</strong> পরিবর্তন করতে হবে।</li>
@@ -478,17 +497,50 @@
     </div>
   </div>
 
-  <div class="app-credit">
-    <span class="app-credit__version">LipiLab v1.0.0</span>
+  <div class="pl-slot pl-slot--wide" id="spot-mid" aria-label="Notice">
+    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab mid banner">
+      <defs>
+        <linearGradient id="hsWideMid" x1="0" y1="0" x2="728" y2="90" gradientUnits="userSpaceOnUse">
+          <stop class="bn-bg-start" offset="0" stop-color="#f4f0ff"/><stop class="bn-bg-end" offset="1" stop-color="#e0d4fc"/>
+        </linearGradient>
+        <linearGradient id="hsWideMidBtn" x1="0" y1="0" x2="116" y2="34" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#6c63ff"/><stop offset="1" stop-color="#a855f7"/>
+        </linearGradient>
+      </defs>
+      <rect width="728" height="90" fill="url(#hsWideMid)"/>
+      <circle cx="648" cy="-24" r="72" class="bn-orb" fill="#6c63ff" opacity="0.10">
+        <animate attributeName="cy" values="-24;-10;-24" dur="6s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="70" cy="114" r="62" class="bn-orb" fill="#6c63ff" opacity="0.07">
+        <animate attributeName="cy" values="114;102;114" dur="7s" repeatCount="indefinite"/>
+      </circle>
+      <text x="28" y="38" font-family="Sora,Arial,sans-serif" font-size="20" font-weight="800" class="bn-title" fill="#2b2660">Professional Bangla Document Tools</text>
+      <text x="28" y="64" font-family="Arial,sans-serif" font-size="13" class="bn-sub" fill="#5f5890">Convert, edit and export Bangla text without losing formatting.</text>
+      <g class="bn-cta">
+        <rect x="588" y="28" width="116" height="34" rx="17" fill="url(#hsWideMidBtn)"/>
+        <text x="646" y="50" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#ffffff">Start Free</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="support-box" id="support-box" aria-labelledby="support-box-title">
+    <h2 class="support-box__title" id="support-box-title">Contact / Support</h2>
+    <div class="support-box__body">
+      <p>আপনি যদি কোনো ফাইল বিজয় থেকে ইউনিকোডে বা ইউনিকোড থেকে বিজয়ে কনভার্ট করার পর কাঙ্ক্ষিত ফলাফল না পান, তাহলে আপনার ফাইলের স্ক্রিনশট এবং কনভার্ট করার পর ডাউনলোড করে যে ফাইলে সমস্যা পেয়েছেন সেই সমস্যার স্ক্রিনশট শেয়ার করুন দয়া করে। আমরা সংশোধন করার চেষ্টা করব।</p>
+      <p>তাছাড়া কোনো ফিচার-সংক্রান্ত পরামর্শ বা অভিজ্ঞতা শেয়ারিংয়ের জন্যও আমাদের নির্দ্বিধায় মেইল করতে পারেন।</p>
+      <p class="support-box__contact">Contact: <a class="support-mail" href="mailto:unknownacone@gmail.com">unknownacone@gmail.com</a></p>
+    </div>
+  </div>
+
+  <footer class="app-credit" role="contentinfo">
+    <span class="app-credit__version">LipiLab v1.8.21</span>
     <span class="app-credit__separator" aria-hidden="true">·</span>
     <span class="app-credit__by">Developed by</span>
     <a class="app-credit__link" href="https://www.facebook.com/developer.bap" target="_blank" rel="noopener noreferrer" aria-label="Afnan Samin on Facebook">
       <svg class="app-credit__fb-icon" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.91h-2.33V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg>
       Afnan Samin
     </a>
-  </div>
-
-  <footer class="app-footer" role="contentinfo">
+    <span class="app-credit__separator" aria-hidden="true">·</span>
     <span class="app-footer__offline" id="offline-indicator" aria-live="polite" aria-label="Network: Online">
       <svg class="icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
       <span id="offline-indicator-text">Online</span>
@@ -524,8 +576,8 @@
 
 <div class="ask-overlay" id="ask-overlay" role="dialog" aria-modal="true" aria-labelledby="ask-title">
   <div class="ask-card">
-    <h2 class="ask-card__title" id="ask-title">Help us keep LipiLab free 💜</h2>
-    <p class="ask-card__body">LipiLab is free for you forever — no fees, no subscriptions. But servers, domain and upkeep cost real money every month, and these tiny banners are the only thing keeping the lights on. Please keep them visible and switch off any blocker for this site, so LipiLab stays free for everyone.</p>
+    <h2 class="ask-card__title" id="ask-title">Help us keep LipiLab free</h2>
+    <p class="ask-card__body">LipiLab is free forever — no fees, no subscriptions. Servers, domain and upkeep cost real money every month, and these banners keep it running. Please keep them visible so LipiLab stays free for everyone.</p>
     <div class="ask-card__actions">
       <button type="button" class="ask-card__btn ask-card__btn--yes" id="ask-yes">Yes, keep it free</button>
       <button type="button" class="ask-card__btn ask-card__btn--no" id="ask-no">No, thanks</button>
@@ -541,20 +593,19 @@
     <svg viewBox="0 0 300 100" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab small banner">
       <defs>
         <linearGradient id="hsPost" x1="0" y1="0" x2="300" y2="100" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#f4f0ff"/><stop offset="1" stop-color="#e0d4fc"/>
+          <stop class="bn-bg-start" offset="0" stop-color="#f4f0ff"/><stop class="bn-bg-end" offset="1" stop-color="#e0d4fc"/>
         </linearGradient>
         <linearGradient id="hsPostBtn" x1="0" y1="0" x2="82" y2="28" gradientUnits="userSpaceOnUse">
           <stop offset="0" stop-color="#6c63ff"/><stop offset="1" stop-color="#a855f7"/>
         </linearGradient>
       </defs>
       <rect width="300" height="100" fill="url(#hsPost)"/>
-      <circle cx="280" cy="0" r="46" fill="#6c63ff" opacity="0.10">
+      <circle cx="280" cy="0" r="46" class="bn-orb" fill="#6c63ff" opacity="0.10">
         <animate attributeName="cy" values="0;12;0" dur="5s" repeatCount="indefinite"/>
       </circle>
-      <text x="20" y="44" font-family="Sora,Arial,sans-serif" font-size="18" font-weight="800" fill="#2b2660">LipiLab</text>
-      <text x="20" y="64" font-family="Arial,sans-serif" font-size="12.5" fill="#5f5890">Free forever · Private · No signup</text>
-      <g>
-        <animate attributeName="opacity" values="1;0.88;1" dur="2.4s" repeatCount="indefinite"/>
+      <text x="20" y="44" font-family="Sora,Arial,sans-serif" font-size="18" font-weight="800" class="bn-title" fill="#2b2660">LipiLab</text>
+      <text x="20" y="64" font-family="Arial,sans-serif" font-size="12.5" class="bn-sub" fill="#5f5890">Free forever · Private · No signup</text>
+      <g class="bn-cta">
         <rect x="206" y="36" width="82" height="28" rx="14" fill="url(#hsPostBtn)"/>
         <text x="247" y="55" text-anchor="middle" font-family="Arial,sans-serif" font-size="13.5" font-weight="700" fill="#ffffff">Join Free</text>
       </g>
@@ -565,14 +616,14 @@
 
 <div class="gate-veil" id="gate-veil" hidden>
   <div class="gate-card" role="dialog" aria-modal="true" aria-labelledby="gate-title">
-    <h2 class="gate-card__title" id="gate-title">One small request before you continue 💔</h2>
-    <p class="gate-card__body">LipiLab is 100% free — no fees, no subscriptions. But keeping it online (servers, domain, maintenance) costs real money every month, and those little banners are the ONLY income keeping this service alive. We noticed a blocker on this site — with it on, LipiLab can't survive.</p>
+    <h2 class="gate-card__title" id="gate-title">One small request before you continue</h2>
+    <p class="gate-card__body">LipiLab is 100% free — no fees, no subscriptions. Keeping it online costs real money every month, and these banners are the only income keeping this service alive. We noticed a blocker on this site — with it on, LipiLab cannot survive.</p>
     <p class="gate-card__hint">Please turn the blocker off for this site (takes 10 seconds), then press refresh.<br>Brave: lion icon → Shields Down · Chrome: puzzle icon → extension → off for this site.</p>
     <button type="button" class="gate-card__btn" id="gate-refresh-btn">I've turned it off — Refresh</button>
   </div>
 </div>
 
-<script src="partner.js"></script>
-<script src="app.js"></script>
+<script src="partner.js?v=11"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>
