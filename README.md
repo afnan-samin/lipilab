@@ -71,7 +71,7 @@ The special part is **Word files**: upload a `.docx` and download it back with t
 - [x] Unicode ↔ Bijoy for plain text
 - [x] Auto direction detection
 - [x] Live conversion mode
-- [x] DOCX round-trip with formatting preserved
+- [x] DOCX round-trip with formatting preserved — verified by the regression suite in [`tests/`](../tests/) (exact per-run text + bold/italic/size/colour assertions: `npm test` inside `tests/`), covering run-level and style-level fonts, text boxes, headers/footers/footnotes/comments
 - [x] Dark mode, shortcuts, undo/redo, live stats
 - [ ] PDF export
 - [ ] Bangla Spell Check
