@@ -312,8 +312,7 @@ function showProcessing(active, label, percent) {
   }
 }
 
-function showConversionSuccess(mode) {
-  var label = mode === 'unicode-to-bijoy' ? 'Successfully converted to Bijoy' : 'Successfully converted to Unicode';
+function showStatusSuccess(label) {
   els.processingText.textContent = label;
   els.processingProgress.classList.remove('processing-progress--show');
   els.processingPercent.textContent = '';
@@ -322,6 +321,10 @@ function showConversionSuccess(mode) {
   els.processingIndicator.classList.remove('processing-idle');
   els.processingIndicator.classList.add('processing-success');
   els.processingIndicator.hidden = false;
+}
+
+function showConversionSuccess(mode) {
+  showStatusSuccess(mode === 'unicode-to-bijoy' ? 'Successfully converted to Bijoy' : 'Successfully converted to Unicode');
 }
 
 function setStatusIdle() {
@@ -422,9 +425,31 @@ function lockInputForDocx(locked) {
   else els.inputTextarea.removeAttribute('aria-readonly');
 }
 
+var convertBtnBaseTitle = 'Convert (Ctrl+Enter)';
+
 function setConvertButtonMode(docxLoaded) {
+  // Convert button label stays fixed: always "Convert".
   els.convertBtnLabel.textContent = 'Convert';
-  els.convertBtn.title = docxLoaded ? 'Convert the DOCX' : 'Convert (Ctrl+Enter)';
+  convertBtnBaseTitle = docxLoaded ? 'Convert the DOCX' : 'Convert (Ctrl+Enter)';
+  updateConvertBtnState();
+}
+
+/* Single source of truth for whether the Convert button may be pressed.
+   Live mode ON  -> disabled (text converts automatically as you type).
+   Live mode OFF -> enabled, unless the free quota is locked. */
+function updateConvertBtnState() {
+  if (!els.convertBtn) return;
+  var allow = !appState.liveMode && !quotaLocked;
+  els.convertBtn.disabled = !allow;
+  els.convertBtn.classList.toggle('is-disabled', !allow);
+  els.convertBtn.setAttribute('aria-disabled', String(!allow));
+  if (allow) {
+    els.convertBtn.title = convertBtnBaseTitle;
+  } else {
+    els.convertBtn.title = appState.liveMode
+      ? 'Live mode is ON — text converts as you type (Ctrl+L for manual convert)'
+      : 'Free quota exceeded';
+  }
 }
 
 function updateDirectionPillPosition() {
@@ -523,6 +548,15 @@ var conversionRunId = 0;
 function hasConvertibleText(text) {
   if (!text || !text.trim()) { showToast('Nothing to convert'); return false; }
   return true;
+}
+
+/* A manual Convert click gets the same statusbar feedback live mode shows while
+   typing: the "Converting…" state (spinner + progress bar) is painted first,
+   then the run starts on the next frame and reports its own progress and
+   success exactly like the live path does. */
+function startManualConvert(label, run) {
+  showProcessing(true, label, 0);
+  requestAnimationFrame(run);
 }
 
 function convertPlainText() {
@@ -1390,7 +1424,7 @@ function clearDocxTemplate() {
 
 /* Patches DOCX parts and resolves { zip, mainXml, direction } without
    downloading — shared by DOCX download and table-preserving PDF print. */
-function patchDocxParts() {
+function patchDocxParts(onProgress) {
   conversionChangeCount = 0;
   return JSZip.loadAsync(appState.docxFile).then(function (freshZip) {
     var docXmlFile = freshZip.file('word/document.xml');
@@ -1409,6 +1443,7 @@ function patchDocxParts() {
       return findPartsToPatch(freshZip).then(function (extraParts) {
         var partsToPatch = ['word/document.xml'].concat(extraParts);
         var state = { mainXml: null, extras: [] };
+        var patchedParts = 0;
         var jobs = partsToPatch.map(function (path) {
           var partFile = freshZip.file(path);
           if (!partFile) return Promise.resolve();
@@ -1417,6 +1452,8 @@ function patchDocxParts() {
             if (path === 'word/document.xml') state.mainXml = patched;
             else state.extras.push({ path: path, xml: patched });
             freshZip.file(path, patched);
+            patchedParts += 1;
+            if (onProgress) onProgress(patchedParts / partsToPatch.length);
           });
         });
         return Promise.all(jobs).then(function () {
@@ -1440,9 +1477,11 @@ function rememberPatchedDocx(r) {
 function convertDocxTemplate() {
   if (quotaLocked) { setStatusQuotaExhausted(); showQuotaExhaustedToast(0); return; }
   if (!appState.docxZip || !appState.docxFile) { showToast('No DOCX template loaded.'); return; }
-  showProcessing(true, 'Converting DOCX…');
+  showProcessing(true, 'Converting DOCX…', 0);
 
-  patchDocxParts().then(function (r) {
+  patchDocxParts(function (fraction) {
+    showProcessing(true, 'Converting DOCX…', fraction * 100);
+  }).then(function (r) {
     if (r.skipped || !r.direction || conversionChangeCount === 0) {
       showProcessing(false);
       showToast('Nothing to convert');
@@ -1450,7 +1489,7 @@ function convertDocxTemplate() {
       return;
     }
     rememberPatchedDocx(r);
-    showProcessing(false);
+    showStatusSuccess(r.direction === 'uni2bijoy' ? 'DOCX converted to Bijoy' : 'DOCX converted to Unicode');
     showToast('DOCX converted — download from the output panel');
   }).catch(function (err) {
     showProcessing(false);
@@ -2015,7 +2054,7 @@ function updateQuotaLock() {
   if (FREE_MODE) {
     // Free version: quota never locks. Keep inputs usable.
     quotaLocked = false;
-    if (els.convertBtn) els.convertBtn.disabled = false;
+    updateConvertBtnState(); // live mode still gates the button
     if (els.pasteBtn) {
       els.pasteBtn.disabled = false;
       els.pasteBtn.classList.remove('is-disabled');
@@ -2029,7 +2068,7 @@ function updateQuotaLock() {
   // (fail-closed: no verified balance, no conversion).
   var locked = pointsBalance <= 0 || !srvReady;
   quotaLocked = locked;
-  if (els.convertBtn) els.convertBtn.disabled = locked;
+  updateConvertBtnState(); // combines the quota lock with the live-mode gate
   if (els.inputTextarea) {
     // DOCX template lock wins when quota is fine; quota lock wins always.
     var docxLock = !!(appState && appState.docxZip);
@@ -2196,20 +2235,21 @@ function wireEvents() {
     appState.liveMode = !appState.liveMode;
     els.liveModeBtn.setAttribute('aria-checked', String(appState.liveMode));
     els.encodingBadge.classList.toggle('encoding-badge--live', appState.liveMode);
+    updateConvertBtnState(); // live ON -> Convert disabled, live OFF -> clickable
     if (appState.liveMode) convertPlainText(); else setStatusIdle();
   });
 
   els.convertBtn.addEventListener('click', function () {
     var text = els.inputTextarea.value;
     if (!hasConvertibleText(text)) return;
-    if (appState.docxZip) { convertDocxTemplate(); return; }
+    if (appState.docxZip) { startManualConvert('Converting DOCX…', convertDocxTemplate); return; }
     var checked = document.querySelector('input[name="conversion-direction"]:checked');
     if (checked && checked.value === 'auto' && !detectAutoModeFromText(text)) {
       showToast('Nothing to convert');
       setStatusIdle();
       return;
     }
-    convertPlainText();
+    startManualConvert('Converting…', convertPlainText);
   });
 
   els.pasteBtn.addEventListener('click', function () {
@@ -2453,6 +2493,7 @@ function init() {
   safeInitStep(setStatusIdle, 'status-idle-init');
   safeInitStep(function () { els.encodingBadge.classList.toggle('encoding-badge--live', appState.liveMode); }, 'live-badge-init');
   safeInitStep(function () { setConvertButtonMode(false); }, 'convert-button-mode');
+  safeInitStep(updateConvertBtnState, 'convert-btn-state');
   safeInitStep(wireEvents, 'wire-events');
   safeInitStep(wireKeyboardShortcuts, 'wire-keyboard-shortcuts');
   safeInitStep(updateOfflineIndicator, 'offline-indicator');
