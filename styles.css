@@ -324,6 +324,9 @@ button{ font-family:inherit; }
 .encoding-badge--live .encoding-badge__dot{ animation:pulseDot 1.6s ease-in-out infinite; }
 @keyframes pulseDot{ 0%,100%{ opacity:1; transform:scale(1);} 50%{ opacity:.4; transform:scale(1.3);} }
 .statusbar__center{ display:flex; align-items:center; gap:8px; color:var(--text-secondary); font-weight:600; }
+/* `hidden` must beat the display:flex above — otherwise a finished conversion
+   or download row stays on screen showing stale text ("Building DOCX file…"). */
+#processing-indicator[hidden]{ display:none; }
 .processing-progress{ width:80px; height:6px; border-radius:var(--radius-pill); background:var(--border); overflow:hidden; display:none; }
 .processing-progress--show{ display:inline-block; }
 .processing-progress__fill{ height:100%; width:0%; background:linear-gradient(135deg,var(--accent),var(--accent-2)); border-radius:var(--radius-pill); transition:width 0.12s linear; }
@@ -337,7 +340,7 @@ button{ font-family:inherit; }
 @keyframes spin{ to{ transform:rotate(360deg); } }
 .warning-badge{
   display:flex; align-items:center; gap:6px; border:1px solid var(--warning); background:var(--warning-soft); color:var(--warning);
-  border-radius:var(--radius-pill); padding:5px 12px; font-weight:700; cursor:default;
+  border-radius:var(--radius-pill); padding:5px 12px; font-weight:700; cursor:help;
 }
 .warning-badge[hidden]{ display:none; }
 

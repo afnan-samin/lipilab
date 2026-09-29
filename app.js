@@ -544,8 +544,8 @@ function showProcessing(active, label, percent) {
   }
 }
 
-function showConversionSuccess(mode) {
-  var label = mode === 'unicode-to-bijoy' ? 'Successfully converted to Bijoy' : 'Successfully converted to Unicode';
+// Shared green-check finish row, used by conversions and by downloads.
+function showStatusSuccess(label) {
   els.processingText.textContent = label;
   els.processingProgress.classList.remove('processing-progress--show');
   els.processingPercent.textContent = '';
@@ -554,6 +554,45 @@ function showConversionSuccess(mode) {
   els.processingIndicator.classList.remove('processing-idle');
   els.processingIndicator.classList.add('processing-success');
   els.processingIndicator.hidden = false;
+}
+
+function showConversionSuccess(mode) {
+  showStatusSuccess(mode === 'unicode-to-bijoy' ? 'Successfully converted to Bijoy' : 'Successfully converted to Unicode');
+}
+
+/* ------------------------------------------------------------
+   5b. DOWNLOAD FEEDBACK
+
+   Every download button paints "Building <KIND> file…" the moment it is
+   clicked and keeps that row up for the whole build; the green success row
+   ("Download started successfully") appears only once the finished blob has
+   really been handed to the browser. The build is deferred by one animation
+   frame so the busy row is painted even when the blob is ready instantly
+   (TXT) — and the hidden attribute on the indicator now really hides it
+   (see the #processing-indicator[hidden] rule in styles.css).
+------------------------------------------------------------ */
+function triggerDownload(url, fileName) {
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function startDownload(kind, build, fileName) {
+  showProcessing(true, 'Building ' + kind + ' file…');
+  requestAnimationFrame(function () {
+    Promise.resolve().then(build).then(function (blob) {
+      var url = URL.createObjectURL(blob);
+      triggerDownload(url, fileName);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1200);
+      showStatusSuccess('Download started successfully');
+    }).catch(function (err) {
+      setStatusIdle();
+      showToast('Error: ' + err.message);
+    });
+  });
 }
 
 function setStatusIdle() {
@@ -567,9 +606,39 @@ function setStatusIdle() {
   els.processingIndicator.hidden = false;
 }
 
-function setWarningBadge(count) {
+/* Unicode -> Bijoy only: characters the SutonnyMJ map has no code point for
+   survive in the output as Bengali characters. Returns how many were found and
+   records each distinct one in `seen`, so the status badge can name them. */
+function countUnmappable(outText, seen) {
+  var leftover = outText.match(/[\u0980-\u09FF]/g);
+  if (!leftover) return 0;
+  for (var i = 0; i < leftover.length; i++) {
+    if (seen && seen.indexOf(leftover[i]) === -1) seen.push(leftover[i]);
+  }
+  return leftover.length;
+}
+
+var lastUnmappableChars = [];
+
+function setWarningBadge(count, chars) {
   els.warningCount.textContent = String(count);
   els.warningBadge.hidden = count === 0;
+  lastUnmappableChars = count && chars ? chars : [];
+  var noun = count === 1 ? '1 character has' : count + ' characters have';
+  var msg = noun + ' no Bijoy (SutonnyMJ) equivalent — kept as Unicode: ';
+  msg += lastUnmappableChars.length ? lastUnmappableChars.join(' ') : '—';
+  els.warningBadge.title = msg;
+  els.warningBadge.setAttribute('aria-label', msg);
+}
+
+// Clicking the badge answers "what does unmappable mean?" inside the app.
+function explainUnmappable() {
+  if (!lastUnmappableChars.length) {
+    showToast('No unmappable characters in this conversion');
+    return;
+  }
+  showToast('No Bijoy code: ' + lastUnmappableChars.join(' ') +
+    ' — left as Unicode, check them in the Bijoy copy');
 }
 
 function countStats(text) {
@@ -798,6 +867,7 @@ function convertPlainTextSync(text) {
   appState.parsedData = [];
   var outputText = '';
   var unmappable = 0;
+  var unmappableSeen = [];
 
   if (mode === 'unicode-to-bijoy') {
     var tokens = tokenizeMixedText(text);
@@ -806,8 +876,7 @@ function convertPlainTextSync(text) {
       if (tok.type === 'bangla') {
         item.text = ConvertToASCII(tok.raw);
         item.font = 'SutonnyMJ';
-        var leftover = item.text.match(/[\u0980-\u09FF]/g);
-        if (leftover) unmappable += leftover.length;
+        unmappable += countUnmappable(item.text, unmappableSeen);
       } else if (tok.type === 'latin') {
         item.text = tok.raw;
         item.font = 'Times New Roman';
@@ -826,7 +895,7 @@ function convertPlainTextSync(text) {
   els.outputTextarea.value = outputText;
   updateStats();
   applyEncodingFonts();
-  setWarningBadge(mode === 'unicode-to-bijoy' ? unmappable : 0);
+  setWarningBadge(mode === 'unicode-to-bijoy' ? unmappable : 0, unmappableSeen);
   showConversionSuccess(mode);
   maybeShowPostNote();
   persistState();
@@ -893,6 +962,7 @@ function convertPlainTextChunked(text) {
   appState.parsedData = [];
   var outputParts = [];
   var unmappable = 0;
+  var unmappableSeen = [];
   showProcessing(true, 'Converting…', 0);
 
   if (mode === 'unicode-to-bijoy') {
@@ -910,8 +980,7 @@ function convertPlainTextChunked(text) {
         if (tok.type === 'bangla') {
           item.text = ConvertToASCII(tok.raw);
           item.font = 'SutonnyMJ';
-          var leftover = item.text.match(/[\u0980-\u09FF]/g);
-          if (leftover) unmappable += leftover.length;
+          unmappable += countUnmappable(item.text, unmappableSeen);
         } else if (tok.type === 'latin') {
           item.text = tok.raw;
           item.font = 'Times New Roman';
@@ -935,7 +1004,7 @@ function convertPlainTextChunked(text) {
       els.outputTextarea.value = outputParts.join('');
       updateStats();
       applyEncodingFonts();
-      setWarningBadge(unmappable);
+      setWarningBadge(unmappable, unmappableSeen);
       showConversionSuccess(mode);
       maybeShowPostNote();
       chargePointsDelta(els.inputTextarea.value);
@@ -1641,11 +1710,10 @@ function loadDocxFile(file) {
     updateStats();
     applyEncodingFonts();
     setConvertButtonMode(true);
-    if (appState.liveMode) convertPlainText();
-    showProcessing(false);
+    if (appState.liveMode) convertPlainText(); else setStatusIdle();
     showToast('DOCX template loaded — click Convert');
   }).catch(function (err) {
-    showProcessing(false);
+    setStatusIdle();
     appState.docxFile = null; appState.docxZip = null;
     showToast('Failed to read DOCX: ' + err.message);
   });
@@ -1715,7 +1783,7 @@ function rememberPatchedDocx(r) {
 function convertDocxTemplate() {
   if (quotaLocked) { setStatusQuotaExhausted(); showQuotaExhaustedToast(0); return; }
   if (!appState.docxZip || !appState.docxFile) { showToast('No DOCX template loaded.'); return; }
-  showProcessing(true, 'Converting DOCX…');
+  showProcessing(true, 'Building DOCX file…');
 
   patchDocxParts().then(function (r) {
     rememberPatchedDocx(r);
@@ -1724,13 +1792,10 @@ function convertDocxTemplate() {
     });
   }).then(function (out) {
     var url = URL.createObjectURL(out.blob);
-    var a = document.createElement('a');
     var suffix = out.direction === 'uni2bijoy' ? 'bijoy' : 'unicode';
-    a.href = url;
-    a.download = appState.docxFile.name.replace(/\.docx$/i, '') + '_' + suffix + '.docx';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    triggerDownload(url, appState.docxFile.name.replace(/\.docx$/i, '') + '_' + suffix + '.docx');
     setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-    showProcessing(false);
+    showStatusSuccess('Download started successfully');
     // Phase 2 fix: never claim success when nothing converted — tell the
     // user the font may be unsupported instead of a false success toast.
     if (!out.converted) {
@@ -1739,7 +1804,7 @@ function convertDocxTemplate() {
       showToast('DOCX converted and downloaded!');
     }
   }).catch(function (err) {
-    showProcessing(false);
+    setStatusIdle();
     showToast('Error: ' + err.message);
   });
 }
@@ -2556,12 +2621,9 @@ function wireEvents() {
   els.downloadTxtBtn.addEventListener('click', function () {
     var text = els.outputTextarea.value;
     if (!text || !text.trim()) { showToast('Nothing to download as txt file'); return; }
-    var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url; a.download = 'LipiLab_converted.txt';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    startDownload('TXT', function () {
+      return new Blob([text], { type: 'text/plain;charset=utf-8' });
+    }, 'LipiLab_converted.txt');
   });
 
   els.downloadDocxBtn.addEventListener('click', function () {
@@ -2572,23 +2634,16 @@ function wireEvents() {
       convertPlainText();
     }
     if (appState.parsedData.length === 0) { showToast('Nothing to download as docx file'); return; }
-    showProcessing(true, 'Building DOCX…');
-    buildBlankDocxBlob(appState.parsedData).then(function (blob) {
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url; a.download = 'Converted_Document.docx';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(function () { URL.revokeObjectURL(url); }, 1200);
-      showProcessing(false);
-    }).catch(function (err) {
-      showProcessing(false);
-      showToast('Error: ' + err.message);
-    });
+    startDownload('DOCX', function () {
+      return buildBlankDocxBlob(appState.parsedData);
+    }, 'Converted_Document.docx');
   });
 
   wireFontSizeButtons();
 
   // Extra tools wiring (account excluded).
+  // The status badge is the only place "unmappable" is explained.
+  if (els.warningBadge) els.warningBadge.addEventListener('click', explainUnmappable);
   if (els.undoBtn) els.undoBtn.addEventListener('click', undo);
   if (els.redoBtn) els.redoBtn.addEventListener('click', redo);
   if (els.featuresOpenBtn) els.featuresOpenBtn.addEventListener('click', scrollToFeatures);
