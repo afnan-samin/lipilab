@@ -483,6 +483,14 @@ var els = {
   processingPercent: document.getElementById('processing-percent'),
   warningBadge: document.getElementById('warning-badge'),
   warningCount: document.getElementById('warning-count'),
+  unmapModal: document.getElementById('unmap-modal'),
+  unmapBackdrop: document.getElementById('unmap-backdrop'),
+  unmapCloseBtn: document.getElementById('unmap-close-btn'),
+  unmapCharChips: document.getElementById('unmap-char-chips'),
+  unmapPreview: document.getElementById('unmap-mail-preview'),
+  unmapSendBtn: document.getElementById('unmap-send-btn'),
+  unmapCopyBtn: document.getElementById('unmap-copy-btn'),
+  unmapDoneBtn: document.getElementById('unmap-done-btn'),
   offlineIndicator: document.getElementById('offline-indicator'),
   offlineIndicatorText: document.getElementById('offline-indicator-text'),
   toastContainer: document.getElementById('toast-container')
@@ -619,26 +627,157 @@ function countUnmappable(outText, seen) {
 }
 
 var lastUnmappableChars = [];
+var lastUnmappableSource = '';  // the text that produced them (for the report)
+var lastUnmappableMode = null;  // direction used for that conversion
 
-function setWarningBadge(count, chars) {
+function setWarningBadge(count, chars, sourceText, mode) {
   els.warningCount.textContent = String(count);
   els.warningBadge.hidden = count === 0;
   lastUnmappableChars = count && chars ? chars : [];
+  if (count) { // remember what to report: which text, converted which way
+    lastUnmappableSource = typeof sourceText === 'string' ? sourceText : (els.inputTextarea ? els.inputTextarea.value : '');
+    lastUnmappableMode = mode || resolveMode();
+  }
   var noun = count === 1 ? '1 character has' : count + ' characters have';
   var msg = noun + ' no Bijoy (SutonnyMJ) equivalent — kept as Unicode: ';
   msg += lastUnmappableChars.length ? lastUnmappableChars.join(' ') : '—';
+  msg += ' — click to report it';
   els.warningBadge.title = msg;
   els.warningBadge.setAttribute('aria-label', msg);
 }
 
-// Clicking the badge answers "what does unmappable mean?" inside the app.
-function explainUnmappable() {
+/* ------------------------------------------------------------
+   5c. "MISSING CONVERTER CHARACTER" REPORT DIALOG
+
+   The badge only says how many characters had no Bijoy code. Clicking it opens
+   a dialog that (1) explains in plain words that these characters are simply
+   not in the converter list yet, (2) shows the exact report text, (3) copies
+   that text on demand and (4) hands the user's mail app a ready-made mail —
+   address, subject and body pre-filled — so the user only presses Send and the
+   gap can be closed in a future update.
+------------------------------------------------------------ */
+var CONTACT_EMAIL_FALLBACK = 'unknownacone@gmail.com';
+var unmapReportText = '';
+var unmapLastFocused = null;
+
+/* The address is read from the Contact / Support box in index.html, so editing
+   the site's address keeps this button in sync — no second place to update. */
+function contactEmail() {
+  var link = document.querySelector('.support-mail');
+  var mail = link ? String(link.getAttribute('href') || '') : '';
+  mail = mail.replace(/^mailto:/i, '').split('?')[0].trim();
+  if (!mail && link) mail = String(link.textContent || '').trim();
+  return mail || CONTACT_EMAIL_FALLBACK;
+}
+
+function codePointHex(ch) {
+  var hex = ch.charCodeAt(0).toString(16).toUpperCase();
+  while (hex.length < 4) hex = '0' + hex;
+  return 'U+' + hex;
+}
+
+function renderUnmapChips() {
+  var box = els.unmapCharChips;
+  if (!box) return;
+  box.textContent = '';
+  (lastUnmappableChars || []).forEach(function (ch) {
+    var chip = document.createElement('span');
+    chip.className = 'unmap-modal__chip';
+    chip.textContent = ch + ' ' + codePointHex(ch);
+    box.appendChild(chip);
+  });
+}
+
+/* The exact text behind Copy and Send — what the user sees is what is sent. */
+function buildUnmapReport() {
+  var chars = lastUnmappableChars || [];
+  var src = lastUnmappableSource || '';
+  var excerpt = src.length > 600 ? src.slice(0, 600) + ' …' : src;
+  var report = [
+    'Hi LipiLab team,',
+    '',
+    'I converted a text and ' + (chars.length === 1 ? 'this character is' : 'these characters are') +
+      ' missing from the converter list,',
+    'so they stayed as Unicode in the Bijoy output:',
+    '',
+    '   ' + chars.map(function (ch) { return ch + ' (' + codePointHex(ch) + ')'; }).join(', '),
+    '',
+    'Conversion direction: ' + (MODE_LABELS[lastUnmappableMode] || MODE_LABELS[resolveMode()]),
+    'Times they appeared: ' + (els.warningCount ? els.warningCount.textContent : String(chars.length)),
+    '',
+    'My text (first 600 characters, so you can reproduce it):',
+    excerpt,
+    '',
+    'Please add them to the SutonnyMJ (Bijoy) mapping in a future update.'
+  ];
+  return report.join('\n');
+}
+
+function openUnmapModal() {
   if (!lastUnmappableChars.length) {
     showToast('No unmappable characters in this conversion');
     return;
   }
-  showToast('No Bijoy code: ' + lastUnmappableChars.join(' ') +
-    ' — left as Unicode, check them in the Bijoy copy');
+  if (!els.unmapModal) { // markup missing (old cached HTML) — never dead-end
+    showToast('No Bijoy code: ' + lastUnmappableChars.join(' ') + ' — left as Unicode');
+    return;
+  }
+  unmapReportText = buildUnmapReport();
+  if (els.unmapPreview) els.unmapPreview.textContent = unmapReportText;
+  renderUnmapChips();
+  unmapLastFocused = document.activeElement || null;
+  els.unmapModal.hidden = false;
+  if (els.unmapSendBtn && els.unmapSendBtn.focus) els.unmapSendBtn.focus();
+}
+
+function closeUnmapModal() {
+  if (!els.unmapModal || els.unmapModal.hidden) return;
+  els.unmapModal.hidden = true;
+  if (unmapLastFocused && typeof unmapLastFocused.focus === 'function') unmapLastFocused.focus();
+}
+
+function copyUnmapReportFallback(text) {
+  try {
+    var range = document.createRange();
+    range.selectNodeContents(els.unmapPreview);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    var ok = document.execCommand('copy');
+    sel.removeAllRanges();
+    showToast(ok ? 'Report copied' : 'Copy failed — select the text and copy it');
+  } catch (e) {
+    showToast('Copy failed — select the text and copy it');
+  }
+}
+
+function copyUnmapReport() {
+  var text = unmapReportText || buildUnmapReport();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function () {
+      showToast('Report copied');
+    }).catch(function () {
+      copyUnmapReportFallback(text);
+    });
+  } else {
+    copyUnmapReportFallback(text);
+  }
+}
+
+/* Ready-made mail: to + subject + body already filled, the user just sends. */
+function sendUnmapReport() {
+  var body = unmapReportText || buildUnmapReport();
+  var chars = (lastUnmappableChars || []).join(' ');
+  var subject = 'LipiLab: characters missing from the converter list' + (chars ? ' — ' + chars : '');
+  showToast('Opening your mail app…');
+  window.location.href = 'mailto:' + contactEmail() +
+    '?subject=' + encodeURIComponent(subject) +
+    '&body=' + encodeURIComponent(body);
+}
+
+// Clicking the badge answers "what does unmappable mean?" inside the app.
+function explainUnmappable() {
+  openUnmapModal();
 }
 
 function countStats(text) {
@@ -895,7 +1034,7 @@ function convertPlainTextSync(text) {
   els.outputTextarea.value = outputText;
   updateStats();
   applyEncodingFonts();
-  setWarningBadge(mode === 'unicode-to-bijoy' ? unmappable : 0, unmappableSeen);
+  setWarningBadge(mode === 'unicode-to-bijoy' ? unmappable : 0, unmappableSeen, text, mode);
   showConversionSuccess(mode);
   maybeShowPostNote();
   persistState();
@@ -1004,7 +1143,7 @@ function convertPlainTextChunked(text) {
       els.outputTextarea.value = outputParts.join('');
       updateStats();
       applyEncodingFonts();
-      setWarningBadge(unmappable, unmappableSeen);
+      setWarningBadge(unmappable, unmappableSeen, text, mode);
       showConversionSuccess(mode);
       maybeShowPostNote();
       chargePointsDelta(els.inputTextarea.value);
@@ -2642,8 +2781,14 @@ function wireEvents() {
   wireFontSizeButtons();
 
   // Extra tools wiring (account excluded).
-  // The status badge is the only place "unmappable" is explained.
+  // The status badge is the entry point of the "missing converter character"
+  // dialog (explanation + copy + ready-made mail).
   if (els.warningBadge) els.warningBadge.addEventListener('click', explainUnmappable);
+  if (els.unmapSendBtn) els.unmapSendBtn.addEventListener('click', sendUnmapReport);
+  if (els.unmapCopyBtn) els.unmapCopyBtn.addEventListener('click', copyUnmapReport);
+  if (els.unmapCloseBtn) els.unmapCloseBtn.addEventListener('click', closeUnmapModal);
+  if (els.unmapDoneBtn) els.unmapDoneBtn.addEventListener('click', closeUnmapModal);
+  if (els.unmapBackdrop) els.unmapBackdrop.addEventListener('click', closeUnmapModal);
   if (els.undoBtn) els.undoBtn.addEventListener('click', undo);
   if (els.redoBtn) els.redoBtn.addEventListener('click', redo);
   if (els.featuresOpenBtn) els.featuresOpenBtn.addEventListener('click', scrollToFeatures);
@@ -2724,6 +2869,7 @@ function wireKeyboardShortcuts() {
     if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 's' || key === 'S')) { e.preventDefault(); els.downloadTxtBtn.click(); return; }
     if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 'd' || key === 'D')) { e.preventDefault(); els.themeToggleBtn.click(); return; }
     if (key === '?' && !inField && !e.ctrlKey && !e.altKey) { openShortcuts(); return; }
+    if (key === 'Escape' && els.unmapModal && !els.unmapModal.hidden) { closeUnmapModal(); return; }
     if (key === 'Escape' && !els.shortcutsPanel.hidden) { closeShortcuts(); return; }
   });
 }

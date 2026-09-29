@@ -508,6 +508,44 @@ button{ font-family:inherit; }
 .shortcuts-list__keys kbd{ font-family:var(--font-mono); font-size:11px; font-weight:600; background:var(--surface-alt); border:1px solid var(--border-strong); border-bottom-width:2px; border-radius:6px; padding:3px 7px; color:var(--text); }
 .shortcuts-list__keys span{ color:var(--text-faint); font-size:11px; }
 .shortcuts-list__desc{ margin:0; font-size:12.5px; color:var(--text-secondary); text-align:right; }
+/* ---- "Missing converter character" report modal ---- */
+.unmap-modal{ position:fixed; inset:0; z-index:55; display:flex; align-items:center; justify-content:center; padding:20px; }
+.unmap-modal[hidden]{ display:none; }
+.unmap-modal__backdrop{ position:absolute; inset:0; background:rgba(15,12,26,.5); backdrop-filter:blur(3px); animation:fadeIn var(--dur-med) var(--ease); }
+.unmap-modal__card{
+  position:relative; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg); width:100%; max-width:540px; max-height:86vh; overflow:auto; padding:20px;
+  animation:popIn var(--dur-med) var(--ease);
+}
+.unmap-modal__header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; }
+.unmap-modal__title{ font-family:var(--font-display); font-size:16.5px; font-weight:800; color:var(--text); margin:0; }
+.unmap-modal__lead{ font-size:13.5px; line-height:1.7; color:var(--text-secondary); margin:0 0 14px; }
+.unmap-modal__lead b{ color:var(--text); }
+.unmap-modal__chars{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 14px; }
+.unmap-modal__chip{
+  font-family:var(--font-mono); font-size:12.5px; font-weight:700; color:var(--accent);
+  background:var(--surface-alt); border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:3px 8px;
+}
+.unmap-modal__label{ font-size:11.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:var(--text-faint); margin:0 0 6px; }
+.unmap-modal__preview{
+  font-size:12.5px; line-height:1.65; color:var(--text-secondary); background:var(--surface-alt);
+  border:1px solid var(--border); border-radius:var(--radius-md); padding:12px;
+  max-height:34vh; overflow:auto; white-space:pre-wrap; word-break:break-word; user-select:text;
+}
+.unmap-modal__preview:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.unmap-modal__actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+.unmap-modal__btn{
+  flex:1 1 130px; padding:11px 16px; border-radius:var(--radius-md); font-weight:700; font-size:13.5px;
+  cursor:pointer; border:1.5px solid var(--border); background:var(--surface); color:var(--text);
+  transition:transform var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
+}
+.unmap-modal__btn:active{ transform:scale(.97); }
+.unmap-modal__btn--primary{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); border-color:transparent; color:#fff; box-shadow:var(--shadow-md); }
+.unmap-modal__btn--primary:hover{ opacity:.94; }
+.unmap-modal__btn--ghost{ background:transparent; color:var(--text-faint); opacity:.75; }
+.unmap-modal__btn--ghost:hover{ opacity:1; }
+
+
 
 /* ---- Toasts ---- */
 .toast-container{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%); z-index:60; display:flex; flex-direction:column; gap:8px; align-items:center; }
