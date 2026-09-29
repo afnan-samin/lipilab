@@ -51,6 +51,7 @@ var reverseBijoyRoFolaReplacements = buildInverseMap(bijoyRoFolaReplacements);
 var uni2bijoyPatterns = null;
 
 var bijoy_string_conversion_map = {
+    "½y": "ঙ্গু", "”Q¡": "চ্ছ্ব", "”T": "চ্ঞ", "¾¡": "জ্জ্ব", "Ë¡": "ত্ত্ব", "šÍ¡": "ন্ত্ব", "›Ø": "ন্দ্ব", "kÖæ": "শ্রু", "cÖæ": "প্রু", "o–": "ড়ু", "p–": "ঢ়ু", "j¦": "ল্ব", "j¥": "ল্ম", "®ú": "ষ্প",
     "i¨": "র‌্য", "ª¨": "্র্য", "°": "ক্ক", "±": "ক্ট", "³": "ক্ত", "K¡": "ক্ব", "¯Œ": "স্ক্র", "µ": "ক্র", "K¬": "ক্ল", "¶è": "ক্ষ্ণ", "þ": "হ্ম", "²": "ক্ষ্ম", "•¶": "ঙ্ক্ষ", "¶": "ক্ষ", "ÿz": "ক্ষু", "ÿ‚": "ক্ষূ", "ÿ": "ক্ষ", "·": "ক্স", "´": "ক্ম", "¸": "গু", "»": "গ্ধ", "Mœ": "গ্ন", "M¥": "গ্ম", "Mªƒ": "গ্রূ", "Møæ": "গ্লু", "Mø": "গ্ল", "Mªæ": "গ্রু", "Nœ": "ঘ্ন", "¼": "ঙ্ক", "•L": "ঙ্খ", "½": "ঙ্গ", "•N": "ঙ্ঘ", "”P": "চ্চ", "”Q": "চ্ছ", "R¡": "জ্ব", "¾": "জ্জ", "À": "জ্ঝ", "Á": "জ্ঞ", "Â": "ঞ্চ", "Ã": "ঞ্ছ", "Ä": "ঞ্জ", "Å": "ঞ্ঝ", "Æ": "ট্ট", "U¡": "ট্ব", "U¥": "ট্ম", "Ç": "ড্ড", "È": "ণ্ট", "É": "ণ্ঠ", "Ý": "ন্স", "Ð": "ণ্ড", "š‘": "ন্তু", "Y^": "ণ্ব", "Ë": "ত্ত", "Ì": "ত্থ", "Z¥": "ত্ম", "Z¡": "ত্ব", "Zœ": "ত্ন", "Îæ": "ত্রু", "Îƒ": "ত্রূ", "Î": "ত্র", "_¡": "থ্ব", "˜M": "দ্গ", "˜N": "দ্ঘ", "Ï": "দ্দ", "×": "দ্ধ", "˜¡": "দ্ব", "Ø": "দ্ব", "™£": "দ্ভ্র", "™¢": "দ্ভ", "Ù": "দ্ম", "`ªæ": "দ্রু", "`ªƒ": "দ্রূ", "aªƒ": "ধ্রূ", "aŸ": "ধ্ব", "a¥": "ধ্ম", "›U": "ন্ট", "Ú": "ন্ঠ", "Û": "ন্ড", "šÍ": "ন্ত", "š¿": "ন্ত্র", "š’": "ন্থ", "›`": "ন্দ", "Ü": "ন্ধ", "Yœ": "ণ্ণ", "bœ": "ন্ন", "š^": "ন্ব", "b¥": "ন্ম", "Þ": "প্ট", "ß": "প্ত", "cœ": "প্ন", "à": "প্প", "cøæ": "প্লু", "cø": "প্ল", "cªæ": "প্রু", "á": "প্স", "d¬z": "ফ্লু", "d¬‚": "ফ্লূ", "d¬": "ফ্ল", "â": "ব্জ", "ã": "ব্দ", "ä": "ব্ধ", "eŸ": "ব্ব", "eø": "ব্ল", "å": "ভ্র", "gœ": "ম্ন", "¤ú": "ম্প", "ç": "ম্ফ", "¤^": "ম্ব", "¤¢": "ম্ভ", "¤£": "ম্ভ্র", "¤§": "ম্ম", "¤ø": "ম্ল", "iæ": "রু", "iƒ": "রূ", "é": "ল্ক", "ê": "ল্গ", "ë": "ল্ট", "ì": "ল্ড", "í": "ল্প", "î": "ল্ফ", "jø": "ল্ল", "kªƒ": "শ্রূ", "kªæ": "শ্রু", "ï": "শু", "kø": "শ্ল", "ð": "শ্চ", "ñ": "শ্ছ", "kœ": "শ্ন", "k^": "শ্ব", "^": "্ব", "k¦": "শ্ব", "k¥": "শ্ম", "®‹": "ষ্ক", "®Œ": "ষ্ক্র", "ó": "ষ্ট", "ô": "ষ্ঠ", "ò": "ষ্ণ", "õ": "ষ্ফ", "®§": "ষ্ম", "¯‹": "স্ক", "÷": "স্ট", "ö": "স্খ", "¯Í": "স্ত", "¯‘": "স্তু", "¯¿": "স্ত্র", "¯’": "স্থ", "mœ": "স্ন", "¯ú": "স্প", "ù": "স্ফ", "¯^": "স্ব", "¯§": "স্ম", "¯ø": "স্ল", "¯": "স", "œ": "্ন", "û": "হু", "nŸ": "হ্ব", "nè": "হ্ণ", "ý": "হ্ন", "n¬": "হ্ল", "ü": "হৃ", "©": "র্", "Av": "আ", "A": "অ", "B": "ই", "C": "ঈ", "D": "উ", "E": "ঊ", "F": "ঋ", "G": "এ", "H": "ঐ", "I": "ও", "J": "ঔ", "K": "ক", "L": "খ", "M": "গ", "N": "ঘ", "O": "ঙ", "P": "চ", "Q": "ছ", "R": "জ", "S": "ঝ", "T": "ঞ", "U": "ট", "V": "ঠ", "W": "ড", "X": "ঢ", "Y": "ণ", "Z": "ত", "_": "থ", "`": "দ", "a": "ধ", "b": "ন", "c": "প", "d": "ফ", "e": "ব", "f": "ভ", "g": "ম", "h": "য", "i": "র", "j": "ল", "k": "শ", "l": "ষ", "m": "স", "n": "হ", "o": "ড়", "p": "ঢ়", "q": "য়", "r": "ৎ", "0": "০", "1": "১", "2": "২", "3": "৩", "4": "৪", "5": "৫", "6": "৬", "7": "৭", "8": "৮", "9": "৯", "v": "া", "w": "ি", "x": "ী", "y": "ু", "~": "ূ", "‚": "ূ", "„": "ৃ", "‡": "ে", "†": "ে", "ˆ": "ৈ", "‰": "ৈ", "Š": "ৗ", "Ô": "‘", "Õ": "’", "|": "।", "Ò": "“", "Ó": "”", "s": "ং", "t": "ঃ", "u": "ঁ", "ª": "্র", "Ö": "্র", "«": "্র", "¨": "্য", "&": "্", "…": "ৃ", "Ñ": "—", "\\": "॥"
 };
 
@@ -74,12 +75,26 @@ function buildConversionPatterns(n) {
             }
         }).join("")
     }
+    var keys = [];
+    for (var t in n) if (Object.prototype.hasOwnProperty.call(n, t)) keys.push(t);
+    keys.sort(function (a, b) { return b.length - a.length; });
     var i = [];
-    for (var t in n) Object.prototype.hasOwnProperty.call(n, t) && i.push({ regex: new RegExp(r(t), "g"), replacement: n[t] });
+    for (var k = 0; k < keys.length; k++) i.push({ regex: new RegExp(r(keys[k]), "g"), replacement: n[keys[k]] });
     return i
 }
 
-function ensureUni2BijoyPatterns() { uni2bijoyPatterns || (uni2bijoyPatterns = buildConversionPatterns(uni2bijoy_string_conversion_map)) }
+var uni2bijoyPunctuationMap = { "।": "|", "‘": "Ô", "’": "Õ", "“": "Ò", "”": "Ó" };
+
+function ensureUni2BijoyPatterns() {
+    if (uni2bijoyPatterns) return;
+    var map = {};
+    for (var k in uni2bijoy_string_conversion_map) {
+        if (!Object.prototype.hasOwnProperty.call(uni2bijoy_string_conversion_map, k)) continue;
+        if (Object.prototype.hasOwnProperty.call(uni2bijoyPunctuationMap, k)) continue;
+        map[k] = uni2bijoy_string_conversion_map[k];
+    }
+    uni2bijoyPatterns = buildConversionPatterns(map);
+}
 function ensureBijoyPatterns() { bijoyPatterns || (bijoyPatterns = buildConversionPatterns(bijoy_string_conversion_map)) }
 
 function ReArrangeUnicodeText(n) {
@@ -139,7 +154,7 @@ function replaceMultiple(n, t, i) {
 
 function ConvertToASCII(n) {
     var t, i, r;
-    for (t = new RegExp("ব়", "g"), n = n.replace(t, "র"), t = new RegExp("ড়", "g"), n = n.replace(t, "ড়"), t = new RegExp("ঢ়", "g"), n = n.replace(t, "ঢ়"), t = new RegExp("য়", "g"), n = n.replace(t, "য়"), t = new RegExp("ো", "g"), n = n.replace(t, "ো"), t = new RegExp("ৌ", "g"), n = n.replace(t, "ৌ"), t = new RegExp("্র্য", "g"), n = n.replace(t, "্র‍্য"), n = replaceLastLetter(n, "র্", "i&"), n = replaceLastLetter(n, "র্‌", "i&"), n = ReArrangeUnicodeText(n), ensureUni2BijoyPatterns(), i = 0; i < uni2bijoyPatterns.length; i++)
+    for (t = new RegExp("ব়", "g"), n = n.replace(t, "র"), t = new RegExp("ড়", "g"), n = n.replace(t, "ড়"), t = new RegExp("ঢ়", "g"), n = n.replace(t, "ঢ়"), t = new RegExp("য়", "g"), n = n.replace(t, "য়"), t = new RegExp("ো", "g"), n = n.replace(t, "ো"), t = new RegExp("ৌ", "g"), n = n.replace(t, "ৌ"), t = new RegExp("্র্য", "g"), n = n.replace(t, "্র‍্য"), n = replaceLastLetter(n, "র্", "i&"), n = replaceLastLetter(n, "র্‌", "i&"), n = ReArrangeUnicodeText(n), n = replaceMultiple(n, uni2bijoyPunctuationMap, !0), ensureUni2BijoyPatterns(), i = 0; i < uni2bijoyPatterns.length; i++)
         r = uni2bijoyPatterns[i], n = n.replace(r.regex, r.replacement);
     return n = replaceFirstLetter(n, "‡", "†"), n = replaceFirstLetter(n, "‰", "ˆ"), n = n.replace("(‡", "(†"), n = n.replace("[‡", "[†"), n = n.replace("Ô‡", "Ô†"), n = n.replace("Ò‡", "Ò†"), n = n.replace("(‰", "(ˆ"), n = n.replace("[‰", "[ˆ"), n = n.replace("Ô‰", "Ôˆ"), n = n.replace("Ò‰", "Òˆ"), n = replaceMultiple(n, bijoyKarReplacements, !0), replaceMultiple(n, bijoyRoFolaReplacements, !0)
 }
@@ -182,254 +197,6 @@ function tokenizeMixedText(text) {
   }
   return tokens;
 }
-/* ------------------------------------------------------------
-   2b. BIJOY vs ENGLISH SEPARATION (the bijoy2uni direction only)
-
-   Bijoy-ANSI text is not Unicode text: its Bangla is stored as
-   ordinary ASCII / Latin-1 bytes ('v', 'a', 'Z', '¯', '‡', '†')
-   that only *look* like Bangla through the Bijoy font. The
-   Unicode-range tokenizer above is correct for Unicode -> Bijoy,
-   but running it on Bijoy bytes cut single words into fragments and
-   gated each fragment on its own — which silently skipped most of a
-   paragraph (Phase 5 regression).
-
-   Here the separating test is the Bijoy character set itself: the
-   key set of bijoy_string_conversion_map, i.e. the very table
-   ConvertToUnicode() consumes, so no second source of truth is
-   invented. Tokenizing is whitespace-only, because a word is either
-   Bijoy or not — it never mixes Bijoy and English inside one
-   contiguous word-like unit.
------------------------------------------------------------- */
-
-var BIJOY_CHAR_SET = (function () {
-  var set = {};
-  for (var key in bijoy_string_conversion_map) {
-    if (!Object.prototype.hasOwnProperty.call(bijoy_string_conversion_map, key)) continue;
-    for (var i = 0; i < key.length; i++) set[key.charAt(i)] = true;
-  }
-  return set;
-})();
-
-/* Bangla orthography classes, used to sanity-check a decoded token.
-   Written as explicit \uXXXX escapes on purpose: these characters have
-   canonically-equivalent composed/decomposed spellings (ড় ঢ় য়) that are
-   indistinguishable in a plain-text editor but compare unequal in code, and
-   the decoder emits the composed forms. */
-var BN_INDEPENDENT_VOWEL = '\u0985\u0986\u0987\u0988\u0989\u098A\u098B\u098F\u0990\u0993\u0994';
-var BN_CONSONANT = '\u0995\u0996\u0997\u0998\u0999\u099A\u099B\u099C\u099D\u099E\u099F\u09A0\u09A1\u09A2\u09A3\u09A4\u09A5\u09A6\u09A7\u09A8\u09AA\u09AB\u09AC\u09AD\u09AE\u09AF\u09B0\u09B2\u09B6\u09B7\u09B8\u09B9\u09CE\u09DC\u09DD\u09DF';
-var BN_DIGIT = '\u09E6\u09E7\u09E8\u09E9\u09EA\u09EB\u09EC\u09ED\u09EE\u09EF';
-var BN_KAR = '\u09BE\u09BF\u09C0\u09C1\u09C2\u09C3\u09C7\u09C8\u09CB\u09CC\u09D7';
-var BN_SIGN = '\u0982\u0983\u0981';
-var BN_ANTASHTA = '\u09DF\u09AF\u09B0\u09B2';   // য় য র ল — may follow a consonant directly (হয়, বয়স)
-var BN_HASANT = '\u09CD';
-var BN_NUKTA = '\u09BC';
-
-function bnClassHas(cls, ch) { return !!ch && cls.indexOf(ch) > -1; }
-
-function isBijoyRangeChar(ch) {
-  // True when the Bijoy conversion table can consume this character.
-  // Bytes 0x80-0xFF (‡, ©, ¯, ¡ ...) plus the cp1252 punctuation slots
-  // (†, œ, “, ”, …) are the unmistakable markers of legacy Bijoy output;
-  // ASCII letters/digits are table keys as well ('v' -> া, 'G' -> এ,
-  // '0' -> ০), which is exactly what lets a pure-ASCII Bijoy word like
-  // "Avgvi" convert at all.
-  return BIJOY_CHAR_SET[ch] === true;
-}
-
-function hasAnyBijoyChar(raw) {
-  for (var i = 0; i < raw.length; i++) if (BIJOY_CHAR_SET[raw.charAt(i)]) return true;
-  return false;
-}
-
-function bijoyTokenHasStrongSignal(raw) {
-  // A table character above ASCII is a Bijoy-only glyph — English text never
-  // contains ‡ © ¯ ¡ ° ¨ † œ “ ” … — so one occurrence proves the token is
-  // Bijoy-encoded and lets it bypass the orthography gate below.
-  // (ASCII-only tokens stay ambiguous by nature: 'Ges' is "এবং" while
-  // 'Google' is English.)
-  for (var i = 0; i < raw.length; i++) {
-    var code = raw.charCodeAt(i);
-    if (code >= 0x80 && BIJOY_CHAR_SET[raw.charAt(i)]) return true;
-  }
-  return false;
-}
-
-function splitBijoyTokens(text) {
-  // Whitespace-only split; separators come back as their own tokens so the
-  // rebuild is byte-exact for everything that is left untouched.
-  var parts = text.split(/(\s+)/);
-  var tokens = [];
-  for (var i = 0; i < parts.length; i++) {
-    if (parts[i] === '') continue;
-    tokens.push({ raw: parts[i], isSpace: /^\s+$/.test(parts[i]) });
-  }
-  return tokens;
-}
-
-function bijoyTokenIsProtected(raw) {
-  // User data that has to survive conversion. Emails, URLs and file paths
-  // are plain ASCII, so decode-and-inspect can never tell them apart from
-  // Bijoy bytes — match their shape explicitly instead.
-  if (raw.indexOf('@') > -1) return true;
-  if (raw.indexOf('/') > -1 || raw.indexOf('\\') > -1) return true;
-  if (/^[A-Za-z0-9._%+-]+\.[A-Za-z]{2,}/.test(raw)) return true; // domain / file.ext
-  return false;
-}
-
-
-
-function looksLikeConsonantSoup(decoded) {
-  // Bangla words are vowel-bearing: a decode of 4+ characters built only from
-  // consonants — no vowel sign, no ং/ঃ/ঁ, no hasant, no independent vowel — is
-  // the signature of an English word pushed through the table ("Rahim" ->
-  // জধযরস, "Kamal" -> কধসধষ, "Robin" -> জড়নরহ). Genuine Bangla words of that
-  // shape are 1-2 letters (জজ, তত), which the length guard keeps working.
-  if (decoded.length < 4) return false;
-  for (var i = 0; i < decoded.length; i++) {
-    var c = decoded.charAt(i);
-    if (bnClassHas(BN_KAR, c) || bnClassHas(BN_SIGN, c) || bnClassHas(BN_INDEPENDENT_VOWEL, c) ||
-        bnClassHas(BN_DIGIT, c) || c === BN_HASANT) return false;
-  }
-  return true;
-}
-
-function banglaWordShapeIsSane(decoded) {
-  // Loose orthography gate, used for any token that carries a Bijoy-only glyph
-  // or sits in a string that already proved it is Bijoy. It only rejects
-  // decodes that cannot be Bangla at all, so genuine Bijoy words are never
-  // left behind (that was the Phase 5 regression):
-  //   - a word cannot start with ৎ / ঁ / ঃ / hasant / a vowel sign,
-  //   - a nukta or hasant cannot stand alone,
-  //   - Latin letters or digits left over mean the token was English,
-  //   - two identical letters in a row are not Bangla ("Google" -> এড়ড়মষব,
-  //     "Meet" -> গববঃ), except 2-letter words genuinely written that way
-  //     (জজ, তত) and digits (১১),
-  //   - a vowel-less run of 4+ letters is not a Bangla word ("Rahim").
-  var n = decoded.length;
-  if (!n) return false;
-  if (looksLikeConsonantSoup(decoded)) return false;
-  var first = decoded.charAt(0);
-  if (first === '\u09CE' || bnClassHas(BN_KAR, first) || bnClassHas(BN_SIGN, first) ||
-      first === BN_HASANT || first === BN_NUKTA) return false;
-  var i = 0, sawBangla = false;
-  while (i < n) {
-    var c = decoded.charAt(i);
-    if (bnClassHas(BN_DIGIT, c)) { sawBangla = true; i++; continue; }
-    if (bnClassHas(BN_INDEPENDENT_VOWEL, c)) {
-      sawBangla = true; i++;
-      if (bnClassHas(BN_SIGN, decoded.charAt(i))) i++;
-      continue;
-    }
-    if (bnClassHas(BN_CONSONANT, c)) {
-      sawBangla = true;
-      if (n > 2 && decoded.charAt(i + 1) === c) return false; // doubled letter
-      i++;
-      if (decoded.charAt(i) === BN_NUKTA) i++;                // decomposed ড়/ঢ়/য়
-      while (decoded.charAt(i) === BN_HASANT) {               // cluster: ন্ত / ক্ষ
-        i++;
-        if (!bnClassHas(BN_CONSONANT, decoded.charAt(i))) return false;
-        i++;
-        if (decoded.charAt(i) === BN_NUKTA) i++;
-      }
-      if (bnClassHas(BN_KAR, decoded.charAt(i))) {
-        i++;
-        var extra = decoded.charAt(i);                        // decomposed ো / ৌ
-        if (extra && (extra === '\u09BE' || extra === '\u09D7')) i++;
-        if (bnClassHas(BN_KAR, decoded.charAt(i))) return false; // two vowel signs
-      }
-      if (bnClassHas(BN_SIGN, decoded.charAt(i))) i++;
-      continue;
-    }
-    if (c === ' ' || c === '\u200C' || c === '\u200D') { i++; continue; }
-    // Anything that is neither Bangla, Latin nor a digit is harmless residue
-    // (':', '.', '-', '|', …); Latin/digits mean the decode was never Bangla.
-    if (!/[A-Za-z0-9]/.test(c) && !(c >= '\u0980' && c <= '\u09FF')) { i++; continue; }
-    return false;
-  }
-  return sawBangla;
-}
-
-function banglaWordShapeIsUnambiguous(decoded) {
-  // Strict gate, used to *claim* that an all-ASCII token is Bijoy. On top of
-  // the loose rules it forbids two consonants touching without a hasant,
-  // unless the second one is an antastha semi-vowel (য় য র ল, as in হয়).
-  // Without that, English words decode into legal-looking Bangla and get
-  // converted ("of" -> ড়ভ, "world" -> ড়িৎষফ, "converter" -> পড়হাবৎঃবৎ).
-  if (!banglaWordShapeIsSane(decoded)) return false;
-  for (var i = 0; i < decoded.length - 1; i++) {
-    var a = decoded.charAt(i), b = decoded.charAt(i + 1);
-    if (!bnClassHas(BN_CONSONANT, a) || !bnClassHas(BN_CONSONANT, b)) continue;
-    if (!bnClassHas(BN_ANTASHTA, b)) return false;
-  }
-  return true;
-}
-
-function bijoyDecodedLooksPlausible(decoded) {
-  // Public name kept for the ambiguous all-ASCII case: the strict gate.
-  return !!decoded && banglaWordShapeIsUnambiguous(decoded);
-}
-
-function bijoyTokenDecode(raw) {
-  // Per-token verdict for the bijoy2uni direction:
-  //   text   - the converted text, or null when the token must be passed
-  //            through byte-identical,
-  //   strong - the token carries a Bijoy-only glyph, so it is Bijoy for sure,
-  //   strict - the decode is unambiguously Bangla, i.e. safe to use as
-  //            *evidence* that an ASCII-only string is Bijoy at all.
-  var none = { text: null, strong: false, strict: false };
-  if (!raw || !hasAnyBijoyChar(raw)) return none;   // punctuation-only token
-  if (bijoyTokenIsProtected(raw)) return none;      // email / URL / path
-  var decoded = ConvertToUnicode(raw);
-  if (decoded === raw) return none;                 // already Unicode, or nothing in the table matches
-  if (bijoyTokenHasStrongSignal(raw)) return { text: decoded, strong: true, strict: true };
-  // Ambiguous all-ASCII token: convert only if the decode cannot be Bangla at
-  // all (loose), and treat it as *evidence* only if it is unambiguously Bangla.
-  var sane = banglaWordShapeIsSane(decoded);
-  return {
-    text: sane ? decoded : null,
-    strong: false,
-    strict: sane && banglaWordShapeIsUnambiguous(decoded)
-  };
-}
-
-function tokenShouldBijoyDecode(raw, strictOnly) {
-  var d = bijoyTokenDecode(raw);
-  return d.text !== null && (!strictOnly || d.strict);
-}
-
-function planBijoyTokenConversions(tokens) {
-  // Single pass: per-token verdict plus the evidence counters that decide
-  // whether the whole string is Bijoy at all. Kept in one pass so the DOCX
-  // path (thousands of runs) never decodes a token twice.
-  // ASCII-only tokens are measured with the strict gate, so an English word
-  // can never be what makes a string look like Bijoy.
-  var plan = { decoded: [], candidates: 0, asciiConvertible: 0, strong: false };
-  for (var i = 0; i < tokens.length; i++) {
-    var t = tokens[i];
-    var d = t.isSpace ? null : bijoyTokenDecode(t.raw);
-    plan.decoded.push(d);
-    if (!d || d.text === null) continue;   // not convertible at all
-    plan.candidates++;
-    if (d.strong) plan.strong = true;
-    else if (d.strict && t.raw.length >= 2) plan.asciiConvertible++;
-  }
-  return plan;
-}
-
-function textHasBijoyEvidence(tokens) {
-  // Is this string Bijoy-encoded at all? One Bijoy-only glyph answers yes
-  // (real Bijoy text always carries at least one of ে/র্/†/œ/©/¯ ...). With no
-  // such glyph the string can still be Bijoy ("Avgvi"), so require a majority
-  // of the word-like tokens to decode into unambiguously Bangla — that is what
-  // keeps a plain English paragraph ("Hello world, this is a test of the
-  // converter.") from being mangled.
-  if (typeof tokens === 'string') tokens = splitBijoyTokens(tokens);
-  var plan = planBijoyTokenConversions(tokens);
-  if (plan.strong) return true;
-  if (!plan.candidates) return false;
-  return plan.asciiConvertible >= 1 && plan.asciiConvertible * 2 >= plan.candidates;
-}
-
 
 /* ------------------------------------------------------------
    3. DOM REFERENCES
@@ -497,7 +264,8 @@ var appState = {
   docxFile: null,
   parsedData: [],
   patchedDocxXml: null,   // last converted word/document.xml (for table PDF)
-  patchedDirection: null
+  patchedDirection: null,
+  patchedDocxZip: null
 };
 
 var STORAGE_TEXT_KEY = 'lipilab:input-text';
@@ -608,9 +376,21 @@ function resolveMode() {
   var checked = document.querySelector('input[name="conversion-direction"]:checked');
   var value = checked ? checked.value : 'unicode-to-bijoy';
   if (value === 'auto') {
-    return /[\u0980-\u09FF]/.test(els.inputTextarea.value) ? 'unicode-to-bijoy' : 'bijoy-to-unicode';
+    var detected = detectAutoModeFromText(els.inputTextarea ? els.inputTextarea.value : '');
+    return detected || 'unicode-to-bijoy';
   }
   return value;
+}
+
+function partnerSlotsEmpty() {
+  try {
+    if (typeof PARTNER === 'undefined' || !PARTNER) return true;
+    var keys = Object.keys(PARTNER);
+    for (var i = 0; i < keys.length; i++) {
+      if (String(PARTNER[keys[i]] || '').trim()) return false;
+    }
+    return true;
+  } catch (e) { return true; }
 }
 
 function setEncodingBadge(resolvedMode) {
@@ -643,20 +423,8 @@ function lockInputForDocx(locked) {
 }
 
 function setConvertButtonMode(docxLoaded) {
-  // Convert button label stays fixed: always "Convert".
   els.convertBtnLabel.textContent = 'Convert';
-  els.convertBtn.title = docxLoaded ? 'Convert & download the DOCX' : 'Convert (Ctrl+Enter)';
-}
-
-function updateConvertBtnState() {
-  if (!els.convertBtn) return;
-  // Live mode ON  -> Convert button disabled (conversion happens automatically).
-  // Live mode OFF -> Convert button enabled (unless quota-locked).
-  var liveOff = !appState.liveMode;
-  var allow = liveOff && !quotaLocked;
-  els.convertBtn.disabled = !allow;
-  els.convertBtn.classList.toggle('is-disabled', !allow);
-  els.convertBtn.setAttribute('aria-disabled', String(!allow));
+  els.convertBtn.title = docxLoaded ? 'Convert the DOCX' : 'Convert (Ctrl+Enter)';
 }
 
 function updateDirectionPillPosition() {
@@ -675,6 +443,11 @@ function updateOfflineIndicator() {
   els.offlineIndicatorText.textContent = online ? 'Online' : 'Offline';
   els.offlineIndicator.setAttribute('aria-label', 'Network: ' + (online ? 'Online' : 'Offline'));
   els.offlineIndicator.classList.toggle('is-offline', !online);
+}
+
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('sw.js').catch(function () { /* offline cache is best-effort */ });
 }
 
 function persistState() {
@@ -773,7 +546,18 @@ function convertPlainText() {
 
 function convertPlainTextSync(text) {
   conversionRunId++; // invalidate any in-flight chunked run
-  var mode = resolveMode();
+  var checked = document.querySelector('input[name="conversion-direction"]:checked');
+  var rawDir = checked ? checked.value : 'unicode-to-bijoy';
+  var mode = rawDir === 'auto' ? detectAutoModeFromText(text) : resolveMode();
+  if (!mode) {
+    els.outputTextarea.value = '';
+    appState.parsedData = [];
+    updateStats();
+    setWarningBadge(0);
+    setStatusIdle();
+    persistState();
+    return;
+  }
   setEncodingBadge(mode);
   appState.parsedData = [];
   var outputText = '';
@@ -799,7 +583,7 @@ function convertPlainTextSync(text) {
       outputText += item.text;
     });
   } else {
-    outputText = convertBijoyTextMixed(text);
+    outputText = ConvertToUnicode(text);
     appState.parsedData.push({ text: outputText, font: 'Times New Roman' });
   }
 
@@ -810,36 +594,6 @@ function convertPlainTextSync(text) {
   showConversionSuccess(mode);
   maybeShowPostNote();
   persistState();
-}
-
-/* ------------------------------------------------------------
-   8a. BIJOY -> UNICODE, MIXED CONTENT
-
-   Phase 5 rework: this direction is delegated to the whitespace /
-   Bijoy-table tokenizer in section 2b. tokenizeMixedText() (Unicode
-   ranges) belongs to the Unicode -> Bijoy direction only — running it
-   on Bijoy bytes split a single word into fragments that were then
-   gated one by one, which is what made a whole Bijoy paragraph come
-   out mostly unconverted.
------------------------------------------------------------- */
-function convertBijoyTextMixed(text) {
-  if (!text) return text;
-  var tokens = splitBijoyTokens(text);
-  var plan = planBijoyTokenConversions(tokens);
-  var isBijoy = plan.strong ||
-    (plan.candidates > 0 && plan.asciiConvertible >= 1 && plan.asciiConvertible * 2 >= plan.candidates);
-  if (!isBijoy) return text; // no Bijoy evidence: leave the text byte-identical
-  var out = '';
-  for (var i = 0; i < tokens.length; i++) {
-    var d = plan.decoded[i];
-    // A Bijoy-only glyph anywhere in the string proves the whole string is
-    // Bijoy, so every token that cannot be Bangla gets converted. Without that
-    // proof the string is only *probably* Bijoy, so require the stricter
-    // verdict per token before touching it.
-    var use = d && d.text !== null && (plan.strong || d.strict);
-    out += use ? d.text : tokens[i].raw;
-  }
-  return out;
 }
 
 // Splits a long string into chunks of roughly targetSize characters,
@@ -868,7 +622,18 @@ function splitIntoChunks(text, targetSize) {
 function convertPlainTextChunked(text) {
   conversionRunId++;
   var runId = conversionRunId;
-  var mode = resolveMode();
+  var checked = document.querySelector('input[name="conversion-direction"]:checked');
+  var rawDir = checked ? checked.value : 'unicode-to-bijoy';
+  var mode = rawDir === 'auto' ? detectAutoModeFromText(text) : resolveMode();
+  if (!mode) {
+    els.outputTextarea.value = '';
+    appState.parsedData = [];
+    updateStats();
+    setWarningBadge(0);
+    setStatusIdle();
+    persistState();
+    return;
+  }
   setEncodingBadge(mode);
   appState.parsedData = [];
   var outputParts = [];
@@ -931,7 +696,7 @@ function convertPlainTextChunked(text) {
     function stepRev() {
       if (runId !== conversionRunId) return;
       if (ci < totalChunks) {
-        outputParts.push(convertBijoyTextMixed(chunks[ci]));
+        outputParts.push(ConvertToUnicode(chunks[ci]));
         ci++;
         showProcessing(true, 'Converting…', (ci / totalChunks) * 100);
         requestAnimationFrame(stepRev);
@@ -992,6 +757,7 @@ function setAskChoice(value) {
 }
 
 function initAskChoice() {
+  if (partnerSlotsEmpty()) return;
   // Ask on first visit, then re-ask every 2 hours so the choice stays fresh.
   if (getAskChoice() === null || (Date.now() - getAskChoiceAt() > ASK_REASK_MS)) {
     spotEls.consentOverlay.classList.add('ask-overlay--show');
@@ -1083,6 +849,7 @@ function hideGate() {
 }
 
 function initGatekeep() {
+  if (partnerSlotsEmpty()) return;
   var btn = document.getElementById('gate-refresh-btn');
   if (btn) btn.addEventListener('click', function () { window.location.reload(); });
   // Let blockers apply first, then check. Re-check every 20s so turning
@@ -1167,17 +934,140 @@ function buildBlankDocxBlob(tokens) {
    tracked-changes artifacts), each run is still tokenized on its
    own text. Cross-run word reconstruction is out of scope here.
 ------------------------------------------------------------ */
-var BIJOY_FONT_NAMES = ['SutonnyMJ', 'SutonnyOMJ', 'Sutonny', 'SulekhaBangla', 'Ekushey', 'Bijoy', 'BijoyBangla'];
-// Phase 2 fix: style-level fallback — a run with no direct rFonts inherits the
-// paragraph style's font (w:pStyle -> styles.xml) and finally docDefaults.
-// stylesDoc is optional (parsed styles.xml); null = run-level check only.
-var UNICODE_TARGET_FONT = 'Nirmala UI'; // Phase 6 fix: Times New Roman has no Bangla glyphs — Nirmala UI ships with Windows and covers Bangla Unicode (matches the site's own demo files).
+var BIJOY_FONT_NAMES = ['SutonnyMJ', 'SutonnyOMJ'];
+var UNICODE_TARGET_FONT = 'Kalpurush';
 var WORD_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
 var XML_NS = 'http://www.w3.org/XML/1998/namespace';
+var BIJOY_MARKER_RE = /[‡‰ˆ†•]/;
+var conversionChangeCount = 0;
 
 function isBijoyFontName(name) {
   if (!name) return false;
   return BIJOY_FONT_NAMES.some(function (fn) { return name.toLowerCase() === fn.toLowerCase(); });
+}
+
+function runLocalName(el) {
+  return (el && (el.localName || (el.nodeName && el.nodeName.split(':').pop()))) || '';
+}
+
+function directChildT(runEl) {
+  var out = [];
+  var kids = runEl.childNodes;
+  for (var i = 0; i < kids.length; i++) {
+    var k = kids[i];
+    if (!k || k.nodeType !== 1) continue;
+    if (runLocalName(k) === 't') out.push(k);
+  }
+  return out;
+}
+
+function runHasProtectedChild(runEl) {
+  var kids = runEl.childNodes;
+  for (var i = 0; i < kids.length; i++) {
+    var k = kids[i];
+    if (!k || k.nodeType !== 1) continue;
+    var n = runLocalName(k);
+    if (n === 'drawing' || n === 'pict' || n === 'object' || n === 'txbxContent') return true;
+  }
+  return false;
+}
+
+function looksLikeLatinOnly(text) {
+  if (!text) return true;
+  if (/[\u0980-\u09FF]/.test(text)) return false;
+  if (BIJOY_MARKER_RE.test(text)) return false;
+  var t = String(text).trim();
+  if (!t) return true;
+  if (/[a-z][A-Z]/.test(t)) return false;
+  if (!/^[\sA-Za-z0-9.,;:!?()[\]{}'"“”‘’\-_/\\&+=%#@*<>|~`]+$/.test(t)) return false;
+  var words = t.split(/[^A-Za-z]+/).filter(Boolean);
+  if (!words.length) return false;
+  for (var i = 0; i < words.length; i++) {
+    var w = words[i];
+    if (/^[A-Z]{1,4}$/.test(w)) continue;
+    if (!/[aeiouyAEIOUY]/.test(w)) return false;
+    if (/^[A-Z]v/.test(w)) return false;
+    if (!/^[A-Z][a-z]+$/.test(w)) return false;
+  }
+  return true;
+}
+
+function splitBijoyLatinParts(text) {
+  var re = /(\s+|[^\s]+)/g;
+  var groups = [];
+  var m;
+  while ((m = re.exec(text)) !== null) {
+    var raw = m[0];
+    if (/^\s+$/.test(raw)) {
+      if (groups.length) groups[groups.length - 1].raw += raw;
+      else groups.push({ latin: true, raw: raw });
+      continue;
+    }
+    var latin = looksLikeLatinOnly(raw);
+    if (groups.length && groups[groups.length - 1].latin === latin) groups[groups.length - 1].raw += raw;
+    else groups.push({ latin: latin, raw: raw });
+  }
+  return groups;
+}
+
+function groupTokensForConversion(tokens) {
+  var groups = [];
+  for (var i = 0; i < tokens.length; i++) {
+    var tok = tokens[i];
+    if (tok.type === 'space' || tok.type === 'other') {
+      if (groups.length) groups[groups.length - 1].raw += tok.raw;
+      else groups.push({ type: tok.effectiveType === 'bangla' ? 'bangla' : 'other', raw: tok.raw });
+      continue;
+    }
+    var typ = tok.type === 'bangla' ? 'bangla' : 'other';
+    if (groups.length && groups[groups.length - 1].type === typ) groups[groups.length - 1].raw += tok.raw;
+    else groups.push({ type: typ, raw: tok.raw });
+  }
+  return groups;
+}
+
+function setRunLang(rPrEl, doc, val) {
+  var lang = rPrEl.getElementsByTagName('w:lang')[0];
+  if (!lang) {
+    lang = doc.createElementNS(WORD_NS, 'w:lang');
+    rPrEl.appendChild(lang);
+  }
+  lang.setAttribute('w:val', val);
+}
+
+function detectAutoModeFromText(text) {
+  if (!text || !String(text).trim()) return null;
+  if (/[\u0980-\u09FF]/.test(text)) return 'unicode-to-bijoy';
+  if (BIJOY_MARKER_RE.test(text)) return 'bijoy-to-unicode';
+  return null;
+}
+
+function detectAutoModeFromDoc(doc) {
+  if (!doc) return null;
+  var runs = doc.getElementsByTagName('w:r');
+  var bijoy = 0;
+  var uni = 0;
+  for (var i = 0; i < runs.length; i++) {
+    if (runHasProtectedChild(runs[i])) continue;
+    var text = '';
+    var ts = directChildT(runs[i]);
+    for (var ti = 0; ti < ts.length; ti++) text += ts[ti].textContent || '';
+    if (!text || !text.trim()) continue;
+    var font = getRunFontName(runs[i].getElementsByTagName('w:rPr')[0] || null);
+    if (isBijoyFontName(font) && !looksLikeLatinOnly(text)) bijoy++;
+    if (/[\u0980-\u09FF]/.test(text)) uni++;
+  }
+  if (!bijoy && !uni) return null;
+  return uni >= bijoy ? 'unicode-to-bijoy' : 'bijoy-to-unicode';
+}
+
+function resolveDocxDirection(xmlString) {
+  var doc = new DOMParser().parseFromString(xmlString, 'application/xml');
+  return detectAutoModeFromDoc(doc);
+}
+
+function countConvertedRuns() {
+  return conversionChangeCount;
 }
 
 function getRunFontName(rPrEl) {
@@ -1185,69 +1075,6 @@ function getRunFontName(rPrEl) {
   var rFonts = rPrEl.getElementsByTagName('w:rFonts')[0];
   if (!rFonts) return null;
   return rFonts.getAttribute('w:ascii') || rFonts.getAttribute('w:hAnsi') || rFonts.getAttribute('w:cs') || null;
-}
-
-function getStyleFontName(stylesDoc, styleId) {
-  // Look up w:style[@w:styleId] -> w:rPr/w:rFonts in styles.xml.
-  if (!stylesDoc || !styleId) return null;
-  var styles = stylesDoc.getElementsByTagName('w:style');
-  for (var i = 0; i < styles.length; i++) {
-    if (styles[i].getAttribute('w:styleId') === styleId) {
-      var rPr = styles[i].getElementsByTagName('w:rPr')[0];
-      return getRunFontName(rPr || null);
-    }
-  }
-  return null;
-}
-
-function getDocDefaultFontName(stylesDoc) {
-  // word/styles.xml -> w:docDefaults/w:rPrDefault/w:rPr/w:rFonts.
-  if (!stylesDoc) return null;
-  var defs = stylesDoc.getElementsByTagName('w:docDefaults');
-  if (!defs.length) return null;
-  var rPr = defs[0].getElementsByTagName('w:rPr')[0];
-  return getRunFontName(rPr || null);
-}
-
-function getParaStyleId(paraEl) {
-  // w:p -> w:pPr/w:pStyle[@w:val].
-  if (!paraEl) return null;
-  var pPr = paraEl.getElementsByTagName('w:pPr')[0];
-  if (!pPr) return null;
-  var pStyle = pPr.getElementsByTagName('w:pStyle')[0];
-  return pStyle ? (pStyle.getAttribute('w:val') || null) : null;
-}
-
-function getDefaultParagraphStyleId(stylesDoc) {
-  // Discover the default paragraph style from styles.xml:
-  // w:styles -> w:style[@w:type="paragraph" and @w:default="1"]/@w:styleId.
-  // When no explicit default is declared, Word falls back to "Normal".
-  if (!stylesDoc) return 'Normal';
-  var styles = stylesDoc.getElementsByTagName('w:style');
-  for (var i = 0; i < styles.length; i++) {
-    var st = styles[i];
-    var type = st.getAttribute('w:type');
-    var isDef = st.getAttribute('w:default');
-    if ((type === 'paragraph' || !type) && (isDef === '1' || isDef === 'true')) {
-      return st.getAttribute('w:styleId') || 'Normal';
-    }
-  }
-  return 'Normal';
-}
-
-function getEffectiveFontName(runEl, stylesDoc) {
-  // Run-level first, then paragraph-style, then docDefaults. stylesDoc may
-  // be null (e.g. minimal harness) — then this degrades to run-level only.
-  var rPrEl = runEl.getElementsByTagName('w:rPr')[0] || null;
-  var name = getRunFontName(rPrEl);
-  if (name) return name;
-  if (!stylesDoc) return null;
-  var para = runEl.parentNode;
-  while (para && (para.localName || (para.nodeName || '').split(':').pop()) !== 'p') para = para.parentNode;
-  var styleId = getParaStyleId(para);
-  name = getStyleFontName(stylesDoc, styleId || getDefaultParagraphStyleId(stylesDoc));
-  if (name) return name;
-  return getDocDefaultFontName(stylesDoc);
 }
 
 function ensureRunFonts(rPrEl, doc) {
@@ -1266,40 +1093,34 @@ function setRunFont(rFontsEl, fontName) {
   rFontsEl.setAttribute('w:cs', fontName);
 }
 
-function setRunLang(rPrEl, doc) {
-  // Phase 6 fix: tag converted runs as Bangla so Word/LibreOffice apply
-  // correct line-breaking and spell-check language instead of English.
-  var lang = rPrEl.getElementsByTagName('w:lang')[0];
-  if (!lang) {
-    lang = doc.createElementNS(WORD_NS, 'w:lang');
-    rPrEl.appendChild(lang);
-  }
-  lang.setAttribute('w:val', 'bn-BD');
-}
-
 function runFontKey(runEl) {
   var rPrEl = runEl.getElementsByTagName('w:rPr')[0] || null;
   var name = getRunFontName(rPrEl);
   return (name || '').toLowerCase();
 }
 
-function runRPrSignature(runEl) {
-  // Phase 1 fix: full-formatting merge key. Two runs merge only when their
-  // entire <w:rPr> serializes identically (font AND bold/italic/underline/
-  // size/color/...). Missing rPr normalizes to '' so two unformatted runs
-  // still merge; any formatting difference blocks the merge instead of
-  // silently dropping the second run's styling.
-  var rPrEl = runEl.getElementsByTagName('w:rPr')[0] || null;
+function runPrLocalName(el) {
+  return el.localName || (el.nodeName && el.nodeName.split(':').pop()) || '';
+}
+
+function rPrStyleKey(runEl) {
+  var rPrEl = runEl.getElementsByTagName('w:rPr')[0];
   if (!rPrEl) return '';
-  try {
-    // XMLSerializer preserves attribute/child order, so byte-identical
-    // output means semantically identical formatting. Semantically-equal
-    // but differently-ordered rPr just misses a merge (safe direction).
-    return new XMLSerializer().serializeToString(rPrEl);
-  } catch (e) {
-    // Fallback for non-browser harnesses: font-only key (old behavior).
-    return 'font:' + runFontKey(runEl);
+  var parts = [];
+  var kids = rPrEl.childNodes;
+  for (var i = 0; i < kids.length; i++) {
+    var k = kids[i];
+    if (!k || k.nodeType !== 1) continue;
+    var n = runPrLocalName(k);
+    if (n === 'rFonts') continue;
+    var attrs = [];
+    if (k.attributes) {
+      for (var a = 0; a < k.attributes.length; a++) attrs.push(k.attributes[a].name + '=' + k.attributes[a].value);
+    }
+    attrs.sort();
+    parts.push(n + '[' + attrs.join(',') + ']');
   }
+  return parts.join('|');
 }
 
 // True only for runs holding nothing but properties + text (no tab,
@@ -1319,82 +1140,67 @@ function runIsPlainText(runEl) {
 }
 
 function runText(runEl) {
-  var ts = runEl.getElementsByTagName('w:t');
+  var ts = directChildT(runEl);
   var s = '';
   for (var i = 0; i < ts.length; i++) s += ts[i].textContent;
   return s;
 }
 
-/* Cross-run merge (Task A fix + Phase 1 fix): Word splits words across
-   runs (spellcheck artifacts like w:proofErr, formatting edits), and
+/* Cross-run merge (Task A fix): Word splits words across runs
+   (spellcheck artifacts like w:proofErr, formatting edits), and
    converting each fragment alone garbles words (e.g. "Dw" → "উি").
-   This pre-pass joins consecutive plain-text runs inside each paragraph
-   into the first run (which keeps its formatting); emptied runs keep
-   their structure with blank text. Structural runs (tabs, breaks,
-   drawings…) always break a group and are untouched.
-   Phase 1: merge key is the FULL rPr signature (font+bold+italic+size+
-   color+...), not font name alone — runs with different formatting never
-   merge, so no styling is silently lost.
-   Phase 4: the equality test lives in runsHaveSameRPr() — the single
-   shared helper used by BOTH the pre-pass (mergeSameFontRuns, before the
-   split) and the post-pass (mergeSameFontRuns again, after the split)
-   plus the in-split grouping (mergeAdjacentRuns). No second copy. */
-function runsHaveSameRPr(a, b) {
-  return runRPrSignature(a) === runRPrSignature(b);
-}
+   This pre-pass joins consecutive same-font *and* same-rPr plain-text
+   runs inside each paragraph into the first run. Emptied donor runs
+   are removed. Structural runs (tabs, breaks, drawings…) always break
+   a group and are untouched. Superscript/subscript/bold/size/color
+   differences never merge. */
 function mergeSameFontRuns(doc) {
   var paras = doc.getElementsByTagName('w:p');
   for (var pi = 0; pi < paras.length; pi++) {
-    var kids = paras[pi].childNodes;
-    var firstRun = null, firstT = null;
-    var flush = function () { firstRun = null; firstT = null; };
+    var para = paras[pi];
+    var kids = para.childNodes;
+    var firstRun = null, firstT = null, fontKey = null, styleKey = null;
+    var flush = function () { firstRun = null; firstT = null; fontKey = null; styleKey = null; };
+    var toRemove = [];
     for (var i = 0; i < kids.length; i++) {
       var k = kids[i];
       if (!k || k.nodeType !== 1) continue;
       var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
       if (n === 'proofErr') continue; // spellcheck marker: no text, never breaks a word
       if (n !== 'r' || !runIsPlainText(k)) { flush(); continue; }
-      var ts = k.getElementsByTagName('w:t');
-      if (firstRun && runsHaveSameRPr(firstRun, k)) {
+      var fk = runFontKey(k);
+      var sk = rPrStyleKey(k);
+      var ts = directChildT(k);
+      if (firstRun && fk === fontKey && sk === styleKey) {
         var txt = runText(k);
-        if (txt) {
+        if (txt && firstT) {
           firstT.textContent = firstT.textContent + txt;
           firstT.setAttributeNS(XML_NS, 'xml:space', 'preserve');
         }
-        for (var j = 0; j < ts.length; j++) {
-          ts[j].textContent = '';
-          ts[j].setAttributeNS(XML_NS, 'xml:space', 'preserve');
-        }
+        toRemove.push(k);
       } else {
         firstRun = k;
         firstT = ts[0];
+        fontKey = fk;
+        styleKey = sk;
       }
+    }
+    for (var ri = 0; ri < toRemove.length; ri++) {
+      if (toRemove[ri].parentNode) toRemove[ri].parentNode.removeChild(toRemove[ri]);
     }
   }
 }
 
-function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
-  // Phase 3 fix: only plain-text runs are convertible. A wrapper run that
-  // holds w:pict/w:drawing (VML/DrawingML textbox, image, shape...) is
-  // skipped entirely — its descendant w:t nodes belong to the nested
-  // txbxContent sub-document, not to this run. Runs *inside* txbxContent
-  // are plain-text runs themselves, so they are still converted normally
-  // when the global w:r loop reaches them; they are never merged with
-  // outer-paragraph runs because mergeSameFontRuns groups per-w:p.
-  if (!runIsPlainText(runEl)) return 0;
-  var tEls = runEl.getElementsByTagName('w:t');
-  if (!tEls.length) return; // w:tab, w:br, drawings, etc. — nothing to convert
+function splitRunForConversion(runEl, doc, direction) {
+  if (runHasProtectedChild(runEl)) return;
+  var tEls = directChildT(runEl);
+  if (!tEls.length) return;
   var originalText = '';
   for (var ti = 0; ti < tEls.length; ti++) originalText += tEls[ti].textContent;
-  if (!originalText) return 0;
+  if (!originalText) return;
 
   var rPrEl = runEl.getElementsByTagName('w:rPr')[0] || null;
 
-  // A run can hold several w:t nodes (Word splits text inside runs too).
-  // Converted text always goes into the first one; the rest are emptied.
-  // Phase 7 policy: w:delText (tracked-change deletions) is NEVER touched —
-  // deleted content must stay byte-identical so accept/reject in Word keeps
-  // working. Only live w:t nodes convert.
   function setRunText(converted) {
     tEls[0].textContent = converted;
     tEls[0].setAttributeNS(XML_NS, 'xml:space', 'preserve');
@@ -1405,73 +1211,69 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
   }
 
   if (direction === 'bijoy2uni') {
-    // Phase 2 fix: effective font — run-level, else paragraph style, else
-    // docDefaults. Unknown/unsupported fonts are left untouched and counted
-    // as 0 so patchDocumentXmlString can raise the zero-conversion warning.
-    var currentFont = getEffectiveFontName(runEl, stylesDoc || null);
-    if (!isBijoyFontName(currentFont)) return 0; // not Bijoy-tagged — leave untouched
-    // Phase 5 fix (DOCX): same per-token Bijoy-range gate as plain text —
-    // a Bijoy run with embedded ASCII ("Avgvi hello") keeps its English.
-    setRunText(convertBijoyTextMixed(originalText));
-    if (!rPrEl) { rPrEl = doc.createElementNS(WORD_NS, 'w:rPr'); runEl.insertBefore(rPrEl, runEl.firstChild); }
-    setRunFont(ensureRunFonts(rPrEl, doc), UNICODE_TARGET_FONT);
-    setRunLang(rPrEl, doc);
-    if (counter) counter.converted++;
-    return 1;
+    var currentFont = getRunFontName(rPrEl);
+    if (!isBijoyFontName(currentFont)) return;
+    if (looksLikeLatinOnly(originalText)) return;
+    var bijoyParts = splitBijoyLatinParts(originalText);
+    var hasBijoyPart = bijoyParts.some(function (p) { return !p.latin && p.raw.trim(); });
+    if (!hasBijoyPart) return;
+
+    function applyUnicodeFont(targetRPr) {
+      setRunFont(ensureRunFonts(targetRPr, doc), UNICODE_TARGET_FONT);
+      setRunLang(targetRPr, doc, 'bn-BD');
+    }
+
+    if (bijoyParts.length === 1) {
+      var convertedUni = ConvertToUnicode(bijoyParts[0].raw);
+      if (convertedUni === originalText) return;
+      setRunText(convertedUni);
+      if (!rPrEl) { rPrEl = doc.createElementNS(WORD_NS, 'w:rPr'); runEl.insertBefore(rPrEl, runEl.firstChild); }
+      applyUnicodeFont(rPrEl);
+      conversionChangeCount++;
+      return;
+    }
+
+    var uniRuns = bijoyParts.map(function (part) {
+      var newRun = doc.createElementNS(WORD_NS, 'w:r');
+      var newRPr = rPrEl ? rPrEl.cloneNode(true) : doc.createElementNS(WORD_NS, 'w:rPr');
+      var text = part.latin ? part.raw : ConvertToUnicode(part.raw);
+      if (!part.latin) applyUnicodeFont(newRPr);
+      newRun.appendChild(newRPr);
+      var newT = doc.createElementNS(WORD_NS, 'w:t');
+      newT.setAttributeNS(XML_NS, 'xml:space', 'preserve');
+      newT.textContent = text;
+      newRun.appendChild(newT);
+      return newRun;
+    });
+    var uniParent = runEl.parentNode;
+    uniRuns.forEach(function (r) { uniParent.insertBefore(r, runEl); });
+    uniParent.removeChild(runEl);
+    conversionChangeCount++;
+    return;
   }
 
-  // direction === 'uni2bijoy'
   var tokens = tokenizeMixedText(originalText);
   var hasBangla = tokens.some(function (t) { return t.type === 'bangla'; });
-  if (!hasBangla) return 0; // nothing Bangla in this run — leave untouched
+  if (!hasBangla) return;
 
-  if (tokens.length === 1) {
-    // whole run is a single Bangla token — convert in place, no split needed
-    setRunText(ConvertToASCII(tokens[0].raw));
+  var groups = groupTokensForConversion(tokens);
+
+  if (groups.length === 1) {
+    var convertedOne = ConvertToASCII(groups[0].raw);
+    if (convertedOne === originalText) return;
+    setRunText(convertedOne);
     if (!rPrEl) { rPrEl = doc.createElementNS(WORD_NS, 'w:rPr'); runEl.insertBefore(rPrEl, runEl.firstChild); }
     setRunFont(ensureRunFonts(rPrEl, doc), 'SutonnyMJ');
-    if (counter) counter.converted++;
-    return 1;
+    conversionChangeCount++;
+    return;
   }
 
-  // Phase 4 fix: build one w:r per maximal same-output-font group instead of
-  // one w:r per token. A Bangla word + its trailing space both render in
-  // SutonnyMJ after conversion, so they belong in the same run; likewise
-  // consecutive non-Bangla tokens share the original rPr. Tokens are grouped
-  // by their *effective* output side (bangla vs. non-bangla), with
-  // whitespace ('space'/'other') inheriting the surrounding side — the same
-  // effectiveType rule tokenizeMixedText() already applies for plain text —
-  // so `word + space + word` stays ONE Bangla run instead of N runs.
-  // Leading whitespace (no side yet) looks ahead to the first content
-  // token; a space renders identically in either font and ConvertToASCII
-  // passes ASCII whitespace through byte-identical, so attaching it to the
-  // first group is always safe.
-  function tokenSide(tok) {
-    if (tok.type === 'bangla') return 'bangla';
-    return tok.effectiveType === 'bangla' ? 'bangla' : 'latin';
-  }
-  var firstContentSide = 'latin';
-  for (var fi = 0; fi < tokens.length; fi++) {
-    if (tokens[fi].type !== 'space' && tokens[fi].type !== 'other') {
-      firstContentSide = tokenSide(tokens[fi]);
-      break;
-    }
-  }
-  var groups = [];
-  tokens.forEach(function (tok) {
-    var isWS = (tok.type === 'space' || tok.type === 'other');
-    var side = isWS && groups.length === 0 ? firstContentSide : tokenSide(tok);
-    var last = groups[groups.length - 1];
-    if (last && last.side === side) last.raws.push(tok.raw);
-    else groups.push({ side: side, raws: [tok.raw] });
-  });
-
-  var newRuns = groups.map(function (g) {
+  var newRuns = groups.map(function (grp) {
     var newRun = doc.createElementNS(WORD_NS, 'w:r');
     var newRPr = rPrEl ? rPrEl.cloneNode(true) : null;
-    var text = g.raws.join('');
-    if (g.side === 'bangla') {
-      text = convertBanglaGroupToBijoy(text);
+    var text = grp.raw;
+    if (grp.type === 'bangla') {
+      text = ConvertToASCII(grp.raw);
       if (!newRPr) newRPr = doc.createElementNS(WORD_NS, 'w:rPr');
       setRunFont(ensureRunFonts(newRPr, doc), 'SutonnyMJ');
     }
@@ -1483,84 +1285,23 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
     return newRun;
   });
 
-  // Phase 4 fix: merge adjacent new runs with identical rPr before inserting,
-  // so a mixed run of N tokens does not become N runs on disk. Bangla pieces
-  // share the same font-tagged rPr; consecutive spaces/punctuation share the
-  // original rPr — both collapse back, keeping run count near the original.
-  newRuns = mergeAdjacentRuns(newRuns, doc);
-
   var parent = runEl.parentNode;
   newRuns.forEach(function (r) { parent.insertBefore(r, runEl); });
   parent.removeChild(runEl);
-  if (counter) counter.converted++;
-  return 1;
+  conversionChangeCount++;
 }
 
-function convertBanglaGroupToBijoy(text) {
-  // ConvertToASCII() ends in ReArrangeUnicodeText(), which .trim()s its input
-  // (it is built for whole-paragraph conversion, where trimming is harmless).
-  // The DOCX path, however, hands it a *group* of tokens that legitimately
-  // starts and/or ends with whitespace — "সাইক্লিন " — and the trim silently
-  // deleted that space, welding the converted word to the next run
-  // ("…fvlv|A." instead of "…fvlv| A.").
-  //
-  // Fix: convert only the non-whitespace core and re-attach the surrounding
-  // whitespace byte-identical. ConvertToASCII passes ASCII whitespace through
-  // unchanged anyway, so this is lossless — it just stops the trim from
-  // eating it. Whitespace-only groups are returned untouched.
-  var lead = text.match(/^\s+/);
-  var tail = text.match(/\s+$/);
-  var leadStr = lead ? lead[0] : '';
-  var tailStr = tail ? tail[0] : '';
-  var core = text.slice(leadStr.length, text.length - tailStr.length);
-  if (!core) return text;
-  return leadStr + ConvertToASCII(core) + tailStr;
-}
-
-function mergeAdjacentRuns(runs, doc) {
-  // Phase 4 in-split grouping: same shared equality rule (runsHaveSameRPr)
-  // as the pre/post passes — only byte-identical rPr signatures merge.
-  // Text concatenates into the first run's w:t.
-  if (runs.length < 2) return runs;
-  var out = [runs[0]];
-  for (var i = 1; i < runs.length; i++) {
-    var prev = out[out.length - 1];
-    var cur = runs[i];
-    if (runsHaveSameRPr(prev, cur)) {
-      var pt = prev.getElementsByTagName('w:t')[0];
-      var ct = cur.getElementsByTagName('w:t')[0];
-      if (pt && ct) {
-        pt.textContent = pt.textContent + ct.textContent;
-        pt.setAttributeNS(XML_NS, 'xml:space', 'preserve');
-      }
-    } else {
-      out.push(cur);
-    }
-  }
-  return out;
-}
-
-function patchDocumentXmlString(xmlString, direction, stylesDoc, counter) {
+function patchDocumentXmlString(xmlString, direction) {
   var doc = new DOMParser().parseFromString(xmlString, 'application/xml');
   if (doc.getElementsByTagName('parsererror').length) throw new Error('Could not parse DOCX XML');
-  mergeSameFontRuns(doc); // pre-pass: join split words first (see above)
-  var runs = Array.prototype.slice.call(doc.getElementsByTagName('w:r'));
-  var local = counter || { converted: 0 };
-  runs.forEach(function (r) { splitRunForConversion(r, doc, direction, stylesDoc || null, local); });
-  // Phase 4 post-pass: same shared helper as the pre-pass. Re-consolidates
-  // the runs splitRunForConversion just produced (plus the pre-pass's empty
-  // placeholders) so adjacent same-formatting runs land merged on disk
-  // instead of exploded. Bijoy→Unicode runs convert in place (no split),
-  // so this pass is a no-op there by construction.
   mergeSameFontRuns(doc);
+  var runs = Array.prototype.slice.call(doc.getElementsByTagName('w:r'));
+  runs.forEach(function (r) { splitRunForConversion(r, doc, direction); });
   var serialized = new XMLSerializer().serializeToString(doc);
   if (serialized.indexOf('<?xml') !== 0) {
     serialized = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + serialized;
   }
-  // Backward-compatible: old call sites use the string directly; new call
-  // sites pass a counter object to read local.converted (Phase 2 warning).
-  if (!counter) return serialized;
-  return { xml: serialized, converted: local.converted };
+  return serialized;
 }
 
 function extractPreviewText(xmlString) {
@@ -1575,6 +1316,10 @@ function extractPreviewText(xmlString) {
 }
 
 function findHeaderFooterParts(zip) {
+  return findPartsToPatch(zip);
+}
+
+function findPartsToPatch(zip) {
   var relsFile = zip.file('word/_rels/document.xml.rels');
   if (!relsFile) return Promise.resolve([]);
   return relsFile.async('string').then(function (relsXml) {
@@ -1584,18 +1329,16 @@ function findHeaderFooterParts(zip) {
     rels.forEach(function (rel) {
       var type = rel.getAttribute('Type') || '';
       var target = rel.getAttribute('Target') || '';
-      // Phase 7 fix: footnotes/endnotes/comments ride along with
-      // headers/footers — same patchDocumentXmlString path, no new logic.
-      if (type.indexOf('/header') > -1 || type.indexOf('/footer') > -1 ||
-          type.indexOf('/footnotes') > -1 || type.indexOf('/endnotes') > -1 ||
-          type.indexOf('/comments') > -1) {
+      if (
+        type.indexOf('/header') > -1 ||
+        type.indexOf('/footer') > -1 ||
+        type.indexOf('/footnotes') > -1 ||
+        type.indexOf('/endnotes') > -1 ||
+        type.indexOf('/comments') > -1
+      ) {
         var path = target.charAt(0) === '/' ? target.slice(1) : ('word/' + target);
         if (zip.file(path)) parts.push(path);
       }
-    });
-    // Fallback: some writers omit rels entries — patch by well-known path.
-    ['word/footnotes.xml', 'word/endnotes.xml', 'word/comments.xml'].forEach(function (p) {
-      if (zip.file(p) && parts.indexOf(p) === -1) parts.push(p);
     });
     return parts;
   }).catch(function () { return []; });
@@ -1636,6 +1379,7 @@ function clearDocxTemplate() {
   appState.docxFile = null;
   appState.patchedDocxXml = null;
   appState.patchedDirection = null;
+  appState.patchedDocxZip = null;
   var box = document.getElementById('print-doc');
   if (box) box.innerHTML = '';
   try { document.body.classList.remove('print-docx'); } catch (e) { /* non-fatal */ }
@@ -1647,36 +1391,36 @@ function clearDocxTemplate() {
 /* Patches DOCX parts and resolves { zip, mainXml, direction } without
    downloading — shared by DOCX download and table-preserving PDF print. */
 function patchDocxParts() {
-  var mode = resolveMode();
-  var direction = mode === 'unicode-to-bijoy' ? 'uni2bijoy' : 'bijoy2uni';
-  setEncodingBadge(mode);
+  conversionChangeCount = 0;
   return JSZip.loadAsync(appState.docxFile).then(function (freshZip) {
-    return findHeaderFooterParts(freshZip).then(function (extraParts) {
-      var partsToPatch = ['word/document.xml'].concat(extraParts);
-      var state = { mainXml: null, extras: [] };
-      var totalConverted = 0;
-      var stylesDoc = null;
-      var stylesFile = freshZip.file('word/styles.xml');
-      var stylesReady = stylesFile ? stylesFile.async('string').then(function (sx) {
-        try { stylesDoc = new DOMParser().parseFromString(sx, 'application/xml'); }
-        catch (e) { stylesDoc = null; }
-      }).catch(function () { stylesDoc = null; }) : Promise.resolve();
-      return stylesReady.then(function () {
+    var docXmlFile = freshZip.file('word/document.xml');
+    if (!docXmlFile) throw new Error('word/document.xml not found — this is not a valid DOCX file');
+    return docXmlFile.async('string').then(function (mainXml) {
+      var checked = document.querySelector('input[name="conversion-direction"]:checked');
+      var raw = checked ? checked.value : 'unicode-to-bijoy';
+      var mode = raw;
+      if (raw === 'auto') {
+        var parsed = new DOMParser().parseFromString(mainXml, 'application/xml');
+        mode = detectAutoModeFromDoc(parsed);
+        if (!mode) return { zip: freshZip, mainXml: mainXml, direction: null, extras: [], skipped: true };
+      }
+      var direction = mode === 'unicode-to-bijoy' ? 'uni2bijoy' : 'bijoy2uni';
+      setEncodingBadge(mode);
+      return findPartsToPatch(freshZip).then(function (extraParts) {
+        var partsToPatch = ['word/document.xml'].concat(extraParts);
+        var state = { mainXml: null, extras: [] };
         var jobs = partsToPatch.map(function (path) {
           var partFile = freshZip.file(path);
           if (!partFile) return Promise.resolve();
           return partFile.async('string').then(function (xml) {
-            // Phase 2: per-part counter; old string path unused here so we
-            // take the { xml, converted } form explicitly.
-            var out = patchDocumentXmlString(xml, direction, stylesDoc, { converted: 0 });
-            totalConverted += out.converted;
-            if (path === 'word/document.xml') state.mainXml = out.xml;
-            else state.extras.push({ path: path, xml: out.xml });
-            freshZip.file(path, out.xml);
+            var patched = patchDocumentXmlString(xml, direction);
+            if (path === 'word/document.xml') state.mainXml = patched;
+            else state.extras.push({ path: path, xml: patched });
+            freshZip.file(path, patched);
           });
         });
         return Promise.all(jobs).then(function () {
-          return { zip: freshZip, mainXml: state.mainXml, direction: direction, extras: state.extras, converted: totalConverted };
+          return { zip: freshZip, mainXml: state.mainXml, direction: direction, extras: state.extras };
         });
       });
     });
@@ -1686,6 +1430,7 @@ function patchDocxParts() {
 function rememberPatchedDocx(r) {
   appState.patchedDocxXml = r.mainXml;
   appState.patchedDirection = r.direction;
+  appState.patchedDocxZip = r.zip || null;
   if (r.mainXml) {
     els.outputTextarea.value = extractPreviewText(r.mainXml);
     updateStats();
@@ -1698,26 +1443,58 @@ function convertDocxTemplate() {
   showProcessing(true, 'Converting DOCX…');
 
   patchDocxParts().then(function (r) {
-    rememberPatchedDocx(r);
-    return r.zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', compression: 'DEFLATE', compressionOptions: { level: 6 } }).then(function (blob) {
-      return { blob: blob, direction: r.direction, converted: r.converted || 0 };
-    });
-  }).then(function (out) {
-    var url = URL.createObjectURL(out.blob);
-    var a = document.createElement('a');
-    var suffix = out.direction === 'uni2bijoy' ? 'bijoy' : 'unicode';
-    a.href = url;
-    a.download = appState.docxFile.name.replace(/\.docx$/i, '') + '_' + suffix + '.docx';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-    showProcessing(false);
-    // Phase 2 fix: never claim success when nothing converted — tell the
-    // user the font may be unsupported instead of a false success toast.
-    if (!out.converted) {
-      showToast('কোনো বাংলা টেক্সট শনাক্ত হয়নি — ফাইলের ফন্ট সমর্থিত কিনা যাচাই করুন');
-    } else {
-      showToast('DOCX converted and downloaded!');
+    if (r.skipped || !r.direction || conversionChangeCount === 0) {
+      showProcessing(false);
+      showToast('Nothing to convert');
+      setStatusIdle();
+      return;
     }
+    rememberPatchedDocx(r);
+    showProcessing(false);
+    showToast('DOCX converted — download from the output panel');
+  }).catch(function (err) {
+    showProcessing(false);
+    showToast('Error: ' + err.message);
+  });
+}
+
+function downloadConvertedDocx() {
+  if (quotaLocked) { setStatusQuotaExhausted(); showQuotaExhaustedToast(0); return; }
+  if (!appState.docxZip || !appState.docxFile) { showToast('No DOCX template loaded.'); return; }
+
+  function triggerDownload(zip, direction) {
+    return zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', compression: 'DEFLATE', compressionOptions: { level: 6 } }).then(function (blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      var suffix = direction === 'uni2bijoy' ? 'bijoy' : 'unicode';
+      a.href = url;
+      a.download = appState.docxFile.name.replace(/\.docx$/i, '') + '_' + suffix + '.docx';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      showProcessing(false);
+      showToast('DOCX downloaded!');
+    });
+  }
+
+  if (appState.patchedDocxZip && appState.patchedDirection) {
+    showProcessing(true, 'Preparing DOCX…');
+    triggerDownload(appState.patchedDocxZip, appState.patchedDirection).catch(function (err) {
+      showProcessing(false);
+      showToast('Error: ' + err.message);
+    });
+    return;
+  }
+
+  showProcessing(true, 'Converting DOCX…');
+  patchDocxParts().then(function (r) {
+    if (r.skipped || !r.direction || conversionChangeCount === 0) {
+      showProcessing(false);
+      showToast('Nothing to convert');
+      setStatusIdle();
+      return null;
+    }
+    rememberPatchedDocx(r);
+    return triggerDownload(r.zip, r.direction);
   }).catch(function (err) {
     showProcessing(false);
     showToast('Error: ' + err.message);
@@ -2238,7 +2015,7 @@ function updateQuotaLock() {
   if (FREE_MODE) {
     // Free version: quota never locks. Keep inputs usable.
     quotaLocked = false;
-    updateConvertBtnState(); // live mode still gates the button
+    if (els.convertBtn) els.convertBtn.disabled = false;
     if (els.pasteBtn) {
       els.pasteBtn.disabled = false;
       els.pasteBtn.classList.remove('is-disabled');
@@ -2252,7 +2029,7 @@ function updateQuotaLock() {
   // (fail-closed: no verified balance, no conversion).
   var locked = pointsBalance <= 0 || !srvReady;
   quotaLocked = locked;
-  updateConvertBtnState(); // combines quota lock with live-mode gate
+  if (els.convertBtn) els.convertBtn.disabled = locked;
   if (els.inputTextarea) {
     // DOCX template lock wins when quota is fine; quota lock wins always.
     var docxLock = !!(appState && appState.docxZip);
@@ -2419,7 +2196,6 @@ function wireEvents() {
     appState.liveMode = !appState.liveMode;
     els.liveModeBtn.setAttribute('aria-checked', String(appState.liveMode));
     els.encodingBadge.classList.toggle('encoding-badge--live', appState.liveMode);
-    updateConvertBtnState(); // live ON -> disabled, live OFF -> enabled
     if (appState.liveMode) convertPlainText(); else setStatusIdle();
   });
 
@@ -2427,6 +2203,12 @@ function wireEvents() {
     var text = els.inputTextarea.value;
     if (!hasConvertibleText(text)) return;
     if (appState.docxZip) { convertDocxTemplate(); return; }
+    var checked = document.querySelector('input[name="conversion-direction"]:checked');
+    if (checked && checked.value === 'auto' && !detectAutoModeFromText(text)) {
+      showToast('Nothing to convert');
+      setStatusIdle();
+      return;
+    }
     convertPlainText();
   });
 
@@ -2453,14 +2235,13 @@ function wireEvents() {
     if (quotaLocked) { showQuotaExhaustedToast(0); e.target.value = ''; return; }
     var file = e.target.files[0];
     if (!file) return;
-    // Phase 8: legacy .doc is binary OLE — not convertible client-side.
-    // Fail loudly with guidance instead of silently misreading it as text.
-    if (file.name.toLowerCase().endsWith('.doc') && !file.name.toLowerCase().endsWith('.docx')) {
-      showToast('.doc সমর্থিত নয় — Word থেকে .docx হিসেবে Save করে আবার চেষ্টা করুন');
+    var lowerName = file.name.toLowerCase();
+    if (lowerName.endsWith('.doc') && !lowerName.endsWith('.docx')) {
+      showToast('Binary .doc is unsupported. Please save as .docx and try again.');
       e.target.value = '';
       return;
     }
-    if (file.name.toLowerCase().endsWith('.docx')) {
+    if (lowerName.endsWith('.docx')) {
       loadDocxFile(file);
     } else {
       var reader = new FileReader();
@@ -2541,7 +2322,7 @@ function wireEvents() {
   });
 
   els.downloadDocxBtn.addEventListener('click', function () {
-    if (appState.docxZip) { convertDocxTemplate(); return; }
+    if (appState.docxZip) { downloadConvertedDocx(); return; }
     if (appState.parsedData.length === 0) {
       var inputText = els.inputTextarea.value;
       if (!inputText || !inputText.trim()) { showToast('Nothing to download as docx file'); return; }
@@ -2672,13 +2453,13 @@ function init() {
   safeInitStep(setStatusIdle, 'status-idle-init');
   safeInitStep(function () { els.encodingBadge.classList.toggle('encoding-badge--live', appState.liveMode); }, 'live-badge-init');
   safeInitStep(function () { setConvertButtonMode(false); }, 'convert-button-mode');
-  safeInitStep(updateConvertBtnState, 'convert-btn-state');
   safeInitStep(wireEvents, 'wire-events');
   safeInitStep(wireKeyboardShortcuts, 'wire-keyboard-shortcuts');
   safeInitStep(updateOfflineIndicator, 'offline-indicator');
   safeInitStep(initAskChoice, 'choice-prompt');
   safeInitStep(initRefreshGuard, 'refresh-guard');
   safeInitStep(initGatekeep, 'gatekeep');
+  safeInitStep(registerServiceWorker, 'service-worker');
   safeInitStep(function () { syncUndoBase(); updateUndoButtons(); }, 'undo-init');
   requestAnimationFrame(function () { safeInitStep(updateDirectionPillPosition, 'direction-pill'); });
 }
