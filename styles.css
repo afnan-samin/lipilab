@@ -514,16 +514,18 @@ button{ font-family:inherit; }
 .unmap-modal__backdrop{ position:absolute; inset:0; background:rgba(15,12,26,.5); backdrop-filter:blur(3px); animation:fadeIn var(--dur-med) var(--ease); }
 .unmap-modal__card{
   position:relative; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
-  box-shadow:var(--shadow-lg); width:100%; max-width:540px; max-height:86vh; overflow:auto; padding:20px;
+  box-shadow:var(--shadow-lg); width:100%; max-width:540px; max-height:86vh;
+  display:flex; flex-direction:column; overflow:hidden; padding:0;
   animation:popIn var(--dur-med) var(--ease);
 }
-/* The header sticks to the top of the card while the body scrolls, so the
-   Send / Copy / Close actions stay reachable at any scroll position. */
+/* The header lives outside the scrolling body: it keeps its top padding, never
+   moves, and the text below can never slide into it. Only the body scrolls. */
 .unmap-modal__header{
-  position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:12px;
-  margin:-20px -20px 8px; padding:20px 20px 6px; background:var(--surface);
+  flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:20px 20px 8px; background:var(--surface);
   border-radius:var(--radius-lg) var(--radius-lg) 0 0;
 }
+.unmap-modal__body{ flex:1 1 auto; overflow:auto; padding:6px 20px 20px; }
 .unmap-modal__title{ font-family:var(--font-display); font-size:16.5px; font-weight:800; color:var(--text); margin:0; }
 .unmap-modal__header-actions{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
 .unmap-modal__send{
@@ -544,7 +546,7 @@ button{ font-family:inherit; }
 .unmap-modal__preview{
   font-size:12.5px; line-height:1.65; color:var(--text-secondary); background:var(--surface-alt);
   border:1px solid var(--border); border-radius:var(--radius-md); padding:12px;
-  max-height:34vh; overflow:auto; white-space:pre-wrap; word-break:break-word; user-select:text;
+  white-space:pre-wrap; word-break:break-word; user-select:text;
 }
 .unmap-modal__preview:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
 
