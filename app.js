@@ -485,6 +485,7 @@ var els = {
   warningCount: document.getElementById('warning-count'),
   unmapModal: document.getElementById('unmap-modal'),
   unmapBackdrop: document.getElementById('unmap-backdrop'),
+  unmapLead: document.getElementById('unmap-modal-lead'),
   unmapCloseBtn: document.getElementById('unmap-close-btn'),
   unmapPreview: document.getElementById('unmap-mail-preview'),
   unmapSendBtn: document.getElementById('unmap-send-btn'),
@@ -671,20 +672,68 @@ function codePointHex(ch) {
 
 /* The exact text behind Copy and Send — what the user sees is what is sent.
    It names the missing characters only: never the user's own text. */
+/* Verified: the embedded SutonnyMJ TTF plus six more Bangla ANSI fonts
+   carry no glyph for these characters, so no ASCII code can show them -
+   a look-alike map would print the wrong letter (e.g. ব for ৰ). They stay
+   Unicode on purpose: browser font fallback draws them correctly. The
+   dialog and the prepared mail explain this instead of promising a fix. */
+var FONT_NO_GLYPH = { 'ৰ': 1, 'ৱ': 1 };
+
+function isFontNoGlyph(ch) { return Object.prototype.hasOwnProperty.call(FONT_NO_GLYPH, ch); }
+function splitReportChars(chars) {
+  var limited = [], mappable = [], i;
+  for (i = 0; i < chars.length; i++) { if (isFontNoGlyph(chars[i])) limited.push(chars[i]); else mappable.push(chars[i]); }
+  return { limited: limited, mappable: mappable };
+}
+function listReportChars(chars) {
+  return chars.map(function (ch) { return ch + ' (' + codePointHex(ch) + ')'; }).join(', ');
+}
+
+/* Copy/Send text: all font-limited -> an FYI naming the font limit;
+   anything mappable -> the mapping request, noting any font-limited ones. */
 function buildUnmapReport() {
   var chars = lastUnmappableChars || [];
-  var report = [
-    'Hi LipiLab team,',
-    '',
-    'I converted a text and ' + (chars.length === 1 ? 'this character is' : 'these characters are') +
-      ' missing from the converter list,',
-    'so they stayed as Unicode in the Bijoy output:',
-    '',
-    '   ' + chars.map(function (ch) { return ch + ' (' + codePointHex(ch) + ')'; }).join(', '),
-    '',
-    'Please add them to the SutonnyMJ (Bijoy) mapping in a future update.'
-  ];
+  var parts = splitReportChars(chars), report;
+  if (chars.length && !parts.mappable.length) {
+    report = [
+      'Hi LipiLab team,',
+      '',
+      'I converted a text and ' + (chars.length === 1 ? 'this character stayed' : 'these characters stayed') + ' as Unicode in the Bijoy output:',
+      '',
+      '   ' + listReportChars(chars),
+      '',
+      'The report dialog explained that the SutonnyMJ font itself carries no glyph for them (its glyph table was checked), so there is no Bijoy ASCII code that could render them - mapping would print a different letter.',
+      'This mail is only to let you know such characters appear in real texts. Keeping them Unicode is correct: the browser draws them through font fallback. No converter update can change this until the font adds the glyph.'
+    ];
+  } else {
+    report = [
+      'Hi LipiLab team,',
+      '',
+      'I converted a text and ' + (chars.length === 1 ? 'this character is' : 'these characters are') + ' missing from the converter list,',
+      'so they stayed as Unicode in the Bijoy output:',
+      '',
+      '   ' + listReportChars(chars),
+      ''
+    ];
+    if (parts.limited.length) {
+      report.push('Note: ' + listReportChars(parts.limited) + ' cannot be mapped at all - the SutonnyMJ font itself carries no glyph for them.');
+      report.push('');
+    }
+    report.push('Please add them to the SutonnyMJ (Bijoy) mapping in a future update.');
+  }
   return report.join('\n');
+}
+
+/* Font-limited Bangla lead; the markup paragraph (the site owner's own text)
+   is snapshotted as the normal variant and restored for normal reports. */
+var FONT_LIMITED_LEAD_HTML = 'এই ক্যারেক্টারগুলো <b>SutonnyMJ (Bijoy) ফন্টে নিজেই নেই</b> — আমরা এই সাইটের ব্যবহৃত ফন্টসহ ৭টা বাংলা ANSI ফন্টের গ্লিফ-টেবিল পরীক্ষা করে নিশ্চিত করেছি। ফন্টে গ্লিফ না থাকায় কোনো ASCII কোডেও এগুলো দেখানো সম্ভব নয় — জোর করে map করলে ভুল অক্ষর (যেমন ৰ-এর জায়গায় <b>ব</b>) দেখাবে। তাই কনভার্টার এগুলো <b>ইউনিকোড হিসেবেই রাখে</b> — ব্রাউজারের ফন্ট ফলব্যাকে সঠিকভাবে দেখানোর জন্য। এটাই সঠিক আচরণ; ফন্টে গ্লিফ যোগ না হলে পর্যন্ত কোনো ম্যাপিং-আপডেটেও এটা বদলাবে না। চাইলে <b>Send</b> চাপুন — এই তথ্য আমাদের কাছে পৌঁছে যাবে। রিপোর্টে শুধু এই মিসিং ক্যারেক্টারগুলো যায় — আপনার কোনো লেখা বা ব্যক্তিগত তথ্য যায় না।';
+var unmapLeadNormalHTML = null;
+function setUnmapLead() {
+  if (!els.unmapLead) return;
+  if (unmapLeadNormalHTML === null) unmapLeadNormalHTML = els.unmapLead.innerHTML;
+  var allLimited = lastUnmappableChars.length > 0, i;
+  for (i = 0; i < lastUnmappableChars.length; i++) { if (!isFontNoGlyph(lastUnmappableChars[i])) { allLimited = false; break; } }
+  els.unmapLead.innerHTML = allLimited ? FONT_LIMITED_LEAD_HTML : unmapLeadNormalHTML;
 }
 
 function openUnmapModal() {
@@ -696,6 +745,7 @@ function openUnmapModal() {
     showToast('No Bijoy code: ' + lastUnmappableChars.join(' ') + ' — left as Unicode');
     return;
   }
+  setUnmapLead();
   unmapReportText = buildUnmapReport();
   if (els.unmapPreview) els.unmapPreview.textContent = unmapReportText;
   unmapLastFocused = document.activeElement || null;
