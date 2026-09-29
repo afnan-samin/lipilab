@@ -486,11 +486,9 @@ var els = {
   unmapModal: document.getElementById('unmap-modal'),
   unmapBackdrop: document.getElementById('unmap-backdrop'),
   unmapCloseBtn: document.getElementById('unmap-close-btn'),
-  unmapCharChips: document.getElementById('unmap-char-chips'),
   unmapPreview: document.getElementById('unmap-mail-preview'),
   unmapSendBtn: document.getElementById('unmap-send-btn'),
   unmapCopyBtn: document.getElementById('unmap-copy-btn'),
-  unmapDoneBtn: document.getElementById('unmap-done-btn'),
   offlineIndicator: document.getElementById('offline-indicator'),
   offlineIndicatorText: document.getElementById('offline-indicator-text'),
   toastContainer: document.getElementById('toast-container')
@@ -627,17 +625,11 @@ function countUnmappable(outText, seen) {
 }
 
 var lastUnmappableChars = [];
-var lastUnmappableSource = '';  // the text that produced them (for the report)
-var lastUnmappableMode = null;  // direction used for that conversion
 
-function setWarningBadge(count, chars, sourceText, mode) {
+function setWarningBadge(count, chars) {
   els.warningCount.textContent = String(count);
   els.warningBadge.hidden = count === 0;
   lastUnmappableChars = count && chars ? chars : [];
-  if (count) { // remember what to report: which text, converted which way
-    lastUnmappableSource = typeof sourceText === 'string' ? sourceText : (els.inputTextarea ? els.inputTextarea.value : '');
-    lastUnmappableMode = mode || resolveMode();
-  }
   var noun = count === 1 ? '1 character has' : count + ' characters have';
   var msg = noun + ' no Bijoy (SutonnyMJ) equivalent — kept as Unicode: ';
   msg += lastUnmappableChars.length ? lastUnmappableChars.join(' ') : '—';
@@ -650,11 +642,12 @@ function setWarningBadge(count, chars, sourceText, mode) {
    5c. "MISSING CONVERTER CHARACTER" REPORT DIALOG
 
    The badge only says how many characters had no Bijoy code. Clicking it opens
-   a dialog that (1) explains in plain words that these characters are simply
-   not in the converter list yet, (2) shows the exact report text, (3) copies
-   that text on demand and (4) hands the user's mail app a ready-made mail —
-   address, subject and body pre-filled — so the user only presses Send and the
-   gap can be closed in a future update.
+   a dialog whose header carries the three actions (Send, Copy, Close) and whose
+   body (1) explains in plain words that these characters are simply not in the
+   converter list yet, (2) shows the exact report text — the missing characters
+   only, never the user's own text — and (3) lets the user copy it or hand the
+   mail app a ready-made mail: address, subject and body pre-filled, so the user
+   only presses Send and the gap can be closed in a future update.
 ------------------------------------------------------------ */
 var CONTACT_EMAIL_FALLBACK = 'unknownacone@gmail.com';
 var unmapReportText = '';
@@ -676,23 +669,10 @@ function codePointHex(ch) {
   return 'U+' + hex;
 }
 
-function renderUnmapChips() {
-  var box = els.unmapCharChips;
-  if (!box) return;
-  box.textContent = '';
-  (lastUnmappableChars || []).forEach(function (ch) {
-    var chip = document.createElement('span');
-    chip.className = 'unmap-modal__chip';
-    chip.textContent = ch + ' ' + codePointHex(ch);
-    box.appendChild(chip);
-  });
-}
-
-/* The exact text behind Copy and Send — what the user sees is what is sent. */
+/* The exact text behind Copy and Send — what the user sees is what is sent.
+   It names the missing characters only: never the user's own text. */
 function buildUnmapReport() {
   var chars = lastUnmappableChars || [];
-  var src = lastUnmappableSource || '';
-  var excerpt = src.length > 600 ? src.slice(0, 600) + ' …' : src;
   var report = [
     'Hi LipiLab team,',
     '',
@@ -701,12 +681,6 @@ function buildUnmapReport() {
     'so they stayed as Unicode in the Bijoy output:',
     '',
     '   ' + chars.map(function (ch) { return ch + ' (' + codePointHex(ch) + ')'; }).join(', '),
-    '',
-    'Conversion direction: ' + (MODE_LABELS[lastUnmappableMode] || MODE_LABELS[resolveMode()]),
-    'Times they appeared: ' + (els.warningCount ? els.warningCount.textContent : String(chars.length)),
-    '',
-    'My text (first 600 characters, so you can reproduce it):',
-    excerpt,
     '',
     'Please add them to the SutonnyMJ (Bijoy) mapping in a future update.'
   ];
@@ -724,7 +698,6 @@ function openUnmapModal() {
   }
   unmapReportText = buildUnmapReport();
   if (els.unmapPreview) els.unmapPreview.textContent = unmapReportText;
-  renderUnmapChips();
   unmapLastFocused = document.activeElement || null;
   els.unmapModal.hidden = false;
   if (els.unmapSendBtn && els.unmapSendBtn.focus) els.unmapSendBtn.focus();
@@ -1034,7 +1007,7 @@ function convertPlainTextSync(text) {
   els.outputTextarea.value = outputText;
   updateStats();
   applyEncodingFonts();
-  setWarningBadge(mode === 'unicode-to-bijoy' ? unmappable : 0, unmappableSeen, text, mode);
+  setWarningBadge(mode === 'unicode-to-bijoy' ? unmappable : 0, unmappableSeen);
   showConversionSuccess(mode);
   maybeShowPostNote();
   persistState();
@@ -1143,7 +1116,7 @@ function convertPlainTextChunked(text) {
       els.outputTextarea.value = outputParts.join('');
       updateStats();
       applyEncodingFonts();
-      setWarningBadge(unmappable, unmappableSeen, text, mode);
+      setWarningBadge(unmappable, unmappableSeen);
       showConversionSuccess(mode);
       maybeShowPostNote();
       chargePointsDelta(els.inputTextarea.value);
@@ -2787,7 +2760,6 @@ function wireEvents() {
   if (els.unmapSendBtn) els.unmapSendBtn.addEventListener('click', sendUnmapReport);
   if (els.unmapCopyBtn) els.unmapCopyBtn.addEventListener('click', copyUnmapReport);
   if (els.unmapCloseBtn) els.unmapCloseBtn.addEventListener('click', closeUnmapModal);
-  if (els.unmapDoneBtn) els.unmapDoneBtn.addEventListener('click', closeUnmapModal);
   if (els.unmapBackdrop) els.unmapBackdrop.addEventListener('click', closeUnmapModal);
   if (els.undoBtn) els.undoBtn.addEventListener('click', undo);
   if (els.redoBtn) els.redoBtn.addEventListener('click', redo);

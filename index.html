@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://fonts.maateen.me">
 <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet">
 
-<link rel="stylesheet" href="styles.css?v=13">
+<link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body>
 
@@ -576,19 +576,19 @@
   <div class="unmap-modal__card">
     <div class="unmap-modal__header">
       <h2 class="unmap-modal__title" id="unmap-modal-title">Characters missing from the converter</h2>
-      <button class="icon-btn icon-btn--sm" id="unmap-close-btn" type="button" aria-label="Close report dialog" title="Close (Esc)">
-        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      <div class="unmap-modal__header-actions">
+        <button type="button" class="icon-btn icon-btn--sm unmap-modal__send" id="unmap-send-btn" aria-label="Send report to LipiLab" title="Send report">
+          <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+        </button>
+        <button type="button" class="unmap-modal__copy" id="unmap-copy-btn" title="Copy the report text">Copy</button>
+        <button type="button" class="icon-btn icon-btn--sm" id="unmap-close-btn" aria-label="Close report dialog" title="Close (Esc)">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
     </div>
-    <p class="unmap-modal__lead">আপনার কনভার্ট করা টেক্সটে নিচের ক্যারেক্টারগুলো <b>এখনো কনভার্টার-লিস্টে যোগ করা হয়নি</b>, তাই বিজয় আউটপুটেও এগুলো ইউনিকোড হিসেবেই থেকে গেছে। নিচের রিপোর্টটি <b>Send report</b> বাটনে ক্লিক করে সরাসরি আমাদের পাঠিয়ে দিন — আপনার মেইল অ্যাপে ঠিকানা, সাবজেক্ট ও বডি সহ রেডিমেড মেইল খুলে যাবে, আপনাকে শুধু <b>Send</b> চাপতে হবে। চাইলে <b>Copy</b> চেপে টেক্সটটি কপি করে নিজের মেইল থেকেও পাঠাতে পারেন। রিপোর্টে আপনার টেক্সটের প্রথম ৬০০ ক্যারেক্টার যুক্ত থাকে, যাতে আমরা সমস্যাটি রিপ্রোডিউস করে পরের আপডেটেই ঠিক করে দিতে পারি।</p>
-    <div class="unmap-modal__chars" id="unmap-char-chips"></div>
+    <p class="unmap-modal__lead">আপনার কনভার্ট করা টেক্সটে নিচের ক্যারেক্টারগুলো <b>এখনো কনভার্টার-লিস্টে যোগ করা হয়নি</b>, তাই বিজয় আউটপুটেও এগুলো ইউনিকোড হিসেবেই থেকে গেছে। হেডারের <b>Send</b> আইকনে ক্লিক করলেই আপনার মেইল অ্যাপে ঠিকানা, সাবজেক্ট ও বডি সহ রেডিমেড মেইল খুলে যাবে — আপনাকে শুধু <b>Send</b> চাপতে হবে। চাইলে <b>Copy</b> বাটনে চেপে রিপোর্টটি কপি করে নিজের মেইল থেকেও পাঠাতে পারেন। রিপোর্টে শুধু এই মিসিং ক্যারেক্টারগুলো যায় — আপনার কোনো লেখা বা ব্যক্তিগত তথ্য যায় না।</p>
     <p class="unmap-modal__label" id="unmap-mail-label">যা পাঠানো হবে (ready-made mail)</p>
     <div class="unmap-modal__preview" id="unmap-mail-preview" role="textbox" aria-readonly="true" aria-multiline="true" aria-labelledby="unmap-mail-label" tabindex="0"></div>
-    <div class="unmap-modal__actions">
-      <button type="button" class="unmap-modal__btn unmap-modal__btn--primary" id="unmap-send-btn">Send report</button>
-      <button type="button" class="unmap-modal__btn" id="unmap-copy-btn">Copy</button>
-      <button type="button" class="unmap-modal__btn unmap-modal__btn--ghost" id="unmap-done-btn">Close</button>
-    </div>
   </div>
 </div>
 
@@ -644,6 +644,6 @@
 </div>
 
 <script src="partner.js?v=11"></script>
-<script src="app.js?v=15"></script>
+<script src="app.js?v=16"></script>
 </body>
 </html>
