@@ -642,10 +642,13 @@ function lockInputForDocx(locked) {
   else els.inputTextarea.removeAttribute('aria-readonly');
 }
 
+var convertBtnBaseTitle = 'Convert (Ctrl+Enter)';
+
 function setConvertButtonMode(docxLoaded) {
   // Convert button label stays fixed: always "Convert".
   els.convertBtnLabel.textContent = 'Convert';
-  els.convertBtn.title = docxLoaded ? 'Convert & download the DOCX' : 'Convert (Ctrl+Enter)';
+  convertBtnBaseTitle = docxLoaded ? 'Convert & download the DOCX' : 'Convert (Ctrl+Enter)';
+  updateConvertBtnState();
 }
 
 function updateConvertBtnState() {
@@ -657,6 +660,14 @@ function updateConvertBtnState() {
   els.convertBtn.disabled = !allow;
   els.convertBtn.classList.toggle('is-disabled', !allow);
   els.convertBtn.setAttribute('aria-disabled', String(!allow));
+  // A disabled button that still advertises "Ctrl+Enter" reads as a bug, so say
+  // why it cannot be pressed (and stay silent, i.e. keep the mode/base title,
+  // whenever it can).
+  els.convertBtn.title = allow
+    ? convertBtnBaseTitle
+    : (appState.liveMode
+        ? 'Live mode is ON — text converts as you type (Ctrl+L for manual convert)'
+        : 'Free quota exceeded');
 }
 
 function updateDirectionPillPosition() {
