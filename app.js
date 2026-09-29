@@ -2760,7 +2760,6 @@ function wireEvents() {
   if (els.unmapSendBtn) els.unmapSendBtn.addEventListener('click', sendUnmapReport);
   if (els.unmapCopyBtn) els.unmapCopyBtn.addEventListener('click', copyUnmapReport);
   if (els.unmapCloseBtn) els.unmapCloseBtn.addEventListener('click', closeUnmapModal);
-  if (els.unmapBackdrop) els.unmapBackdrop.addEventListener('click', closeUnmapModal);
   if (els.undoBtn) els.undoBtn.addEventListener('click', undo);
   if (els.redoBtn) els.redoBtn.addEventListener('click', redo);
   if (els.featuresOpenBtn) els.featuresOpenBtn.addEventListener('click', scrollToFeatures);

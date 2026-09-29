@@ -373,11 +373,11 @@ button{ font-family:inherit; }
 .pl-slot svg text{ user-select:none; -webkit-user-select:none; }
 .pl-slot svg .bn-cta, .post-note svg .bn-cta{
   transform-box:fill-box; transform-origin:center;
-  animation:bnCtaPulse 1.5s ease-in-out infinite;
+  animation:bnCtaPulse 3.2s ease-in-out infinite;
 }
 @keyframes bnCtaPulse{
   0%,100%{ transform:scale(1); opacity:1; }
-  50%{ transform:scale(1.08); opacity:.88; }
+  50%{ transform:scale(1.035); opacity:.93; }
 }
 @media (prefers-reduced-motion:reduce){
   .pl-slot svg .bn-cta, .post-note svg .bn-cta{ animation:none; }
@@ -522,7 +522,8 @@ button{ font-family:inherit; }
    moves, and the text below can never slide into it. Only the body scrolls. */
 .unmap-modal__header{
   flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px;
-  padding:20px 20px 8px; background:var(--surface);
+  padding:16px 18px 12px;
+  background:linear-gradient(135deg,rgba(108,99,255,.22),rgba(168,85,247,.16));
   border-radius:var(--radius-lg) var(--radius-lg) 0 0;
 }
 .unmap-modal__body{ flex:1 1 auto; overflow:auto; padding:6px 20px 20px; }
