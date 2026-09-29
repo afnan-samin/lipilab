@@ -2242,6 +2242,10 @@ function wireEvents() {
   els.convertBtn.addEventListener('click', function () {
     var text = els.inputTextarea.value;
     if (!hasConvertibleText(text)) return;
+    // Same gate the disabled state expresses: with live mode on the text
+    // already converts as it is typed, so a click (or the Ctrl+Enter shortcut,
+    // which calls .click()) must not start a second, manual run.
+    if (appState.liveMode || quotaLocked) return;
     if (appState.docxZip) { startManualConvert('Converting DOCX…', convertDocxTemplate); return; }
     var checked = document.querySelector('input[name="conversion-direction"]:checked');
     if (checked && checked.value === 'auto' && !detectAutoModeFromText(text)) {
