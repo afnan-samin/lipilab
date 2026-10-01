@@ -22,6 +22,7 @@ Paths are resolved from `__dirname`, so the folder can live anywhere.
 
 | File | Covers |
 |---|---|
+| `qa_smoke.js` | whole-page: assets, convert round trip, DOCX bytes, overflow, no JS errors |
 | `qa_brand.js` | logo, wordmark, tagline, favicon colours |
 | `qa_stack.js` | toolbar layout across 13 widths, dialog stacking |
 | `qa_fontsel.js` | output font picker: encoding swap, defaults, persistence, mobile rows |
@@ -34,6 +35,19 @@ Paths are resolved from `__dirname`, so the folder can live anywhere.
 | `qa_scroll.js` | shortcuts panel rows and column alignment |
 | `qa_round3.js` | miscellaneous round-3 regression checks |
 | `qa_check.js` | spot checks |
+
+`qa_smoke.js` is the one to run first when changing anything: it is the only
+script that converts real text, writes a real `.docx`, and fails on any uncaught
+error anywhere on the page.
+
+## Known engine behaviour (not a regression)
+
+Some valid Bijoy words do not survive Bijoy→Unicode. A lone ASCII word that
+carries no Bijoy-only glyph is left alone by the ambiguity guard that stops
+English text being mangled — for example `wjLwQ` (লিখছি) stays as-is on its own,
+but converts correctly next to a word that does carry such a glyph. This
+predates the current UI work; `qa_smoke.js` documents it and uses words that are
+known to convert.
 
 Diagnostics kept for reference (not part of the suite): `hoverdiag.js`,
 `color_coverage.js`, `slop_audit.js`, `btn_gate_harness.js`.

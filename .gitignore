@@ -4,6 +4,10 @@ Format/
 # Local task prompts / working notes — not part of the LipiLab site
 Prompt/
 
+# npm — only needed to run the QA scripts in tests/
+node_modules/
+package-lock.json
+
 # OS junk
 Thumbs.db
 Desktop.ini
