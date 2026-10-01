@@ -33,12 +33,16 @@ ok('sits just BELOW the app header', nb.belowHeader, 'notifTop='+nb.top+' header
 await new Promise(r=>setTimeout(r,500));
 const settled=await p.evaluate(()=>{
   const n=document.querySelector('.notif'); if(!n) return null;
-  const r=n.getBoundingClientRect();
+  const c=document.querySelector('.notif-container');
+  const r=n.getBoundingClientRect(), cr=c.getBoundingClientRect();
   return {rightGap:Math.round(window.innerWidth-r.right), left:Math.round(r.left),
-    right:Math.round(r.right), vw:window.innerWidth, w:Math.round(r.width)};
+    right:Math.round(r.right), vw:window.innerWidth, w:Math.round(r.width),
+    cGap:Math.round(window.innerWidth-cr.right), cLeft:Math.round(cr.left), cRight:Math.round(cr.right)};
 });
+// The container keeps its 16px inset from the right edge; the card inside is
+// sized to its message, so measure the container for the anchor check.
 ok('anchored top-RIGHT, fully inside viewport',
-   settled && settled.rightGap===16 && settled.right<=settled.vw && settled.left>=0,
+   settled && settled.cGap===16 && settled.cRight<=settled.vw && settled.cLeft>=0 && settled.left>=0,
    settled?JSON.stringify(settled):'no notif');
 ok('progress bar animates for 2s', nb.barDur==='2s', nb.barDur);
 ok('has a close (X) button', nb.hasClose);

@@ -56,7 +56,9 @@ for(const w of [1400,768,640,560,540,430,414,390,360,320]){
   ok(w+'px: fits inside the viewport', !r.overflowL && !r.overflowR,
      'left='+r.left+' right='+r.right+' vw='+r.vw);
   ok(w+'px: has bar + close + message', r.bar&&r.close&&!!r.msg, r.msg);
-  ok(w+'px: width is sensible', r.w<=r.vw-8 && r.w>200, r.w+'px of '+r.vw);
+  // Cards size to their message, so a short toast is legitimately narrow.
+  // What matters is that it is not empty and never exceeds the viewport.
+  ok(w+'px: width fits its message and the viewport', r.w>60 && r.w<=r.vw-8, r.w+'px of '+r.vw+' msg="'+r.msg+'"');
 }
 
 // screenshots on a phone

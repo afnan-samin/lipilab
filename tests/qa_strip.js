@@ -48,13 +48,14 @@ ok('bottom-left and bottom-right radius are 0',
 ok('top-left and top-right radius are UNCHANGED (not 0)', 
   parseFloat(m.tl)>0&&parseFloat(m.tr)>0, 'tl='+m.tl+' tr='+m.tr);
 ok('both top corners match the panel radius', m.tl===m.tr, m.tl+' vs '+m.tr);
-// The strip sits in its own inset box: a 10px margin all round, matching the
-// horizontal padding of .panel__body so its width lines up with the textarea.
-ok('margin is 10px on every side', m.mt==='10px'&&m.mb==='10px'&&m.ml==='16px'&&m.mr==='16px',
+// The strip sits in its own inset box: 10px above, none below, and the sides
+// follow .panel__body's padding so the width lines up with the textarea.
+ok('margin: 10px above, 0 below, 16px at the sides',
+  m.mt==='10px'&&m.mb==='0px'&&m.ml==='16px'&&m.mr==='16px',
   't='+m.mt+' b='+m.mb+' l='+m.ml+' r='+m.mr);
 // The strip is inset to match the textarea, so it must NOT be edge-to-edge.
 ok('inset, not full-bleed (matches the textarea column)', m.w<m.panelW-10, m.w+' inside panel '+m.panelW);
-ok('10px gap between the strip and the panel body', m.gapToBody>=9&&m.gapToBody<=11, m.gapToBody+'px');
+ok('flush on top of the panel body (no gap below)', m.gapToBody<=1, m.gapToBody+'px');
 ok('10px gap below the panel header', m.srTop-m.headBottom>=9&&m.srTop-m.headBottom<=11,
   'stripTop='+m.srTop+' headBottom='+m.headBottom);
 ok('strip WIDTH is identical to the input textarea', m.widthMatchesTextarea,

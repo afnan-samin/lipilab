@@ -462,13 +462,14 @@ button{ font-family:inherit; }
 @keyframes swapBtnSpin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
 
 /* ---- DOCX template strip ----
-   Sits between the panel header and the textarea. The box is inset by the same
-   horizontal padding as .panel__body so its width lines up exactly with the
-   textarea below it; square BOTTOM corners only, the top-left and top-right
-   corners keep the usual radius. */
+   Sits between the panel header and the textarea. A 10px gap above separates
+   it from the header; the sides stay inset by the same padding as .panel__body
+   so its width lines up exactly with the textarea below it. Nothing below: it
+   sits flush on top of the input area. Square BOTTOM corners, with the top-left
+   and top-right corners keeping the usual radius. */
 .docx-strip{
   display:none; align-items:center; gap:10px;
-  margin:10px 16px; padding:10px 12px;
+  margin:10px 16px 0; padding:10px 12px;
   background:var(--accent-soft); border:1px solid var(--border-strong);
   border-radius:var(--radius-md) var(--radius-md) 0 0; font-size:12.5px;
 }
@@ -840,18 +841,17 @@ body.dlg-open{ overflow:hidden; }
   position:fixed; top:calc(var(--app-header-h, 64px) + 12px); right:16px;
   z-index:80; display:flex; flex-direction:column; gap:10px;
   /* The container — not the card — carries the sizing. 360px is the desktop
-     ideal; on anything narrower it shrinks with the viewport, and the cards
-     inside fill it exactly (see .notif width:100%). box-sizing keeps width +
-     right offset within 100vw so the stack never overflows off the edge. */
+   ideal; on anything narrower it shrinks with the viewport. box-sizing keeps
+   width + right offset within 100vw so the stack never overflows. */
   box-sizing:border-box; width:360px; max-width:calc(100vw - 32px);
   pointer-events:none;
 }
 .notif{
   position:relative; display:flex; align-items:flex-start; gap:10px;
-  /* `100%` lets the card fill whatever width the container allows, so there is
-     never dead space on the right; `width:360px` is only the desktop ideal and
-     is expressed as a max-width so narrow screens win automatically. */
-  width:100%;
+  /* Size to the message, never wider than needed: the column items shrink to
+     their content and the card caps at the container width. A short message
+     stays a short card instead of stretching across the whole screen. */
+  width:max-content; max-width:100%;
   padding:11px 12px 14px; border-radius:var(--radius-md);
   background:var(--surface); border:1px solid var(--border);
   box-shadow:var(--shadow-lg); overflow:hidden; pointer-events:auto;
@@ -889,11 +889,14 @@ body.dlg-open{ overflow:hidden; }
   .notif, .notif--out{ animation:none; }
   .notif__bar{ animation-duration:2s; }
 }
-/* On a phone the stack spans the full width with a small even gutter. Both
-   left and right are set (rather than just right) so the width calculation and
-   the card fill stay in agreement at every viewport. */
+/* On a phone the stack hugs the right edge with a small even gutter and sizes
+   itself to the message, so a short toast is a short bar rather than a
+   full-width block. It still wraps rather than overflowing on a long message. */
 @media (max-width:600px){
-  .notif-container{ left:10px; right:10px; width:auto; max-width:none; }
+  .notif-container{
+    left:auto; right:10px; width:auto; max-width:calc(100vw - 20px);
+    align-items:flex-end;
+  }
 }
 
 /* ---- Responsive ---- */
@@ -956,7 +959,7 @@ body.dlg-open{ overflow:hidden; }
   .panel__header{ padding:12px 12px 8px; }
   .panel__body{ padding:0 12px; }
   /* keep the DOCX strip inset identical to the textarea at this breakpoint */
-  .docx-strip{ margin:10px 12px; }
+  .docx-strip{ margin:10px 12px 0; }
   .panel__footer{ padding:10px 12px 14px; }
   /* Keep the icon buttons on the SAME row as the panel title on a phone. The
      old `width:100%` forced the whole action group onto its own line, so the
