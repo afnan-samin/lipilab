@@ -18,13 +18,43 @@
     mid (features card niche), railLeft / railRight (duipasher
     lomba), postNote (convert chaple j choto box othe seta).
    ============================================================ */
+/* Demo ad for the 300x100 / 320x100 slot inside the download dialog.
+   Replace this whole string with your real Adsterra / Network code later -
+   anything containing a <script> tag is injected as live markup. */
+var DEMO_AD_300x100 =
+  '<a href="#" class="demo-ad" onclick="return false">' +
+    '<span class="demo-ad__badge">Ad</span>' +
+    '<span class="demo-ad__body">' +
+      '<strong>LipiLab Pro</strong>' +
+      '<em>Unlimited conversions, no signup</em>' +
+    '</span>' +
+    '<span class="demo-ad__cta">Try free</span>' +
+  '</a>' +
+  '<style>' +
+    '.demo-ad{display:flex;align-items:center;gap:12px;width:100%;height:100px;' +
+      'padding:0 14px;box-sizing:border-box;text-decoration:none;' +
+      'background:linear-gradient(135deg,#064e3b,#0d9488);border-radius:8px;' +
+      'font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#fff;}' +
+    '.demo-ad__badge{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;' +
+      'background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);' +
+      'padding:2px 7px;border-radius:999px;flex-shrink:0;}' +
+    '.demo-ad__body{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;}' +
+    '.demo-ad__body strong{font-size:15px;font-weight:800;line-height:1.2;}' +
+    '.demo-ad__body em{font-size:11.5px;font-style:normal;opacity:.88;line-height:1.3;}' +
+    '.demo-ad__cta{font-size:12px;font-weight:700;background:#fff;color:#065f46;' +
+      'padding:7px 12px;border-radius:999px;flex-shrink:0;}' +
+  '</style>';
+
 var PARTNER = {
   top: '',
   bottom: '',
   mid: '',
   railLeft: '',
   railRight: '',
-  postNote: ''
+  postNote: '',
+  // Empty string would leave the grey placeholder. The demo creative is only a
+  // placeholder for the real ad code - swap it for the live one when ready.
+  download: DEMO_AD_300x100
 };
 
 var PARTNER_SLOT_IDS = {

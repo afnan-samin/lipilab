@@ -1,39 +1,122 @@
 
 /* ==========================================================================
-   LipiLab — Design Tokens
-   Palette derives from the approved frontend.html theme-color meta values
-   (#6c63ff light / #8b80ff dark) and its logo gradient (#6c63ff → #a855f7).
+   LipiLab - Design Tokens
+
+   BRAND COLOURS live in ONE place: the --primary / --secondary / --tertiary
+   block below. Change a value here and the whole site follows.
+
+     --primary    filled actions   (Convert, Send, gate button, selected pill)
+     --secondary  secondary fills   (swap button, secondary actions)
+     --tertiary   accent only      (links, active state, focus ring, progress)
+                  never a large filled surface
+
+   Everything below is an alias or a neutral - no raw colour anywhere else.
    ========================================================================== */
+
+/* ==========================================================================
+   LipiLab - THEME SWITCHER
+   One place to change every colour on the site.
+
+   HOW TO USE
+   1. Edit only the three hex values below (PRIMARY, SECONDARY, TERTIARY).
+   2. Save this file and hard-refresh the browser (Ctrl+F5).
+      The whole site - buttons, links, banners, logo, panels - repaints.
+
+   Rules the values must follow (slop prompt):
+   - PRIMARY is the filled-action colour. Dark neutrals are safest; do not
+     use a saturated indigo/violet here.
+   - TERTIARY is the accent (links, focus ring, progress). One colour only,
+     and never a large filled surface.
+   ========================================================================== */
+
 :root{
-  --accent:#6c63ff;
-  --accent-2:#a855f7;
-  --accent-soft:#ece9ff;
-  --accent-contrast:#ffffff;
+  /* Height of the fixed app header, so the notification stack can sit just
+     below it. Keep in sync with .app-header padding + content height. */
+  --app-header-h:64px;
+  /* >>> EDIT THESE THREE VALUES <<< */
+  --primary:#0a5c40;        /* Convert, Send, gate button, selected pill, logo   */
+                            /* deep Bangladesh green - white text on it: 8.02:1    */
+  --secondary:#2f3b36;      /* swap button, secondary actions                     */
+  --tertiary:#006a4e;       /* links, focus ring, active state, progress          */
+                            /* flag green - 6.62:1 as a link on white             */
+}
 
-  --bg:#f5f4fb;
-  --bg-orb-1:#6c63ff;
-  --bg-orb-2:#a855f7;
-  --bg-orb-3:#63b3ff;
+/* Everything else is derived - do not add brand colours below this line. */
+:root{
+  --primary-hover:color-mix(in srgb, var(--primary) 85%, #000);
+  --primary-contrast:var(--on-primary);
+  --secondary-hover:color-mix(in srgb, var(--secondary) 85%, #000);
+  --secondary-contrast:var(--on-secondary);
+  --tertiary-hover:color-mix(in srgb, var(--tertiary) 85%, #000);
+  --tertiary-soft:color-mix(in srgb, var(--tertiary) 12%, #fff);
+  --tertiary-contrast:var(--on-tertiary);
+  /* faint brand wash for large neutral strips (header, card headers) */
+  --brand-tint:color-mix(in srgb, var(--tertiary) 13%, #fff);
+  --brand-tint-2:var(--brand-tint); /* deliberately the same wash as the header */
+  /* brighter strip used by the app header only */
+  --header-tint:color-mix(in srgb, var(--tertiary) 22%, #fff);
+  --on-primary:#ffffff;
+  --on-secondary:#ffffff;
+  --on-tertiary:#ffffff;
+}
 
+[data-theme="dark"]{
+  /* Dark mode: the brand names stay, but each is re-pointed at a value that
+     is readable on a dark surface. This is the ONLY place a theme needs
+     different brand values. */
+  --primary:#4ade9b;        /* light mint on dark surfaces - 10.65:1 with dark text */
+  --secondary:#b9c4bf;
+  --tertiary:#6ee7b7;       /* 11.73:1 as a link on the dark surface               */
+  --primary-hover:color-mix(in srgb, var(--primary) 85%, #fff);
+  --primary-contrast:var(--on-primary);
+  --secondary-hover:color-mix(in srgb, var(--secondary) 85%, #fff);
+  --secondary-contrast:var(--on-secondary);
+  --tertiary-hover:color-mix(in srgb, var(--tertiary) 85%, #fff);
+  --tertiary-soft:color-mix(in srgb, var(--tertiary) 18%, #0e0e11);
+  --tertiary-contrast:var(--on-tertiary);
+  /* Dark: mixed over the page background, so it needs a higher percentage than
+     light mode to read at all. 14% lands on rgb(27,44,40) - a visible deep
+     green band against the rgb(14,14,17) page. */
+  --brand-tint:color-mix(in srgb, var(--tertiary) 14%, #0e0e11);
+  --brand-tint-2:var(--brand-tint);
+  --header-tint:color-mix(in srgb, var(--tertiary) 22%, #0e0e11);
+  --on-primary:#08281b;
+  --on-secondary:#08281b;
+  --on-tertiary:#08281b;
+}
+
+:root{
+  /* --- semantic aliases (kept so component rules stay unchanged) --- */
+  --accent:var(--tertiary);
+  --accent-2:var(--secondary);
+  --accent-soft:var(--tertiary-soft);
+  --accent-contrast:var(--primary-contrast);
+
+  /* --- neutrals --- */
+  --bg:#f7f7f8;
   --surface:#ffffff;
-  --surface-alt:#f3f1fb;
+  /* dim layer behind modals - follows the theme instead of a fixed value */
+  --overlay:rgba(16,14,20,.52);
+  --overlay-strong:rgba(12,10,16,.78);
+  --surface-alt:#f1f1f3;
   --surface-raised:#ffffff;
-  --border:#e3e0f3;
-  --border-strong:#cfc9ea;
+  --border:#e4e4e7;
+  --border-strong:#d3d3d8;
 
-  --text:#1e1b2e;
-  --text-secondary:#655f82;
-  --text-faint:#948fb0;
+  --text:#17171a;
+  --text-secondary:#52525b;
+  --text-faint:#6b6b76;
 
-  --success:#16a34a;
-  --warning:#d97706;
+  --success:#15803d;
+  --warning:#b45309;
   --warning-soft:#fef3e2;
-  --danger:#dc2626;
+  --danger:#b91c1c;
   --danger-soft:#fde8e8;
 
-  --shadow-sm:0 1px 2px rgba(30,27,46,.06);
-  --shadow-md:0 8px 24px rgba(30,27,46,.08);
-  --shadow-lg:0 20px 48px rgba(30,27,46,.14);
+  /* neutral shadows only - no coloured glows (slop rule 5) */
+  --shadow-sm:0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg:0 20px 48px rgba(0,0,0,.12);
 
   --radius-sm:8px;
   --radius-md:14px;
@@ -43,6 +126,8 @@
   --font-display:'Sora',system-ui,sans-serif;
   --font-body:'Manrope',system-ui,sans-serif;
   --font-bangla:'Noto Sans Bengali','Hind Siliguri',system-ui,sans-serif;
+  /* the header tagline only */
+  --font-kalpurush:'Kalpurush','Noto Sans Bengali',system-ui,sans-serif;
   --font-mono:ui-monospace,'SF Mono','Cascadia Code',Consolas,monospace;
   --font-bijoy:'SutonnyMJ','Noto Sans Bengali',serif;
 
@@ -52,25 +137,22 @@
 }
 
 [data-theme="dark"]{
-  --accent:#8b80ff;
-  --accent-2:#c084fc;
-  --accent-soft:#2a2450;
-  --accent-contrast:#ffffff;
+  /* --- semantic aliases (kept so component rules stay unchanged) --- */
+  --accent:var(--tertiary);
+  --accent-2:var(--secondary);
+  --accent-soft:var(--tertiary-soft);
+  --accent-contrast:var(--primary-contrast);
 
-  --bg:#100e1c;
-  --bg-orb-1:#6c63ff;
-  --bg-orb-2:#a855f7;
-  --bg-orb-3:#3b82f6;
+  --bg:#0e0e11;
+  --surface:#17171b;
+  --surface-alt:#1f1f24;
+  --surface-raised:#1c1c21;
+  --border:#2a2a30;
+  --border-strong:#3a3a42;
 
-  --surface:#1b1830;
-  --surface-alt:#221e3c;
-  --surface-raised:#211d3a;
-  --border:#322c56;
-  --border-strong:#453d78;
-
-  --text:#f2f0fb;
-  --text-secondary:#aba4cf;
-  --text-faint:#726b98;
+  --text:#f5f5f7;
+  --text-secondary:#f0f0f2;
+  --text-faint:#f0f0f2;
 
   --success:#4ade80;
   --warning:#fbbf24;
@@ -79,8 +161,8 @@
   --danger-soft:#3a1a1a;
 
   --shadow-sm:0 1px 2px rgba(0,0,0,.3);
-  --shadow-md:0 8px 24px rgba(0,0,0,.35);
-  --shadow-lg:0 24px 56px rgba(0,0,0,.5);
+  --shadow-md:0 4px 12px rgba(0,0,0,.35);
+  --shadow-lg:0 20px 48px rgba(0,0,0,.5);
 }
 
 @font-face{
@@ -121,50 +203,81 @@ button{ font-family:inherit; }
 }
 
 /* ---- Background layer ---- */
-.bg-layer{ position:fixed; inset:0; overflow:hidden; z-index:0; pointer-events:none; }
-.bg-orb{ position:absolute; border-radius:50%; filter:blur(70px); opacity:.35; animation:orbFloat 22s ease-in-out infinite; }
-[data-theme="dark"] .bg-orb{ opacity:.28; }
-.bg-orb--1{ width:420px; height:420px; top:-120px; left:-100px; background:var(--bg-orb-1); animation-delay:0s; }
-.bg-orb--2{ width:360px; height:360px; top:20%; right:-140px; background:var(--bg-orb-2); animation-delay:-7s; }
-.bg-orb--3{ width:300px; height:300px; bottom:-100px; left:35%; background:var(--bg-orb-3); animation-delay:-14s; }
-@keyframes orbFloat{
-  0%,100%{ transform:translate(0,0) scale(1); }
-  50%{ transform:translate(30px,-40px) scale(1.08); }
-}
-
 /* ---- Shell / layout ---- */
 .app-shell{ position:relative; z-index:1; max-width:1180px; margin:0 auto; padding:84px 24px 40px; display:flex; flex-direction:column; gap:18px; min-height:100vh; }
 
+/* ---- App header ----
+   Stays fixed to the top of the viewport at all times (z-index 30), but sits
+   BELOW every overlay: shortcuts-panel 50, unmap-modal 55, toast 60,
+   ask-overlay 80, gate-veil 9999. No JS needed - stacking order alone does it. */
 .app-header{
   display:flex; align-items:center; justify-content:space-between; gap:16px;
-  position:fixed; top:0 !important; left:0 !important; right:0 !important; z-index:40;
+  position:fixed; top:0 !important; left:0 !important; right:0 !important; z-index:30;
   width:100%; max-width:none; margin:0 !important; padding:10px 24px;
-  background:var(--surface);
-  -webkit-backdrop-filter:blur(16px) saturate(1.4); backdrop-filter:blur(16px) saturate(1.4);
+  background:var(--header-tint); /* brighter green strip, fixed to the top */
   border:0; border-bottom:1px solid var(--border);
   border-top-left-radius:0 !important; border-top-right-radius:0 !important;
   border-bottom-left-radius:10px !important; border-bottom-right-radius:10px !important;
   box-shadow:var(--shadow-sm);
   box-sizing:border-box;
 }
-.app-header__brand{ display:flex; align-items:center; gap:12px; }
-.app-logo{ display:block; border-radius:9px; box-shadow:var(--shadow-sm); user-select:none; -webkit-user-select:none; pointer-events:none; }
-.app-brand-text{ display:flex; flex-direction:column; line-height:1.15; }
-.app-brand-name{ font-family:var(--font-display); font-weight:800; font-size:22px; letter-spacing:-.02em; }
-.app-brand-tagline{ font-size:12.5px; color:var(--text-secondary); font-weight:500; }
-.app-header__actions{ display:flex; align-items:center; gap:8px; }
+/* NO flex-wrap here. The logo must stay locked to its own spot, and the wordmark
+   + tagline group must wrap as ONE unit to the next line - otherwise a wrap
+   happens between the logo and "LipiLab", which stranded the logo on its own
+   row on mobile. */
+.app-header__brand{ display:flex; align-items:center; gap:clamp(9px, 0.9vw, 12px); min-width:0; }
+/* Logo restored to its original badge: a green rounded square with a white
+   Bangla "ল" inside, scaled fluidly with the viewport. */
+.app-logo{
+  display:block; border-radius:9px; box-shadow:var(--shadow-sm);
+  user-select:none; -webkit-user-select:none; pointer-events:none;
+  width:clamp(34px, calc(29px + 0.9vw), 42px);
+  height:clamp(34px, calc(29px + 0.9vw), 42px);
+  flex:0 0 auto;
+}
+/* The two capital L in "LipiLab" carry the two brand greens. */
+.brand-l{ color:var(--primary); }
+.brand-l--2{ color:var(--tertiary); }
+/* Desktop: LipiLab and the tagline sit SIDE BY SIDE on one row.
+   The tagline is a small rectangular label (4px radius, not a pill) in the
+   primary green. Only the mobile breakpoint below stacks them vertically. */
+.app-brand-text{ display:flex; align-items:center; gap:8px; min-width:0; flex:0 1 auto; }
+/* Fluid brand sizing.
+   clamp(MIN, PREFERRED, MAX): the preferred value is a vw term plus a rem offset,
+   so the text scales continuously with the viewport instead of jumping at a
+   media-query breakpoint. MIN keeps it legible on a 320px phone, MAX stops it
+   growing on a wide desktop. 22px @1400 -> ~19px @390 -> 17px @320. */
+.app-brand-name{
+  font-family:var(--font-display); font-weight:800; letter-spacing:-.02em; white-space:nowrap;
+  /* was clamp(16px, calc(13px + 0.64vw), 22px) - bumped up for a bolder wordmark */
+  font-size:clamp(18px, calc(14px + 0.9vw), 26px);
+}
+/* Tagline: no background box, no border - plain green text written straight
+   out beside / under the wordmark.
+   font-size is the wordmark clamp minus 5px at every viewport, so the gap
+   between the two never changes. */
+.app-brand-tagline{
+  font-family:var(--font-kalpurush); font-weight:600; color:var(--primary);
+  background:none; border:0; border-radius:0; padding:0;
+  white-space:nowrap; display:block; line-height:1.35;
+  /* wordmark clamp(18px, 14px + 0.9vw, 26px) minus 5px */
+  font-size:clamp(13px, calc(9px + 0.9vw), 21px);
+}
+.app-header__actions{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
 
 .icon-btn{
   display:inline-flex; align-items:center; justify-content:center;
   width:40px; height:40px; border-radius:var(--radius-md);
-  background:var(--surface); border:1px solid var(--border); color:var(--text-secondary);
+  background:var(--surface); border:1px solid var(--border); color:var(--accent);
   cursor:pointer; transition:background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
-  box-shadow:var(--shadow-sm);
+  box-shadow:none;
 }
-.icon-btn:hover{ color:var(--accent); border-color:var(--accent); transform:translateY(-1px); }
+.icon-btn:hover{
+  background:var(--accent); color:var(--accent-contrast);
+  border-color:var(--accent); transform:translateY(-1px);
+}
 .icon-btn:active{ transform:translateY(0) scale(.96); }
 .icon-btn--sm{ width:32px; height:32px; border-radius:var(--radius-sm); }
-.icon-btn--danger:hover{ color:var(--danger); border-color:var(--danger); }
 .icon{ display:block; }
 .icon-btn .icon--moon{ display:none; }
 [data-theme="dark"] .icon-btn .icon--sun{ display:none; }
@@ -178,6 +291,13 @@ button{ font-family:inherit; }
 }
 .direction-selector{ border:0; margin:0; padding:0; display:flex; gap:2px; background:var(--surface-alt); border-radius:var(--radius-pill); padding:4px; position:relative; }
 .app-toolbar__actions{ display:flex; align-items:center; gap:14px; flex:1; justify-content:flex-end; }
+/* Desktop: the Live/Font/Convert wrapper is transparent (display:contents), so
+   all three groups act as direct flex children and stay on one row. */
+.toolbar-live-convert{ display:contents; }
+/* Clear the desktop auto-margin: Convert must sit AFTER the font picker, not be
+   pushed to the far right ahead of it. */
+.app-toolbar__actions .btn--convert,
+.toolbar-live-convert .btn--convert{ margin-left:0; }
 .direction-selector__option{ position:relative; z-index:1; }
 .direction-selector__label{
   display:flex; align-items:center; padding:8px 16px; border-radius:var(--radius-pill);
@@ -192,16 +312,16 @@ button{ font-family:inherit; }
 .direction-selector::after{
   content:""; position:absolute; top:4px; bottom:4px; left:4px;
   width:var(--thumb-w); transform:translateX(var(--thumb-x));
-  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  background:var(--primary);
   border-radius:var(--radius-pill); transition:transform var(--dur-med) var(--ease), width var(--dur-med) var(--ease);
-  z-index:0; box-shadow:0 4px 12px rgba(108,99,255,.35);
+  z-index:0; box-shadow:var(--shadow-sm);
 }
 
 .live-toggle{ display:flex; align-items:center; }
 .live-toggle__btn{ display:flex; align-items:center; gap:8px; background:none; border:0; cursor:pointer; padding:6px 4px; color:var(--text-secondary); font-weight:600; font-size:13.5px; }
 .live-toggle__track{ width:34px; height:20px; border-radius:var(--radius-pill); background:var(--border-strong); display:inline-block; position:relative; transition:background var(--dur-fast) var(--ease); }
 .live-toggle__thumb{ position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:var(--shadow-sm); transition:transform var(--dur-fast) var(--ease); }
-.live-toggle__btn[aria-checked="true"] .live-toggle__track{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); }
+.live-toggle__btn[aria-checked="true"] .live-toggle__track{ background:var(--primary); }
 .live-toggle__btn[aria-checked="true"] .live-toggle__thumb{ transform:translateX(14px); }
 .live-toggle__btn[aria-checked="true"] .live-toggle__text{ color:var(--accent); }
 
@@ -212,37 +332,64 @@ button{ font-family:inherit; }
 }
 .btn:active{ transform:scale(.97); }
 .btn--convert{
-  margin-left:auto; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff;
-  box-shadow:0 6px 18px rgba(108,99,255,.35);
-  animation:convertGlow 2.8s ease-in-out infinite;
+  margin-left:auto; background:var(--primary); color:var(--primary-contrast);
+  box-shadow:var(--shadow-sm);
 }
-.btn--convert:hover{ box-shadow:0 8px 22px rgba(108,99,255,.48); transform:translateY(-1px); }
-.btn--convert:disabled{ opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; animation:none; }
-@keyframes convertGlow{
-  0%,100%{ box-shadow:0 6px 18px rgba(108,99,255,.35); }
-  50%{ box-shadow:0 8px 26px rgba(168,85,247,.52); }
-}
+.btn--convert:hover{ background:var(--primary-hover); transform:translateY(-1px); }
+.btn--convert:disabled{ opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
 .btn__icon{ display:block; }
+/* Output font picker: sits between Live and Convert, in that DOM order, so
+   tab order and visual order agree. Drops to its own full-width row on mobile. */
+.font-selector{ display:flex; align-items:center; gap:8px; flex-wrap:nowrap; }
+.font-selector__heading{ font-size:12px; font-weight:700; color:var(--text-secondary); white-space:nowrap; }
+.font-selector__field{ display:flex; }
+.font-selector__select{
+  font-family:var(--font-body); font-size:12.5px; font-weight:600; color:var(--text);
+  background:var(--surface-alt); border:1px solid var(--border); border-radius:var(--radius-pill);
+  padding:6px 8px; cursor:pointer; max-width:130px;
+}
+/* Desktop shows the full direction labels; the short forms are mobile-only. */
+.dir-label--short{ display:none; }
 .btn__kbd{ font-family:var(--font-mono); font-size:10.5px; font-weight:600; opacity:.85; background:rgba(255,255,255,.18); padding:2px 6px; border-radius:6px; }
 
 /* ---- Panels ---- */
 .app-panels{ display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:stretch; }
 .panel{
   background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
-  box-shadow:var(--shadow-md); display:flex; flex-direction:column; overflow:hidden;
+  box-shadow:var(--shadow-sm); display:flex; flex-direction:column; overflow:hidden;
   min-width:0;
 }
-.panel__header{ display:flex; flex-direction:row; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px 10px; text-align:left; flex-wrap:wrap; }
+.panel__header{ display:flex; flex-direction:row; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px 10px; text-align:left; flex-wrap:wrap; border-bottom:1px solid var(--border); background:var(--brand-tint); }
 .panel__title{ font-size:14.5px; font-weight:700; letter-spacing:.01em; text-align:left; }
 .panel__header-actions{ display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; align-items:center; }
 .panel__header-actions .icon-btn--sm{
-  width:34px; height:34px; padding:0; gap:0; color:var(--text-secondary);
+  width:34px; height:34px; padding:0; gap:0; color:var(--accent);
 }
-.panel__header-actions label.icon-btn--sm{ box-shadow:var(--shadow-sm); }
+/* Keep the hover rules AFTER the size overrides above, and at a specificity that
+   beats `.panel__header-actions .icon-btn--sm` - otherwise the panel rule wins
+   and the icon stays green on a green fill, i.e. invisible. */
+.icon-btn:hover,
+.panel__header-actions .icon-btn--sm:hover,
+.download-group .icon-btn:hover{
+  background:var(--accent); color:var(--accent-contrast);
+  border-color:var(--accent); transform:translateY(-1px);
+}
+/* Delete (danger) keeps its red fill. Declared after the rule above on purpose:
+   same specificity, so source order decides - the generic green must not win. */
+.icon-btn--danger,
+.panel__header-actions .icon-btn--danger{ color:var(--danger); }
+.icon-btn--danger:hover,
+.panel__header-actions .icon-btn--danger:hover,
+.download-group .icon-btn--danger:hover{
+  background:var(--danger); color:#fff; border-color:var(--danger);
+}
+.panel__header-actions label.icon-btn--sm{ box-shadow:none; }
+/* A single download button now lives in this wrapper, so it must not keep the
+   old "Download:" label padding / chip background - that showed as a stray
+   coloured block behind the icon. */
 .download-group{
   display:inline-flex; align-items:center; gap:4px;
-  height:34px; padding:0 4px 0 8px;
-  background:var(--surface-alt); border:1px solid var(--border); border-radius:var(--radius-sm);
+  height:34px; padding:0; background:none; border:0; border-radius:var(--radius-sm);
 }
 .download-group__lead{
   display:inline-flex; align-items:center; gap:2px; color:var(--text-secondary); flex-shrink:0;
@@ -254,18 +401,32 @@ button{ font-family:inherit; }
 
 .panel__body{ padding:0 16px; flex:1; display:flex; position:relative; }
 .panel__textarea{
-  width:100%; min-height:260px; resize:vertical; border:1px solid var(--border); border-radius:var(--radius-md);
+  width:100%; min-height:260px; resize:vertical; border:1px solid var(--border);
+  /* square top-left AND top-right corners (the panel header sits on top of them) */
+  border-radius:0 0 var(--radius-md) var(--radius-md);
   padding:14px; font-size:var(--ta-font-size,16px); line-height:1.75; background:var(--surface-alt); color:var(--text);
   font-family:var(--font-bangla); transition:border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
   user-select:text; -webkit-user-select:text;
 }
 .empty-hint{
   position:absolute; right:28px; bottom:18px; pointer-events:none; opacity:0;
-  transition:opacity var(--dur-med) var(--ease);
+  /* `pointer-events:none` on the wrapper does NOT disable a child that sets its
+     own `pointer-events:auto` — the button stayed clickable while invisible and
+     swallowed clicks meant for the textarea, wiping what the user had typed.
+     `visibility` fixes hit-testing AND tab order; the `delay` makes it flip to
+     `visible` immediately on the way in, and only after the fade-out on the way
+     out, so the button is never clickable while it is not showing. */
+  visibility:hidden;
+  transition:opacity var(--dur-med) var(--ease),
+             visibility 0s linear var(--dur-med);
 }
-.panel--input .panel__body:not(.has-text) .empty-hint{ opacity:1; pointer-events:auto; }
+.panel--input .panel__body:not(.has-text) .empty-hint{
+  opacity:1; visibility:visible; pointer-events:auto;
+  transition:opacity var(--dur-med) var(--ease), visibility 0s;
+}
 .empty-hint__btn{
-  pointer-events:auto; border:1px dashed var(--border-strong); background:var(--surface);
+  /* Inherits hit-testing from the wrapper — do not set pointer-events here. */
+  border:1px dashed var(--border-strong); background:var(--surface);
   color:var(--accent); font-weight:700; font-size:12.5px; padding:7px 12px; border-radius:var(--radius-pill);
   cursor:pointer; box-shadow:var(--shadow-sm);
   transition:border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
@@ -288,7 +449,7 @@ button{ font-family:inherit; }
 .font-size-btn[data-size="small"]{ font-size:11px; }
 .font-size-btn[data-size="medium"]{ font-size:13px; }
 .font-size-btn[data-size="large"]{ font-size:15px; }
-.font-size-btn--active{ background:var(--surface); color:var(--accent); box-shadow:var(--shadow-sm); }
+.font-size-btn--active{ background:var(--surface); color:var(--accent); box-shadow:none; }
 
 .panel-divider{ display:flex; align-items:center; justify-content:center; }
 .swap-btn{
@@ -300,10 +461,16 @@ button{ font-family:inherit; }
 .swap-btn--loading{ color:var(--accent); border-color:var(--accent); pointer-events:none; animation:swapBtnSpin 0.8s linear infinite; }
 @keyframes swapBtnSpin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
 
-/* ---- DOCX template strip ---- */
+/* ---- DOCX template strip ----
+   Sits between the panel header and the textarea. The box is inset by the same
+   horizontal padding as .panel__body so its width lines up exactly with the
+   textarea below it; square BOTTOM corners only, the top-left and top-right
+   corners keep the usual radius. */
 .docx-strip{
-  display:none; align-items:center; gap:10px; margin:0 16px 12px; padding:10px 12px;
-  background:var(--accent-soft); border:1px solid var(--border-strong); border-radius:var(--radius-md); font-size:12.5px;
+  display:none; align-items:center; gap:10px;
+  margin:0 16px; padding:10px 12px;
+  background:var(--accent-soft); border:1px solid var(--border-strong);
+  border-radius:var(--radius-md) var(--radius-md) 0 0; font-size:12.5px;
 }
 .docx-strip.show{ display:flex; }
 .docx-strip__icon{ color:var(--accent); flex-shrink:0; }
@@ -329,7 +496,7 @@ button{ font-family:inherit; }
 #processing-indicator[hidden]{ display:none; }
 .processing-progress{ width:80px; height:6px; border-radius:var(--radius-pill); background:var(--border); overflow:hidden; display:none; }
 .processing-progress--show{ display:inline-block; }
-.processing-progress__fill{ height:100%; width:0%; background:linear-gradient(135deg,var(--accent),var(--accent-2)); border-radius:var(--radius-pill); transition:width 0.12s linear; }
+.processing-progress__fill{ height:100%; width:0%; background:var(--tertiary); border-radius:var(--radius-pill); transition:width 0.12s linear; }
 .processing-percent{ font-variant-numeric:tabular-nums; min-width:32px; }
 .processing-success{ color:#16a34a; font-weight:700; display:flex; align-items:center; gap:6px; }
 .processing-success__icon{ display:inline-flex; }
@@ -363,8 +530,7 @@ button{ font-family:inherit; }
 .pl-slot{
   display:flex; align-items:center; justify-content:center;
   min-height:90px; width:100%;
-  background:color-mix(in srgb, var(--surface) 55%, transparent);
-  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  background:var(--surface-alt);
   border:1px solid var(--border); border-radius:var(--radius-md);
   color:var(--text-faint); position:relative; overflow:hidden;
   user-select:none; -webkit-user-select:none;
@@ -386,6 +552,18 @@ button{ font-family:inherit; }
 .pl-slot svg .bn-sub, .post-note svg .bn-sub{ fill:var(--text-secondary); }
 .pl-slot svg .bn-orb, .post-note svg .bn-orb{ fill:var(--accent); }
 .pl-slot svg .bn-line{ stroke:var(--text-faint); }
+/* every banner colour reads from the theme tokens above - change --primary
+   or --tertiary once and the whole banner repaints */
+.pl-slot svg .bn-bg, .post-note svg .bn-bg{ fill:var(--surface-alt); }
+.pl-slot svg .bn-cta-bg, .post-note svg .bn-cta-bg{ fill:var(--primary); }
+.pl-slot svg .bn-cta-text, .post-note svg .bn-cta-text{ fill:var(--primary-contrast); }
+/* icon tint used inside regular UI icons (not banner slots): follows the
+   button text colour, so a faint detail part stays visible on both themes */
+.icon .bn-icon-tint{ fill:currentColor; stroke:none; }
+.pl-slot svg .bn-logo-a{ stop-color:var(--primary); }
+.pl-slot svg .bn-logo-b{ stop-color:var(--tertiary); }
+.app-logo .bn-logo-a{ stop-color:var(--primary); }
+.app-logo .bn-logo-b{ stop-color:var(--tertiary); }
 .pl-slot svg .bn-bg-start, .post-note svg .bn-bg-start{ stop-color:var(--surface-alt); }
 .pl-slot svg .bn-bg-end, .post-note svg .bn-bg-end{ stop-color:var(--accent-soft); }
 .pl-empty{
@@ -409,8 +587,8 @@ button{ font-family:inherit; }
   align-items:stretch;
 }
 .pl-slot--rail svg{ width:100%; height:100%; display:block; border-radius:0; }
-.pl-slot--rail-left{ left:0; background:linear-gradient(180deg,var(--surface-alt),var(--surface)); }
-.pl-slot--rail-right{ right:0; background:linear-gradient(180deg,var(--surface),var(--surface-alt)); }
+.pl-slot--rail-left{ left:0; background:var(--surface-alt); }
+.pl-slot--rail-right{ right:0; background:var(--surface-alt); }
 /* Wide screens: full-height 160px rails, content untouched (1180 + margins fit). */
 @media (min-width:1530px){ .pl-slot--rail{ display:flex; } }
 /* Medium screens (laptop 100% zoom): narrower 140px rails, full height too. */
@@ -437,8 +615,11 @@ button{ font-family:inherit; }
   background:var(--surface-alt); border-radius:var(--radius-sm); color:var(--text-faint); font-size:12px;
 }
 
+/* The consent ask is a site-wide blocking overlay. It must not sit on top of an
+   explicit user action dialog (download / clear confirm) - those are z-index 70
+   so the ask, at 80, is lowered below them. */
 .ask-overlay{
-  position:fixed; inset:0; z-index:80; background:rgba(20,17,35,.45); backdrop-filter:blur(2px);
+  position:fixed; inset:0; z-index:60; background:var(--overlay);
   display:flex; align-items:center; justify-content:center; padding:20px;
   opacity:0; pointer-events:none; transition:opacity var(--dur-med) var(--ease);
 }
@@ -458,7 +639,7 @@ button{ font-family:inherit; }
 }
 .ask-card__btn:active{ transform:scale(.97); }
 .ask-card__btn--yes{
-  background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff; box-shadow:var(--shadow-md);
+  background:var(--primary); color:var(--primary-contrast); box-shadow:var(--shadow-sm);
   order:2;
 }
 .ask-card__btn--no{
@@ -468,7 +649,7 @@ button{ font-family:inherit; }
 .ask-card__btn--no:hover{ opacity:.85; }
 
 .gate-veil{
-  position:fixed; inset:0; z-index:9999; background:rgba(15,12,28,.72); backdrop-filter:blur(6px);
+  position:fixed; inset:0; z-index:9999; background:var(--overlay-strong);
   display:flex; align-items:center; justify-content:center; padding:20px;
 }
 .gate-veil[hidden]{ display:none; }
@@ -481,37 +662,136 @@ button{ font-family:inherit; }
 .gate-card__hint{ font-size:12.5px; line-height:1.6; color:var(--text-faint); margin:0 0 20px; }
 .gate-card__btn{
   width:100%; padding:12px 16px; border-radius:var(--radius-md); font-weight:800; font-size:14px;
-  cursor:pointer; border:0; color:#fff;
-  background:linear-gradient(135deg,var(--accent),var(--accent-2)); box-shadow:var(--shadow-md);
+  cursor:pointer;   border:0; color:var(--primary-contrast);
+  background:var(--primary); box-shadow:var(--shadow-md);
 }
 .gate-card__btn:active{ transform:scale(.98); }
 .app-footer__offline{ display:flex; align-items:center; gap:5px; color:var(--success); }
 .app-footer__offline.is-offline{ color:var(--danger); }
 
+/* ---- Generic dialog (download format picker, clear confirmation) ----
+   Sits above the app header (z-index 30) and above the consent ask (60), so an
+   explicit user action is never hidden behind an unrelated overlay. */
+.dlg{ position:fixed; inset:0; z-index:70; display:flex; align-items:center; justify-content:center; padding:20px; }
+.dlg[hidden]{ display:none; }
+.dlg__backdrop{ position:absolute; inset:0; background:var(--overlay); animation:fadeIn var(--dur-med) var(--ease); }
+.dlg__card{
+  position:relative; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-lg); box-shadow:var(--shadow-lg);
+  width:100%; max-width:440px; max-height:86vh;
+  /* The card must not scroll as a whole, or the green header band scrolls away
+     with the content. The body below is the only scrolling part. */
+  overflow:hidden; padding:0;
+  display:flex; flex-direction:column;
+  animation:popIn var(--dur-med) var(--ease);
+}
+.dlg--sm .dlg__card{ max-width:380px; }
+/* Dialog header matches the app header strip: a green band with white title text,
+   so the dialog reads as part of the app instead of a grey floating box. */
+.dlg__header{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  flex:0 0 auto; padding:14px 16px 13px;
+  background:var(--header-tint); border-bottom:1px solid var(--border);
+  border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+}
+.dlg__title{ font-size:16px; font-weight:800; color:var(--text); }
+.dlg__header .icon-btn--sm{
+  color:var(--accent);
+  background:var(--surface); border:1px solid var(--border);
+}
+.dlg__header .icon-btn--sm:hover{ background:var(--accent); color:var(--accent-contrast); border-color:var(--accent); }
+.dlg__body{ user-select:text; -webkit-user-select:text; flex:1 1 auto; overflow:auto; padding:20px; }
+/* While a dialog is open, the fixed header must be fully inert: no clicks, no
+   tab focus, no hover. The backdrop above it already blocks pointers, but a
+   keyboard user could still Tab into the header buttons, so disable them too. */
+body.dlg-open .app-header{
+  pointer-events:none; user-select:none; -webkit-user-select:none;
+}
+body.dlg-open .app-header *{ pointer-events:none; }
+body.dlg-open{ overflow:hidden; }
+.dlg__lead{ margin:0 0 14px; font-size:14.5px; line-height:1.6; color:var(--text-secondary); font-weight:600; }
+
+/* three format buttons side by side */
+.dlg__formats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.dlg__format{
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  padding:14px 8px; cursor:pointer;
+  background:var(--brand-tint); color:var(--accent);
+  border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-weight:800;
+  transition:background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.dlg__format:hover{ background:var(--accent); color:var(--accent-contrast); border-color:var(--accent); transform:translateY(-1px); }
+.dlg__format:active{ transform:scale(.97); }
+.dlg__format-icon{ width:24px; height:24px; display:block; }
+.dlg__format-name{ font-size:13px; letter-spacing:.02em; }
+.dlg__format-hint{ font-size:11px; font-weight:600; opacity:.8; }
+.dlg__format--soon .dlg__format-hint{ opacity:.95; }
+
+/* ad box inside the dialog - a 300x100 / 320x100 slot fits the 440px card */
+.dlg__ad{
+  margin-top:14px; height:100px; display:flex; align-items:center; justify-content:center;
+  background:var(--surface-alt); border:1px dashed var(--border-strong); border-radius:var(--radius-md);
+  font-size:12px; color:var(--text-faint); overflow:hidden; flex-shrink:0;
+}
+.dlg__ad .partner-frame{ width:100%; height:100px; border:0; display:block; }
+
+.dlg__actions{ display:flex; gap:10px; justify-content:flex-end; }
+.dlg__btn{
+  padding:10px 18px; border:0; border-radius:var(--radius-pill); cursor:pointer;
+  font-family:var(--font-body); font-size:14px; font-weight:800;
+  transition:transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.dlg__btn:active{ transform:scale(.97); }
+.dlg__btn--ghost{ background:var(--surface-alt); color:var(--text-secondary); border:1px solid var(--border); }
+.dlg__btn--ghost:hover{ background:var(--border); }
+.dlg__btn--danger{ background:var(--danger); color:#fff; }
+.dlg__btn--danger:hover{ background:color-mix(in srgb, var(--danger) 85%, #000); }
+
 /* ---- Shortcuts modal ---- */
 .shortcuts-panel{ position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:20px; }
 .shortcuts-panel[hidden]{ display:none; }
-.shortcuts-panel__backdrop{ position:absolute; inset:0; background:rgba(15,12,26,.5); backdrop-filter:blur(3px); animation:fadeIn var(--dur-med) var(--ease); }
+.shortcuts-panel__backdrop{ position:absolute; inset:0; background:var(--overlay); animation:fadeIn var(--dur-med) var(--ease); }
 .shortcuts-panel__content{
   position:relative; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
-  box-shadow:var(--shadow-lg); width:100%; max-width:420px; max-height:80vh; overflow:auto; padding:20px;
+  box-shadow:var(--shadow-lg); width:100%; max-width:420px; max-height:80vh;
+  /* same rule as .dlg__card: header stays put, only the body scrolls */
+  overflow:hidden; padding:0; display:flex; flex-direction:column;
   animation:popIn var(--dur-med) var(--ease);
 }
 @keyframes fadeIn{ from{ opacity:0; } to{ opacity:1; } }
 @keyframes popIn{ from{ opacity:0; transform:translateY(8px) scale(.97); } to{ opacity:1; transform:translateY(0) scale(1); } }
-.shortcuts-panel__header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-.shortcuts-panel__title{ font-size:16px; font-weight:800; }
+/* Same green header band as the download dialog, so both modals match. */
+.shortcuts-panel__header{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  flex:0 0 auto; padding:14px 16px 13px;
+  background:var(--header-tint); border-bottom:1px solid var(--border);
+  border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+}
+/* the scrolling part of the shortcuts dialog */
+.shortcuts-panel__body{ flex:1 1 auto; overflow:auto; padding:4px 20px 16px; }
+.shortcuts-panel__title{ font-size:16px; font-weight:800; color:var(--text); }
+.shortcuts-panel__header .icon-btn--sm{
+  color:var(--accent); background:var(--surface); border:1px solid var(--border);
+}
+.shortcuts-panel__header .icon-btn--sm:hover{ background:var(--accent); color:var(--accent-contrast); border-color:var(--accent); }
 .shortcuts-list{ margin:0; }
-.shortcuts-list__item{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid var(--border); }
+/* Two fixed columns so every row lines up. The description comes FIRST on the
+   left and the key combo sits on the right, which reads better than keys-first
+   because the description is what you scan for. */
+.shortcuts-list__item{
+  display:grid; grid-template-columns:1fr auto; align-items:center;
+  column-gap:14px; padding:9px 0; border-bottom:1px solid var(--border);
+}
 .shortcuts-list__item:last-child{ border-bottom:0; }
-.shortcuts-list__keys{ display:flex; align-items:center; gap:3px; margin:0; }
+.shortcuts-list__keys{ display:flex; align-items:center; gap:3px; margin:0; justify-content:flex-end; }
 .shortcuts-list__keys kbd{ font-family:var(--font-mono); font-size:11px; font-weight:600; background:var(--surface-alt); border:1px solid var(--border-strong); border-bottom-width:2px; border-radius:6px; padding:3px 7px; color:var(--text); }
 .shortcuts-list__keys span{ color:var(--text-faint); font-size:11px; }
-.shortcuts-list__desc{ margin:0; font-size:12.5px; color:var(--text-secondary); text-align:right; }
+.shortcuts-list__desc{ margin:0; font-size:12.5px; color:var(--text-secondary); text-align:left; white-space:nowrap; }
 /* ---- "Missing converter character" report modal ---- */
 .unmap-modal{ position:fixed; inset:0; z-index:55; display:flex; align-items:center; justify-content:center; padding:20px; }
 .unmap-modal[hidden]{ display:none; }
-.unmap-modal__backdrop{ position:absolute; inset:0; background:rgba(15,12,26,.5); backdrop-filter:blur(3px); animation:fadeIn var(--dur-med) var(--ease); }
+.unmap-modal__backdrop{ position:absolute; inset:0; background:var(--overlay); animation:fadeIn var(--dur-med) var(--ease); }
 .unmap-modal__card{
   position:relative; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
   box-shadow:var(--shadow-lg); width:100%; max-width:540px; max-height:86vh;
@@ -523,17 +803,17 @@ button{ font-family:inherit; }
 .unmap-modal__header{
   flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px;
   padding:16px 18px 12px;
-  background:linear-gradient(135deg,rgba(108,99,255,.22),rgba(168,85,247,.16));
+  background:var(--surface-alt);
   border-radius:var(--radius-lg) var(--radius-lg) 0 0;
 }
 .unmap-modal__body{ flex:1 1 auto; overflow:auto; padding:6px 20px 20px; }
 .unmap-modal__title{ font-family:var(--font-display); font-size:16.5px; font-weight:800; color:var(--text); margin:0; }
 .unmap-modal__header-actions{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
 .unmap-modal__send{
-  background:linear-gradient(135deg,var(--accent),var(--accent-2)); border-color:transparent; color:#fff;
+  background:var(--primary); border-color:transparent; color:var(--primary-contrast);
   box-shadow:var(--shadow-md);
 }
-.unmap-modal__send:hover{ color:#fff; border-color:transparent; opacity:.94; }
+.unmap-modal__send:hover{ color:var(--primary-contrast); border-color:transparent; opacity:.94; }
 .unmap-modal__copy{
   height:32px; padding:0 13px; border-radius:var(--radius-sm); border:1px solid var(--border);
   background:var(--surface); color:var(--text-secondary); font-size:12.5px; font-weight:700; cursor:pointer;
@@ -553,16 +833,60 @@ button{ font-family:inherit; }
 
 
 
-/* ---- Toasts ---- */
-.toast-container{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%); z-index:60; display:flex; flex-direction:column; gap:8px; align-items:center; }
-.toast{
-  background:var(--text); color:var(--surface); padding:10px 18px; border-radius:var(--radius-pill); font-size:13px; font-weight:600;
-  box-shadow:var(--shadow-lg); animation:toastIn var(--dur-med) var(--ease);
-  max-width:min(92vw, 420px); text-align:center;
+/* ---- Notifications (replaces the old bottom-centre toast) ----
+   Cards slide in from the top-right, directly under the fixed app header.
+   Each has a 2s progress bar and a manual close (X). */
+.notif-container{
+  position:fixed; top:calc(var(--app-header-h, 64px) + 12px); right:16px;
+  z-index:80; display:flex; flex-direction:column; gap:10px;
+  /* box-sizing keeps the 360px width inside the viewport: width + right offset
+     must not exceed 100vw, or the card overflows off the right edge. */
+  box-sizing:border-box; max-width:calc(100vw - 32px);
+  pointer-events:none;
 }
-.toast.toast--out{ animation:toastOut var(--dur-fast) var(--ease) forwards; }
-@keyframes toastIn{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:translateY(0); } }
-@keyframes toastOut{ to{ opacity:0; transform:translateY(6px); } }
+.notif{
+  position:relative; display:flex; align-items:flex-start; gap:10px;
+  width:360px; max-width:100%;
+  padding:11px 12px 14px; border-radius:var(--radius-md);
+  background:var(--surface); border:1px solid var(--border);
+  box-shadow:var(--shadow-lg); overflow:hidden; pointer-events:auto;
+  animation:notifIn var(--dur-med) var(--ease);
+}
+.notif--out{ animation:notifOut var(--dur-fast) var(--ease) forwards; }
+.notif__icon{ flex:0 0 auto; width:20px; height:20px; display:block; margin-top:1px; }
+.notif--success .notif__icon{ color:var(--accent); }
+.notif--error .notif__icon{ color:var(--danger); }
+.notif--info .notif__icon{ color:var(--accent); }
+.notif__msg{ flex:1 1 auto; font-size:13.5px; font-weight:600; line-height:1.45; color:var(--text); margin:0; word-break:break-word; }
+.notif__close{
+  flex:0 0 auto; width:22px; height:22px; display:grid; place-items:center;
+  border:0; border-radius:var(--radius-sm); background:transparent; cursor:pointer;
+  color:var(--text-secondary); padding:0; transition:background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.notif__close:hover{ background:var(--surface-alt); color:var(--text); }
+.notif__close:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+.notif__close .icon{ width:13px; height:13px; }
+/* the draining 2s bar */
+.notif__bar{
+  position:absolute; left:0; bottom:0; height:3px; width:100%;
+  background:var(--accent); transform-origin:left center;
+  animation:notifBar 2s linear forwards;
+}
+.notif--error .notif__bar{ background:var(--danger); }
+/* hovering pauses the countdown so a message can be read / copied */
+.notif:hover .notif__bar{ animation-play-state:paused; }
+
+@keyframes notifIn{ from{ opacity:0; transform:translateX(24px); } to{ opacity:1; transform:translateX(0); } }
+@keyframes notifOut{ to{ opacity:0; transform:translateX(24px); } }
+@keyframes notifBar{ from{ transform:scaleX(1); } to{ transform:scaleX(0); } }
+
+@media (prefers-reduced-motion: reduce){
+  .notif, .notif--out{ animation:none; }
+  .notif__bar{ animation-duration:2s; }
+}
+@media (max-width:560px){
+  .notif-container{ right:10px; left:10px; max-width:none; }
+}
 
 /* ---- Responsive ---- */
 @media (max-width:860px){
@@ -576,10 +900,46 @@ button{ font-family:inherit; }
 @media (max-width:640px){
   .app-shell{ padding:76px 14px 28px; gap:14px; }
   .app-header{ top:0 !important; left:0 !important; right:0 !important; padding:8px 14px; border-top-left-radius:0 !important; border-top-right-radius:0 !important; border-bottom-left-radius:10px !important; border-bottom-right-radius:10px !important; }
-  .app-brand-tagline{ display:none; }
+  /* MOBILE ONLY.
+     The tagline takes its own full-width second row under the logo + wordmark
+     and may wrap to at most two lines, so the whole Bangla text is readable.
+     .app-header__brand stays untouched (no display:contents, which silently
+     broke the grid placement): it becomes a two-row grid itself.
+        row 1: logo | LipiLab
+        row 2: tagline spanning both columns
+     The buttons live outside this block, so they never collide with it. */
+  .app-header__brand{
+    display:grid; flex:1 1 auto; min-width:0;
+    grid-template-columns:auto 1fr;
+    grid-template-areas:"logo name" "tag tag";
+    align-items:center; row-gap:3px;
+    /* Bigger type eats horizontal room; keep a guaranteed clearance so the
+       tagline never reaches the sun / dark-mode / Features buttons. */
+    column-gap:8px; padding-right:5px;
+  }
+  .app-logo{ grid-area:logo; }
+  .app-brand-text{ display:contents; }
+  .app-brand-name{ grid-area:name; }
+  .app-brand-tagline{
+    grid-area:tag; text-align:left; justify-self:start;
+    white-space:normal; overflow-wrap:break-word; margin-top:0;
+  }
   .app-toolbar{ padding:10px; }
-  .app-toolbar__actions{ width:100%; justify-content:space-between; }
-  .btn--convert{ padding:10px 14px; flex:1; justify-content:center; }
+  /* Mobile: direction row 1, font row 2, Live + Convert together on row 3.
+   The font picker sits inside the toolbar wrapper, so the wrapper is a wrapping
+   flex row: a full-width font picker takes one line, then Live + Convert share
+   the next. Short direction labels keep row 1 from wrapping. */
+  .direction-selector .dir-label--full{ display:none; }
+  .direction-selector .dir-label--short{ display:inline; }
+  .app-toolbar__actions{ width:100%; flex-wrap:wrap; justify-content:space-between; }
+  .toolbar-live-convert{ display:flex; flex-wrap:wrap; order:3; width:100%;
+    align-items:center; gap:10px 14px; }
+  /* Full-width line above the actions: forces it onto its own row. */
+  .font-selector{ order:2; width:100%; flex-wrap:nowrap; }
+  .font-selector__field{ flex:1 1 0; min-width:0; }
+  .font-selector__select{ width:100%; max-width:none; }
+  .live-toggle{ order:3; }
+  .toolbar-live-convert .btn--convert{ order:3; padding:10px 14px; flex:1; justify-content:center; margin-left:0; }
   .btn__kbd{ display:none; }
   .direction-selector{ width:100%; }
   .direction-selector__option{ flex:1; }
@@ -587,10 +947,20 @@ button{ font-family:inherit; }
   .panel__textarea{ min-height:200px; }
   .panel__header{ padding:12px 12px 8px; }
   .panel__body{ padding:0 12px; }
+  /* keep the DOCX strip inset identical to the textarea at this breakpoint */
+  .docx-strip{ margin:0 12px; }
   .panel__footer{ padding:10px 12px 14px; }
-  .panel__header-actions{ width:100%; justify-content:flex-start; }
-  .shortcuts-list__desc{ text-align:left; }
-  .shortcuts-list__item{ flex-direction:column; align-items:flex-start; gap:4px; }
+  /* Keep the icon buttons on the SAME row as the panel title on a phone. The
+     old `width:100%` forced the whole action group onto its own line, so the
+     icons dropped below "Input" / "Output" instead of sitting beside them. */
+  .panel__header{ flex-wrap:nowrap; }
+  .panel__header-actions{ width:auto; flex-wrap:nowrap; justify-content:flex-end; }
+  /* Stacked on narrow screens: description on top, keys below. row-gap is the
+     minimum space between the two lines; they stay on one line only when the
+     width genuinely allows it (grid-template-columns:auto 1fr at >430px). */
+  .shortcuts-list__item{ grid-template-columns:1fr; row-gap:6px; }
+  .shortcuts-list__desc{ text-align:left; white-space:normal; }
+  .shortcuts-list__keys{ justify-content:flex-start; }
   .app-statusbar{ flex-direction:column; align-items:flex-start; gap:8px; padding:12px 14px; }
   .statusbar__meta{ flex-direction:column; align-items:flex-start; gap:8px; width:100%; }
   .statusbar__row{ width:100%; }
@@ -599,15 +969,18 @@ button{ font-family:inherit; }
 }
 @media (max-width:380px){
   .app-shell{ padding:76px 10px 22px; gap:10px; }
-  .app-brand-name{ font-size:15px; }
+  /* brand font sizes are fluid via clamp, nothing to override here */
   .direction-selector__label{ padding:7px 8px; font-size:11.5px; }
   .live-toggle__text{ font-size:12px; }
   .btn--convert{ font-size:13px; padding:9px 10px; }
   .app-credit{ font-size:11px; padding:7px 10px; flex-wrap:wrap; }
   .statusbar__left, .encoding-badge{ font-size:12px; }
   .processing-text{ font-size:12px; }
-  .panel__header{ flex-wrap:wrap; }
-  .panel__header-actions{ gap:4px; }
+  .panel__header{ flex-wrap:nowrap; }
+  .panel__header-actions{ gap:3px; }
+  /* four 32px buttons + title still must fit one line on a 320px phone */
+  .panel__header-actions .icon-btn--sm{ width:30px; height:30px; }
+  .panel__header-actions .icon-btn--sm .icon{ width:15px; height:15px; }
 }
 @media (max-width:340px){
   .direction-selector{ flex-wrap:wrap; }
@@ -630,8 +1003,8 @@ button{ font-family:inherit; }
 .tools-nav__btn:disabled{ opacity:.55; cursor:not-allowed; color:var(--text-faint); }
 .tools-nav__btn:disabled:hover{ color:var(--text-faint); }
 .tools-nav__btn.is-active{
-  color:var(--accent-contrast); background:linear-gradient(135deg,var(--accent),var(--accent-2));
-  box-shadow:0 4px 12px rgba(108,99,255,.35);
+  color:var(--accent-contrast); background:var(--primary);
+  box-shadow:var(--shadow-sm);
 }
 .tools-nav__btn--tease{ color:var(--text-faint); }
 .tools-nav__btn--tease:hover{ color:var(--text-faint); }
@@ -671,7 +1044,7 @@ button{ font-family:inherit; }
 .info-box{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; }
 .info-box__title{
   margin:0; padding:14px 16px; border:0;
-  background:linear-gradient(135deg,rgba(108,99,255,.22),rgba(168,85,247,.16));
+  background:var(--brand-tint-2);
   font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif;
   font-size:16px; font-weight:800; line-height:1.35; color:var(--text);
 }
@@ -687,7 +1060,7 @@ button{ font-family:inherit; }
 .support-box{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; }
 .support-box__title{
   margin:0; padding:14px 16px; border:0;
-  background:linear-gradient(135deg,rgba(108,99,255,.22),rgba(168,85,247,.16));
+  background:var(--brand-tint-2);
   font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif;
   font-size:16px; font-weight:800; line-height:1.35; color:var(--text);
   user-select:none; -webkit-user-select:none;
@@ -704,7 +1077,7 @@ button{ font-family:inherit; }
 .support-mail{
   display:inline-flex; align-items:center; justify-content:center;
   padding:7px 12px; border-radius:10px;
-  background:var(--accent-soft); color:var(--accent);
+  background:var(--brand-tint-2); color:var(--accent);
   font-family:var(--font-mono); font-size:13px; font-weight:800;
   text-decoration:none; letter-spacing:.01em;
   box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
@@ -733,7 +1106,7 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
   html, body{ background:#fff !important; }
   .bg-layer,   .app-header, .tools-nav, .app-toolbar, .app-statusbar,
   .pl-slot, .post-note, .post-note--show, .gate-veil, .ask-overlay,
-  .shortcuts-panel, .toast-container, .info-box, .support-box, .app-credit,
+  .shortcuts-panel, .notif-container, .info-box, .support-box, .app-credit,
   .panel--input, .panel-divider, .empty-hint,
   .panel__header, .panel__footer{ display:none !important; }
   .app-shell{ display:block; max-width:none; margin:0; padding:0; min-height:0; }
@@ -765,13 +1138,15 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
 .features-btn{
   display:inline-flex; align-items:center; gap:6px;
   padding:9px 16px; border:0; border-radius:var(--radius-pill);
-  background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff;
+  background:var(--primary); color:var(--primary-contrast);
   font-family:var(--font-body); font-size:13px; font-weight:800; cursor:pointer; white-space:nowrap;
-  box-shadow:0 4px 12px rgba(168,85,247,.28);
+  box-shadow:var(--shadow-sm);
   transition:transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
 }
-.features-btn:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(108,99,255,.4); }
+.features-btn:hover{ transform:translateY(-1px); box-shadow:var(--shadow-md); }
 .features-btn:active{ transform:scale(.96); }
 @media (max-width:640px){
-  .features-btn{ padding:8px 12px; font-size:12px; }
+  /* Tighter so the brand tagline next to the logo has room to breathe on a
+     phone instead of being clipped by the buttons. */
+  .features-btn{ padding:7px 10px; font-size:11.5px; gap:4px; }
 }

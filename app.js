@@ -457,9 +457,13 @@ var els = {
   swapBtn: document.getElementById('swap-btn'),
   outputPanel: document.querySelector('.panel--output'),
   copyBtn: document.getElementById('copy-btn'),
-  downloadTxtBtn: document.getElementById('download-txt-btn'),
-  downloadDocxBtn: document.getElementById('download-docx-btn'),
-  downloadPdfBtn: document.getElementById('download-pdf-btn'),
+  downloadOpenBtn: document.getElementById('download-open-btn'),
+  downloadModal: document.getElementById('download-modal'),
+  downloadCloseBtn: document.getElementById('download-close-btn'),
+  confirmModal: document.getElementById('confirm-modal'),
+  confirmCloseBtn: document.getElementById('confirm-close-btn'),
+  confirmCancelBtn: document.getElementById('confirm-cancel-btn'),
+  confirmOkBtn: document.getElementById('confirm-ok-btn'),
   pointsBalance: document.getElementById('points-balance'),
   undoBtn: document.getElementById('undo-btn'),
   redoBtn: document.getElementById('redo-btn'),
@@ -475,6 +479,8 @@ var els = {
   encodingBadge: document.getElementById('encoding-badge'),
   encodingBadgeText: document.getElementById('encoding-badge-text'),
   processingIndicator: document.getElementById('processing-indicator'),
+  banglaFontSelect: document.getElementById('bangla-font-select'),
+  englishFontSelect: document.getElementById('english-font-select'),
   processingSpinner: document.getElementById('processing-spinner'),
   processingSuccessIcon: document.getElementById('processing-success-icon'),
   processingText: document.getElementById('processing-text'),
@@ -503,7 +509,10 @@ var appState = {
   docxFile: null,
   parsedData: [],
   patchedDocxXml: null,   // last converted word/document.xml (for table PDF)
-  patchedDirection: null
+  patchedDirection: null,
+  outputEncoding: 'bijoy-to-unicode',
+  banglaFont: null,      // resolved name from FONTS for the active encoding
+  englishFont: null
 };
 
 var STORAGE_TEXT_KEY = 'lipilab:input-text';
@@ -516,22 +525,64 @@ var MODE_LABELS = {
 /* ------------------------------------------------------------
    5. UTILITIES
 ------------------------------------------------------------ */
-function showToast(message) {
-  var MAX_TOASTS = 3;
+/* Notifications.
+   Replaces the old bottom-centre toast: cards now drop in from the top-right,
+   directly under the fixed app header, each with a 2s progress bar and a
+   manual close (X). Hovering pauses the countdown so a message can be read.
+   `kind` is one of success | error | info and only changes the icon/colour. */
+var NOTIF_MS = 2000;
+var NOTIF_MAX = 3;
+var NOTIF_ICONS = {
+  success: '<path d="M20 6L9 17l-5-5"/>',
+  error: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16.5h.01"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.5h.01"/>'
+};
+
+function dismissNotification(n) {
+  if (!n || n.dataset.closing === '1') return;
+  n.dataset.closing = '1';
+  clearTimeout(n._timer);
+  n.classList.add('notif--out');
+  var done = function () { if (n.parentNode) n.parentNode.removeChild(n); };
+  if (n.addEventListener) n.addEventListener('animationend', done, { once: true });
+  setTimeout(done, 400); // fallback if the animation never fires
+}
+
+function showToast(message, kind) {
   var container = els.toastContainer;
-  var existing = container.querySelectorAll('.toast');
-  // Limit: remove oldest if at capacity
-  if (existing.length >= MAX_TOASTS) {
-    existing[0].remove();
+  if (!container) return;
+  var type = kind || (String(message).indexOf('Error') === 0 ? 'error' : 'success');
+  if (!NOTIF_ICONS[type]) type = 'info';
+
+  // Hard cap of NOTIF_MAX visible cards. The oldest is removed from the DOM
+  // immediately (no exit animation) - animating it out would leave the stack
+  // briefly over the limit, which is what the old toast did not do either.
+  var live = container.querySelectorAll('.notif');
+  while (live.length >= NOTIF_MAX) {
+    var oldest = live[0];
+    clearTimeout(oldest._timer);
+    if (oldest.parentNode) oldest.parentNode.removeChild(oldest);
+    live = container.querySelectorAll('.notif');
   }
-  var toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = message;
-  container.appendChild(toast);
-  setTimeout(function () {
-    toast.classList.add('toast--out');
-    setTimeout(function () { toast.remove(); }, 200);
-  }, 2200);
+
+  var n = document.createElement('div');
+  n.className = 'notif notif--' + type;
+  n.setAttribute('role', type === 'error' ? 'alert' : 'status');
+  n.innerHTML =
+    '<svg class="notif__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      NOTIF_ICONS[type] + '</svg>' +
+    '<p class="notif__msg"></p>' +
+    '<button type="button" class="notif__close" aria-label="Dismiss notification">' +
+      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="2.4" stroke-linecap="round" aria-hidden="true">' +
+        '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+    '</button>' +
+    '<span class="notif__bar"></span>';
+  n.querySelector('.notif__msg').textContent = message;
+  n.querySelector('.notif__close').addEventListener('click', function () { dismissNotification(n); });
+  container.appendChild(n);
+  n._timer = setTimeout(function () { dismissNotification(n); }, NOTIF_MS);
 }
 
 function showProcessing(active, label, percent) {
@@ -709,6 +760,65 @@ function closeUnmapModal() {
   if (unmapLastFocused && typeof unmapLastFocused.focus === 'function') unmapLastFocused.focus();
 }
 
+/* ---- Generic dialog helpers (download picker, clear confirmation) ----
+   Clicking the backdrop cancels, Escape closes, and focus returns to whatever
+   opened the dialog. */
+var dlgLastFocused = null;
+
+function openDialog(dlg) {
+  if (!dlg) return false;
+  // Never stack two of our dialogs: close the other one first.
+  if (els.downloadModal && els.downloadModal !== dlg && !els.downloadModal.hidden) closeDialog(els.downloadModal);
+  if (els.confirmModal && els.confirmModal !== dlg && !els.confirmModal.hidden) closeDialog(els.confirmModal);
+  dlgLastFocused = document.activeElement || null;
+  dlg.hidden = false;
+  // While a dialog is open, the fixed app header sits above the page but below the
+  // dialog layer, so it must not be clickable or reachable by keyboard either.
+  document.body.classList.add('dlg-open');
+  // A blocking overlay must never sit on top of this dialog - hide the consent
+  // ask while it is open (look it up directly: spotEls is filled in later).
+  var ask = document.getElementById('ask-overlay');
+  if (ask && ask.classList.contains('ask-overlay--show')) {
+    ask.classList.remove('ask-overlay--show');
+    dlg.askWasOpen = true;
+  }
+  var first = dlg.querySelector('.dlg__format, .dlg__btn--danger, .dlg__btn--ghost');
+  if (first && first.focus) first.focus();
+  return true;
+}
+
+function closeDialog(dlg) {
+  if (!dlg || dlg.hidden) return;
+  dlg.hidden = true;
+  // Re-enable the header only once every dialog is closed.
+  if (!document.querySelector('.dlg:not([hidden])')) document.body.classList.remove('dlg-open');
+  if (dlgLastFocused && typeof dlgLastFocused.focus === 'function') dlgLastFocused.focus();
+  dlgLastFocused = null;
+}
+
+/* Wire a dialog: close button and any [data-close] element.
+   Pass { backdrop: false } to leave the backdrop click unbound - the download
+   dialog does this, because a mis-click outside it should not throw away the
+   choice the user was making. Close button and Escape still work. */
+function wireDialog(dlg, closeBtn, opts) {
+  if (!dlg) return;
+  if (closeBtn) closeBtn.addEventListener('click', function () { closeDialog(dlg); });
+  Array.prototype.forEach.call(dlg.querySelectorAll('[data-close]'), function (node) {
+    if (opts && opts.backdrop === false) return;
+    node.addEventListener('click', function () { closeDialog(dlg); });
+  });
+}
+
+function openDownloadModal() {
+  if (!openDialog(els.downloadModal)) { showToast('Download dialog unavailable'); return; }
+  var adSlot = document.getElementById('spot-download');
+  if (adSlot && !adSlot.dataset.filled && typeof renderPartnerSlot === 'function') {
+    adSlot.dataset.filled = '1';
+    renderPartnerSlot(adSlot, (typeof PARTNER !== 'undefined' && PARTNER.download) || '');
+    if (!adSlot.innerHTML.trim()) adSlot.textContent = 'Advertisement';
+  }
+}
+
 function copyUnmapReportFallback(text) {
   try {
     var range = document.createRange();
@@ -805,6 +915,11 @@ function setEncodingBadge(resolvedMode) {
 
 function applyEncodingFonts() {
   var mode = resolveMode();
+  // Record the RESOLVED output encoding so the Bangla font list can follow the
+  // output side (Auto still has to resolve before the list is meaningful).
+  appState.outputEncoding = mode;
+  appState.banglaFont = getSelectedBanglaFont();
+  syncBanglaFontSelect();
   if (mode === 'unicode-to-bijoy') {
     els.inputTextarea.classList.remove('panel__textarea--bijoy');
     els.outputTextarea.classList.add('panel__textarea--bijoy');
@@ -814,6 +929,7 @@ function applyEncodingFonts() {
     els.outputTextarea.classList.remove('panel__textarea--bijoy');
     els.outputPanel.setAttribute('data-encoding-out', 'unicode');
   }
+  applyOutputPreviewFont();
 }
 
 function lockInputForDocx(locked) {
@@ -871,6 +987,7 @@ function updateOfflineIndicator() {
 
 function persistState() {
   try { localStorage.setItem(STORAGE_TEXT_KEY, els.inputTextarea.value); } catch (e) { /* storage unavailable — non-fatal */ }
+  persistFontState();
 }
 
 function restoreState() {
@@ -878,6 +995,11 @@ function restoreState() {
     var saved = localStorage.getItem(STORAGE_TEXT_KEY);
     if (saved) { els.inputTextarea.value = saved; }
   } catch (e) { /* storage unavailable — non-fatal */ }
+  if (typeof resolveMode === 'function') appState.outputEncoding = resolveMode();
+  restoreFontState();
+  syncBanglaFontSelect();
+  syncEnglishFontSelect();
+  applyOutputPreviewFont();
 }
 
 var liveConvertTimer = null;
@@ -895,12 +1017,38 @@ function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   els.themeToggleBtn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
   try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* non-fatal */ }
+  syncThemeColorMeta(theme);
+}
+
+/* The browser chrome (address bar on mobile) is painted from the meta
+   theme-color. Read the live --primary token so the one place that defines
+   the brand colour stays the only place that does. */
+function syncThemeColorMeta(theme) {
+  if (!document.querySelector) return;
+  try {
+    var cs = window.getComputedStyle(document.documentElement);
+    var primary = cs.getPropertyValue('--primary');
+    if (!primary) return;
+    var metas = document.querySelectorAll('meta[name="theme-color"]');
+    for (var i = 0; i < metas.length; i++) {
+      var media = String(metas[i].getAttribute('media') || '');
+      var wants = (theme === 'dark') ? /dark/.test(media) : !/dark/.test(media);
+      if (wants) { metas[i].setAttribute('content', primary.trim()); return; }
+    }
+  } catch (e) { /* getComputedStyle unavailable - meta keeps its static value */ }
 }
 
 function initTheme() {
   var saved = null;
   try { saved = localStorage.getItem(THEME_KEY); } catch (e) { /* storage unavailable — non-fatal */ }
-  applyTheme(saved || 'dark');
+  // No saved choice: follow the operating system instead of forcing dark
+  // (slop rule 6 - perma dark mode is an AI-default tell).
+  if (!saved) {
+    try {
+      saved = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    } catch (e) { saved = 'light'; }
+  }
+  applyTheme(saved);
 }
 
 function toggleTheme() {
@@ -984,24 +1132,21 @@ function convertPlainTextSync(text) {
   if (mode === 'unicode-to-bijoy') {
     var tokens = tokenizeMixedText(text);
     tokens.forEach(function (tok) {
-      var item = { text: '', font: 'Times New Roman' };
+      var item = { text: '', font: fontForPlainToken(tok, mode) };
       if (tok.type === 'bangla') {
         item.text = ConvertToASCII(tok.raw);
-        item.font = 'SutonnyMJ';
         unmappable += countUnmappable(item.text, unmappableSeen);
       } else if (tok.type === 'latin') {
         item.text = tok.raw;
-        item.font = 'Times New Roman';
       } else {
         item.text = tok.raw;
-        item.font = tok.effectiveType === 'bangla' ? 'SutonnyMJ' : 'Times New Roman';
       }
       appState.parsedData.push(item);
       outputText += item.text;
     });
   } else {
     outputText = convertBijoyTextMixed(text);
-    appState.parsedData.push({ text: outputText, font: 'Times New Roman' });
+    appState.parsedData.push({ text: outputText, font: getSelectedEnglishFont() });
   }
 
   els.outputTextarea.value = outputText;
@@ -1088,17 +1233,14 @@ function convertPlainTextChunked(text) {
       var end = Math.min(idx + BATCH, total);
       for (; idx < end; idx++) {
         var tok = tokens[idx];
-        var item = { text: '', font: 'Times New Roman' };
+        var item = { text: '', font: fontForPlainToken(tok, mode) };
         if (tok.type === 'bangla') {
           item.text = ConvertToASCII(tok.raw);
-          item.font = 'SutonnyMJ';
           unmappable += countUnmappable(item.text, unmappableSeen);
         } else if (tok.type === 'latin') {
           item.text = tok.raw;
-          item.font = 'Times New Roman';
         } else {
           item.text = tok.raw;
-          item.font = tok.effectiveType === 'bangla' ? 'SutonnyMJ' : 'Times New Roman';
         }
         appState.parsedData.push(item);
         outputParts.push(item.text);
@@ -1144,7 +1286,7 @@ function convertPlainTextChunked(text) {
     function finishRev() {
       if (runId !== conversionRunId) return;
       var outputText = outputParts.join('');
-      appState.parsedData.push({ text: outputText, font: 'Times New Roman' });
+      appState.parsedData.push({ text: outputText, font: getSelectedEnglishFont() });
       els.outputTextarea.value = outputText;
       updateStats();
       applyEncodingFonts();
@@ -1373,6 +1515,108 @@ var BIJOY_FONT_NAMES = ['SutonnyMJ', 'SutonnyOMJ', 'Sutonny', 'SulekhaBangla', '
 // paragraph style's font (w:pStyle -> styles.xml) and finally docDefaults.
 // stylesDoc is optional (parsed styles.xml); null = run-level check only.
 var UNICODE_TARGET_FONT = 'Nirmala UI'; // Phase 6 fix: Times New Roman has no Bangla glyphs — Nirmala UI ships with Windows and covers Bangla Unicode (matches the site's own demo files).
+
+/* ------------------------------------------------------------
+   OUTPUT FONT SELECTOR
+   Single source of truth for font names. Adding a font later =
+   append the name to the right list (and drop a file under /fonts/
+   for the webfont); nothing else needs to change.
+
+   `unicode` is ordered with Kalpurush first (the site's own brand face) and
+   Nirmala UI last, where it still acts as a Unicode-safe fallback.
+------------------------------------------------------------ */
+var FONTS = {
+  bijoy: ['SutonnyMJ', 'TonnyBanglaMJ'],
+  unicode: ['Kalpurush', 'Nikosh', 'Shonar Bangla', 'Vrinda', 'SolaimanLipi', 'Nirmala UI'],
+  english: ['Times New Roman', 'Cambria', 'Lucida Fax', 'Arial', 'Calibri']
+};
+var STORAGE_BANGLA_FONT_KEY = 'lipilab:bangla-font';
+var STORAGE_ENGLISH_FONT_KEY = 'lipilab:english-font';
+
+function currentOutputEncoding() {
+  return appState.outputEncoding || 'bijoy-to-unicode';
+}
+function banglaListForEncoding(encoding) {
+  return encoding === 'unicode-to-bijoy' ? FONTS.bijoy : FONTS.unicode;
+}
+function defaultBanglaFont(encoding) {
+  return banglaListForEncoding(encoding)[0];
+}
+function defaultEnglishFont() {
+  return FONTS.english[0];
+}
+/* A stored/incoming name that is not in the active list falls back to that
+   list's default rather than crashing or leaving the select blank. */
+function resolveFontName(name, list, fallback) {
+  if (name && list.indexOf(name) !== -1) return name;
+  return fallback;
+}
+function getSelectedBanglaFont() {
+  var enc = currentOutputEncoding();
+  return resolveFontName(appState.banglaFont, banglaListForEncoding(enc), defaultBanglaFont(enc));
+}
+function getSelectedEnglishFont() {
+  return resolveFontName(appState.englishFont, FONTS.english, defaultEnglishFont());
+}
+/* Blank-DOCX generation (no template): a Bangla token renders in the Bangla
+   pick, a Latin token in the English pick. */
+function fontForPlainToken(tok, mode) {
+  if (mode === 'unicode-to-bijoy') {
+    if (tok.type === 'bangla') return getSelectedBanglaFont();
+    if (tok.type === 'latin') return getSelectedEnglishFont();
+    return tok.effectiveType === 'bangla' ? getSelectedBanglaFont() : getSelectedEnglishFont();
+  }
+  return getSelectedEnglishFont();
+}
+function persistFontState() {
+  try {
+    localStorage.setItem(STORAGE_BANGLA_FONT_KEY, getSelectedBanglaFont());
+    localStorage.setItem(STORAGE_ENGLISH_FONT_KEY, getSelectedEnglishFont());
+  } catch (e) { /* storage unavailable — non-fatal */ }
+}
+function restoreFontState() {
+  var enc = currentOutputEncoding();
+  var savedB = null, savedE = null;
+  try {
+    savedB = localStorage.getItem(STORAGE_BANGLA_FONT_KEY);
+    savedE = localStorage.getItem(STORAGE_ENGLISH_FONT_KEY);
+  } catch (e) { /* non-fatal */ }
+  appState.banglaFont = resolveFontName(savedB, banglaListForEncoding(enc), defaultBanglaFont(enc));
+  appState.englishFont = resolveFontName(savedE, FONTS.english, defaultEnglishFont());
+}
+/* Clear / new upload resets both picks to the defaults for the CURRENT output
+   encoding, then persists them so a later reload agrees. */
+function resetOutputFonts() {
+  var enc = currentOutputEncoding();
+  appState.banglaFont = defaultBanglaFont(enc);
+  appState.englishFont = defaultEnglishFont();
+  persistFontState();
+  syncBanglaFontSelect();
+  syncEnglishFontSelect();
+}
+function fillSelect(sel, names, selected) {
+  if (!sel) return;
+  sel.innerHTML = '';
+  names.forEach(function (name) {
+    var opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    if (name === selected) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+function syncBanglaFontSelect() {
+  fillSelect(els.banglaFontSelect, banglaListForEncoding(currentOutputEncoding()), getSelectedBanglaFont());
+}
+function syncEnglishFontSelect() {
+  fillSelect(els.englishFontSelect, FONTS.english, getSelectedEnglishFont());
+}
+/* The preview textarea can only render one face, so it uses the Bangla pick.
+   English is applied to the DOCX only. */
+function applyOutputPreviewFont() {
+  if (!els.outputTextarea) return;
+  els.outputTextarea.style.fontFamily = '"' + getSelectedBanglaFont() + '", var(--font-bangla)';
+}
 var WORD_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
 var XML_NS = 'http://www.w3.org/XML/1998/namespace';
 
@@ -1615,7 +1859,7 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
     // a Bijoy run with embedded ASCII ("Avgvi hello") keeps its English.
     setRunText(convertBijoyTextMixed(originalText));
     if (!rPrEl) { rPrEl = doc.createElementNS(WORD_NS, 'w:rPr'); runEl.insertBefore(rPrEl, runEl.firstChild); }
-    setRunFont(ensureRunFonts(rPrEl, doc), UNICODE_TARGET_FONT);
+    setRunFont(ensureRunFonts(rPrEl, doc), getSelectedBanglaFont());
     setRunLang(rPrEl, doc);
     if (counter) counter.converted++;
     return 1;
@@ -1630,7 +1874,7 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
     // whole run is a single Bangla token — convert in place, no split needed
     setRunText(ConvertToASCII(tokens[0].raw));
     if (!rPrEl) { rPrEl = doc.createElementNS(WORD_NS, 'w:rPr'); runEl.insertBefore(rPrEl, runEl.firstChild); }
-    setRunFont(ensureRunFonts(rPrEl, doc), 'SutonnyMJ');
+    setRunFont(ensureRunFonts(rPrEl, doc), getSelectedBanglaFont());
     if (counter) counter.converted++;
     return 1;
   }
@@ -1674,7 +1918,7 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
     if (g.side === 'bangla') {
       text = convertBanglaGroupToBijoy(text);
       if (!newRPr) newRPr = doc.createElementNS(WORD_NS, 'w:rPr');
-      setRunFont(ensureRunFonts(newRPr, doc), 'SutonnyMJ');
+      setRunFont(ensureRunFonts(newRPr, doc), getSelectedBanglaFont());
     }
     if (newRPr) newRun.appendChild(newRPr);
     var newT = doc.createElementNS(WORD_NS, 'w:t');
@@ -1821,6 +2065,7 @@ function loadDocxFile(file) {
     els.docxStrip.classList.add('show');
     updateStats();
     applyEncodingFonts();
+    resetOutputFonts(); // new template resets picks to the encoding defaults
     setConvertButtonMode(true);
     if (appState.liveMode) convertPlainText(); else setStatusIdle();
     showToast('DOCX template loaded — click Convert');
@@ -2650,6 +2895,24 @@ function wireEvents() {
     }
   });
 
+  if (els.banglaFontSelect) {
+    els.banglaFontSelect.addEventListener('change', function () {
+      appState.banglaFont = els.banglaFontSelect.value;
+      persistFontState();
+      // Re-run so the preview textarea picks up the new face immediately
+      // when live mode is off too — the pick is cheap to honour.
+      applyOutputPreviewFont();
+      if (appState.liveMode && els.inputTextarea.value) scheduleLiveConvert();
+    });
+  }
+  if (els.englishFontSelect) {
+    els.englishFontSelect.addEventListener('change', function () {
+      appState.englishFont = els.englishFontSelect.value;
+      persistFontState();
+      if (appState.liveMode && els.inputTextarea.value) scheduleLiveConvert();
+    });
+  }
+
   els.fileUploadInput.addEventListener('change', function (e) {
     if (quotaLocked) { showQuotaExhaustedToast(0); e.target.value = ''; return; }
     var file = e.target.files[0];
@@ -2674,6 +2937,7 @@ function wireEvents() {
         syncUndoBase();
         updateStats();
         setStatusIdle();
+        resetOutputFonts(); // a new file resets font picks to the encoding defaults
         scheduleLiveConvert();
       };
       reader.readAsText(file);
@@ -2681,10 +2945,11 @@ function wireEvents() {
     e.target.value = '';
   });
 
-  els.clearBtn.addEventListener('click', function () {
+  function clearAllNow() {
     snapshotForUndo();
     els.inputTextarea.value = '';
     els.outputTextarea.value = '';
+    resetOutputFonts();
     clearDocxTemplate();
     appState.parsedData = [];
     updateStats();
@@ -2692,6 +2957,13 @@ function wireEvents() {
     setStatusIdle();
     try { localStorage.removeItem(STORAGE_TEXT_KEY); } catch (e) { /* non-fatal */ }
     showToast('Cleared');
+  }
+
+  // Clear runs immediately. No confirmation dialog: the app has Undo/Redo, and a
+  // confirm step on a one-click action just gets in the way.
+  els.clearBtn.addEventListener('click', function () {
+    snapshotForUndo();
+    clearAllNow();
   });
 
   els.docxStripClear.addEventListener('click', function () {
@@ -2730,15 +3002,15 @@ function wireEvents() {
     }
   });
 
-  els.downloadTxtBtn.addEventListener('click', function () {
+  function downloadAsTxt() {
     var text = els.outputTextarea.value;
     if (!text || !text.trim()) { showToast('Nothing to download as txt file'); return; }
     startDownload('TXT', function () {
       return new Blob([text], { type: 'text/plain;charset=utf-8' });
     }, 'LipiLab_converted.txt');
-  });
+  }
 
-  els.downloadDocxBtn.addEventListener('click', function () {
+  function downloadAsDocx() {
     if (appState.docxZip) { convertDocxTemplate(); return; }
     if (appState.parsedData.length === 0) {
       var inputText = els.inputTextarea.value;
@@ -2749,7 +3021,23 @@ function wireEvents() {
     startDownload('DOCX', function () {
       return buildBlankDocxBlob(appState.parsedData);
     }, 'Converted_Document.docx');
+  }
+
+  if (els.downloadOpenBtn) els.downloadOpenBtn.addEventListener('click', function () {
+    openDownloadModal();
   });
+  wireDialog(els.downloadModal, els.downloadCloseBtn, { backdrop: false });
+  if (els.downloadModal) {
+    els.downloadModal.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('.dlg__format') : null;
+      if (!btn) return;
+      var fmt = btn.getAttribute('data-format');
+      if (fmt === 'docx') downloadAsDocx();
+      else if (fmt === 'txt') downloadAsTxt();
+      else if (fmt === 'pdf') { showToast('PDF download feature coming soon'); return; }
+      closeDialog(els.downloadModal);
+    });
+  }
 
   wireFontSizeButtons();
 
@@ -2763,10 +3051,6 @@ function wireEvents() {
   if (els.undoBtn) els.undoBtn.addEventListener('click', undo);
   if (els.redoBtn) els.redoBtn.addEventListener('click', redo);
   if (els.featuresOpenBtn) els.featuresOpenBtn.addEventListener('click', scrollToFeatures);
-  if (els.downloadPdfBtn) els.downloadPdfBtn.addEventListener('click', function (e) {
-    e.preventDefault();
-    showToast('PDF download feature coming soon');
-  });
   if (els.toolsNav) els.toolsNav.addEventListener('click', function (e) {
     var btn = e.target.closest ? e.target.closest('.tools-nav__btn') : null;
     if (!btn || btn.hidden) return;
@@ -2815,7 +3099,24 @@ function wireEvents() {
     undoDebounceTimer = setTimeout(maybeSnapshotInput, 400);
   });
 
-  window.addEventListener('resize', updateDirectionPillPosition);
+  /* The fixed app header grows taller on narrow screens (the brand tagline wraps
+   to a second line), so a hard-coded --app-header-h in CSS would leave the
+   notification stack sitting ON the header. Measure it instead and publish the
+   real height; ResizeObserver keeps it correct while the window changes. */
+function syncHeaderHeight() {
+  var hdr = document.querySelector('.app-header');
+  if (!hdr) return;
+  var h = Math.round(hdr.getBoundingClientRect().height);
+  if (h > 0) document.documentElement.style.setProperty('--app-header-h', h + 'px');
+}
+
+window.addEventListener('resize', syncHeaderHeight);
+if (typeof ResizeObserver === 'function' && document.querySelector('.app-header')) {
+  new ResizeObserver(syncHeaderHeight).observe(document.querySelector('.app-header'));
+}
+syncHeaderHeight();
+
+window.addEventListener('resize', updateDirectionPillPosition);
   window.addEventListener('online', updateOfflineIndicator);
   window.addEventListener('offline', updateOfflineIndicator);
 }
@@ -2837,10 +3138,13 @@ function wireKeyboardShortcuts() {
     if (e.ctrlKey && e.shiftKey && !e.altKey && (key === 'c' || key === 'C')) { e.preventDefault(); els.clearBtn.click(); return; }
     if (e.ctrlKey && e.shiftKey && !e.altKey && (key === 's' || key === 'S')) { e.preventDefault(); els.swapBtn.click(); return; }
     if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 'c' || key === 'C') && inOutput) { e.preventDefault(); els.copyBtn.click(); return; }
-    if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 's' || key === 'S')) { e.preventDefault(); els.downloadTxtBtn.click(); return; }
+    if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 's' || key === 'S')) { e.preventDefault(); if (els.downloadOpenBtn) els.downloadOpenBtn.click(); return; }
     if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 'd' || key === 'D')) { e.preventDefault(); els.themeToggleBtn.click(); return; }
     if (key === '?' && !inField && !e.ctrlKey && !e.altKey) { openShortcuts(); return; }
     if (key === 'Escape' && els.unmapModal && !els.unmapModal.hidden) { closeUnmapModal(); return; }
+    if (key === 'Escape') {
+      if (els.downloadModal && !els.downloadModal.hidden) { closeDialog(els.downloadModal); return; }
+    }
     if (key === 'Escape' && !els.shortcutsPanel.hidden) { closeShortcuts(); return; }
   });
 }
