@@ -48,12 +48,14 @@ ok('bottom-left and bottom-right radius are 0',
 ok('top-left and top-right radius are UNCHANGED (not 0)', 
   parseFloat(m.tl)>0&&parseFloat(m.tr)>0, 'tl='+m.tl+' tr='+m.tr);
 ok('both top corners match the panel radius', m.tl===m.tr, m.tl+' vs '+m.tr);
-ok('no margin on the bottom', m.mt==='0px'&&m.mb==='0px',
-  't='+m.mt+' b='+m.mb+' (sides are inset to match the textarea)');
+// The strip sits in its own inset box: a 10px margin all round, matching the
+// horizontal padding of .panel__body so its width lines up with the textarea.
+ok('margin is 10px on every side', m.mt==='10px'&&m.mb==='10px'&&m.ml==='16px'&&m.mr==='16px',
+  't='+m.mt+' b='+m.mb+' l='+m.ml+' r='+m.mr);
 // The strip is inset to match the textarea, so it must NOT be edge-to-edge.
 ok('inset, not full-bleed (matches the textarea column)', m.w<m.panelW-10, m.w+' inside panel '+m.panelW);
-ok('no gap between the strip and the panel body', m.gapToBody<=1, m.gapToBody+'px');
-ok('touches the panel header above (no gap)', Math.abs(m.srTop-m.headBottom)<2,
+ok('10px gap between the strip and the panel body', m.gapToBody>=9&&m.gapToBody<=11, m.gapToBody+'px');
+ok('10px gap below the panel header', m.srTop-m.headBottom>=9&&m.srTop-m.headBottom<=11,
   'stripTop='+m.srTop+' headBottom='+m.headBottom);
 ok('strip WIDTH is identical to the input textarea', m.widthMatchesTextarea,
   'strip='+m.w+'px textarea='+m.taW+'px');
@@ -80,7 +82,37 @@ for(const w of [1400,768,390,320]){
   ok(w+'px: no horizontal overflow', !g.ov);
 }
 
-await p.screenshot({path:'strip.png',clip:{x:170,y:455,width:640,height:130}});
+// Screenshot the whole input panel with the strip visible, at desktop and phone.
+for(const pair of [[1400,'desk'],[390,'mob']]){
+  await p.setViewport({width:pair[0],height:900,deviceScaleFactor:2});
+  await new Promise(r=>setTimeout(r,300));
+  const box=await p.evaluate(()=>{
+    const r=document.querySelector('.panel--input').getBoundingClientRect();
+    return {x:Math.round(r.left)-8,y:Math.round(r.top)-8,width:Math.round(r.width)+16,height:300};});
+  await p.screenshot({path:'strip-'+pair[1]+'.png',clip:box});
+}
+
+// A notification stack on a phone, for the record.
+await p.setViewport({width:390,height:800,deviceScaleFactor:2});
+await new Promise(r=>setTimeout(r,300));
+await p.evaluate(()=>{
+  const c=document.querySelector('.notif-container');
+  c.innerHTML='';
+  ['Converted successfully','Saved as .docx','3 characters could not be mapped'].forEach((t,i)=>{
+    const n=document.createElement('div');
+    n.className='notif notif--'+(i===2?'error':'success');
+    const icon=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    icon.setAttribute('class','notif__icon');
+    const msg=document.createElement('p');
+    msg.className='notif__msg'; msg.textContent=t;
+    const close=document.createElement('button'); close.className='notif__close';
+    const bar=document.createElement('span'); bar.className='notif__bar';
+    n.append(icon,msg,close,bar);
+    c.appendChild(n);
+  });
+});
+await new Promise(r=>setTimeout(r,400));
+await p.screenshot({path:'notif-m.png',clip:{x:0,y:0,width:390,height:300}});
 
 ok('no page errors', errs.length===0, errs.join(' || '));
 out.forEach(l=>console.log(l));
