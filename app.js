@@ -1041,15 +1041,9 @@ function syncThemeColorMeta(theme) {
 function initTheme() {
   var saved = null;
   try { saved = localStorage.getItem(THEME_KEY); } catch (e) { /* storage unavailable — non-fatal */ }
-  // No saved choice: follow the operating system instead of forcing dark
-  // (slop rule 6 - perma dark mode is an AI-default tell).
-  if (!saved) {
-    try {
-      saved = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-    } catch (e) { saved = 'light'; }
-  }
-  applyTheme(saved);
+  applyTheme(saved || 'light');
 }
+
 
 function toggleTheme() {
   var current = document.documentElement.getAttribute('data-theme');
