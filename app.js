@@ -1709,6 +1709,11 @@ function setRunFont(rFontsEl, fontName) {
   rFontsEl.setAttribute('w:ascii', fontName);
   rFontsEl.setAttribute('w:hAnsi', fontName);
   rFontsEl.setAttribute('w:cs', fontName);
+  rFontsEl.setAttribute('w:eastAsia', fontName);
+  rFontsEl.removeAttribute('w:asciiTheme');
+  rFontsEl.removeAttribute('w:hAnsiTheme');
+  rFontsEl.removeAttribute('w:cstheme');
+  rFontsEl.removeAttribute('w:eastAsiaTheme');
 }
 
 function setRunLang(rPrEl, doc) {
@@ -1985,10 +1990,48 @@ function mergeAdjacentRuns(runs, doc) {
   return out;
 }
 
+function collectDocText(doc) {
+  var ts = doc.getElementsByTagName('w:t');
+  var text = '';
+  for (var i = 0; i < ts.length; i++) text += ts[i].textContent || '';
+  return text;
+}
+
+function spaceFontForDocText(text) {
+  var bangla = 0;
+  var english = 0;
+  if (text) {
+    for (var i = 0; i < text.length; i++) {
+      var c = text.charCodeAt(i);
+      if (c >= 0x0980 && c <= 0x09FF) bangla++;
+      else if ((c >= 65 && c <= 90) || (c >= 97 && c <= 122)) english++;
+    }
+  }
+  return bangla >= english ? getSelectedBanglaFont() : getSelectedEnglishFont();
+}
+
+function applySpaceRunFonts(doc, fontName) {
+  if (!fontName) return;
+  var runs = doc.getElementsByTagName('w:r');
+  for (var i = 0; i < runs.length; i++) {
+    var runEl = runs[i];
+    if (!runIsPlainText(runEl)) continue;
+    var text = runText(runEl);
+    if (!text || text.trim()) continue;
+    var rPrEl = runEl.getElementsByTagName('w:rPr')[0];
+    if (!rPrEl) {
+      rPrEl = doc.createElementNS(WORD_NS, 'w:rPr');
+      runEl.insertBefore(rPrEl, runEl.firstChild);
+    }
+    setRunFont(ensureRunFonts(rPrEl, doc), fontName);
+  }
+}
+
 function patchDocumentXmlString(xmlString, direction, stylesDoc, counter) {
   var doc = new DOMParser().parseFromString(xmlString, 'application/xml');
   if (doc.getElementsByTagName('parsererror').length) throw new Error('Could not parse DOCX XML');
   mergeSameFontRuns(doc); // pre-pass: join split words first (see above)
+  var spaceFont = direction === 'uni2bijoy' ? spaceFontForDocText(collectDocText(doc)) : null;
   var runs = Array.prototype.slice.call(doc.getElementsByTagName('w:r'));
   var local = counter || { converted: 0 };
   runs.forEach(function (r) { splitRunForConversion(r, doc, direction, stylesDoc || null, local); });
@@ -1998,6 +2041,8 @@ function patchDocumentXmlString(xmlString, direction, stylesDoc, counter) {
   // instead of exploded. Bijoy→Unicode runs convert in place (no split),
   // so this pass is a no-op there by construction.
   mergeSameFontRuns(doc);
+  if (direction === 'bijoy2uni') spaceFont = spaceFontForDocText(collectDocText(doc));
+  applySpaceRunFonts(doc, spaceFont);
   var serialized = new XMLSerializer().serializeToString(doc);
   if (serialized.indexOf('<?xml') !== 0) {
     serialized = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + serialized;
@@ -2007,6 +2052,7 @@ function patchDocumentXmlString(xmlString, direction, stylesDoc, counter) {
   if (!counter) return serialized;
   return { xml: serialized, converted: local.converted };
 }
+
 
 function extractPreviewText(xmlString) {
   // No truncation: the full document's text is shown, however long it is.
