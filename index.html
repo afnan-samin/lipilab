@@ -19,16 +19,14 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <link rel="apple-touch-icon" href="favicon.svg" />
 
-<!-- JSZip: needed for both blank-DOCX generation and DOCX template round-trip patching -->
+<!-- JSZip: needed for both blank-DOCX generation and DOCX template round-trip patching.
+     Self-hosted so DOCX upload/download keeps working with the network off. -->
 <script src="vendor/jszip.min.js"></script>
 
-<!-- Bangla faces are self-hosted (see the @font-face block at the top of
-     styles.css) so the page renders identically with the network switched off.
-     Latin uses the platform's own UI font and needs no webfont at all. -->
+<!-- UI + Bangla web fonts are self-hosted in /fonts and declared at the top of
+     styles.css — no Google Fonts, no maateen.me, no network request at all. -->
 
-
-
-<link rel="stylesheet" href="styles.css?v=66">
+<link rel="stylesheet" href="styles.css?v=67">
 </head>
 <body>
 
@@ -45,8 +43,8 @@
     <circle cx="-5" cy="950" r="85" class="bn-orb" opacity="0.07">
       <animate attributeName="cy" values="950;926;950" dur="7s" repeatCount="indefinite"/>
     </circle>
-    <text x="80" y="140" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="32" font-weight="800" class="bn-title">LipiLab</text>
-    <text x="80" y="224" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" class="bn-title">Unicode ↔ Bijoy</text>
+    <text x="80" y="140" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="32" font-weight="800" class="bn-title">LipiLab</text>
+    <text x="80" y="224" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" class="bn-title">Unicode ↔ Bijoy</text>
     <text x="80" y="248" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" class="bn-sub">in seconds</text>
     <text x="80" y="272" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" class="bn-sub">+ full Word magic</text>
     <text x="80" y="322" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" class="bn-title">✓ 100% Free forever</text>
@@ -55,14 +53,14 @@
     <text x="80" y="406" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" class="bn-title">✓ Works offline</text>
     <g class="bn-cta">
       <rect x="20" y="440" width="120" height="48" rx="24" class="bn-cta-bg"/>
-      <text x="80" y="470" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" class="bn-cta-text">Start Free</text>
+      <text x="80" y="470" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="700" class="bn-cta-text">Start Free</text>
     </g>
     <line x1="40" y1="530" x2="120" y2="530" class="bn-line" stroke-width="1" opacity="0.4"/>
-    <text x="80" y="570" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="800" class="bn-title">Why LipiLab?</text>
+    <text x="80" y="570" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="800" class="bn-title">Why LipiLab?</text>
     <text x="80" y="600" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" class="bn-sub">Design never breaks</text>
     <text x="80" y="624" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" class="bn-sub">Bangla stays Bangla</text>
     <text x="80" y="648" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" class="bn-sub">English stays English</text>
-    <text x="80" y="914" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="800" letter-spacing="1.5" class="bn-title">FREE FOREVER</text>
+    <text x="80" y="914" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="800" letter-spacing="1.5" class="bn-title">FREE FOREVER</text>
     <text x="80" y="946" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" class="bn-sub">Your data stays in your browser.</text>
     <text x="80" y="962" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" class="bn-sub">100% private — nothing uploaded.</text>
   </svg>
@@ -79,8 +77,8 @@
     <circle cx="165" cy="950" r="85" class="bn-orb" opacity="0.07">
       <animate attributeName="cy" values="950;926;950" dur="5.5s" repeatCount="indefinite"/>
     </circle>
-    <text x="80" y="140" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-size="32" font-weight="800" class="bn-title">LipiLab</text>
-    <text x="80" y="224" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" class="bn-title">Bijoy → Unicode</text>
+    <text x="80" y="140" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="32" font-weight="800" class="bn-title">LipiLab</text>
+    <text x="80" y="224" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" class="bn-title">Bijoy → Unicode</text>
     <text x="80" y="248" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" class="bn-sub">one-click magic</text>
     <text x="80" y="272" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" class="bn-sub">any file, any size</text>
     <text x="80" y="322" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" class="bn-title">✓ DOCX ready</text>
@@ -89,14 +87,14 @@
     <text x="80" y="406" text-anchor="middle" font-family="Arial,sans-serif" font-size="15.5" font-weight="700" class="bn-title">✓ No signup</text>
     <g class="bn-cta">
       <rect x="20" y="440" width="120" height="48" rx="24" class="bn-cta-bg"/>
-      <text x="80" y="470" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" class="bn-cta-text">Try Now</text>
+      <text x="80" y="470" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="700" class="bn-cta-text">Try Now</text>
     </g>
     <line x1="40" y1="530" x2="120" y2="530" class="bn-line" stroke-width="1" opacity="0.4"/>
-    <text x="80" y="570" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="800" class="bn-title">Why LipiLab?</text>
+    <text x="80" y="570" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="16" font-weight="800" class="bn-title">Why LipiLab?</text>
     <text x="80" y="600" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" class="bn-sub">Tables stay tables</text>
     <text x="80" y="624" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" class="bn-sub">Bold stays bold</text>
     <text x="80" y="648" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" class="bn-sub">Columns stay columns</text>
-    <text x="80" y="914" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="800" letter-spacing="1.5" class="bn-title">FREE FOREVER</text>
+    <text x="80" y="914" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="800" letter-spacing="1.5" class="bn-title">FREE FOREVER</text>
     <text x="80" y="940" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" class="bn-sub">Your data stays in your browser.</text>
     <text x="80" y="956" text-anchor="middle" font-family="Arial,sans-serif" font-size="11.5" class="bn-sub">100% private — nothing uploaded.</text>
   </svg>
@@ -160,7 +158,7 @@
       <circle cx="70" cy="114" r="62" class="bn-orb" opacity="0.07">
         <animate attributeName="cy" values="114;102;114" dur="7s" repeatCount="indefinite"/>
       </circle>
-      <text x="28" y="40" font-family="Sora,Arial,sans-serif" font-size="24" font-weight="800" class="bn-title">LipiLab — Convert Without Limits</text>
+      <text x="28" y="40" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="24" font-weight="800" class="bn-title">LipiLab — Convert Without Limits</text>
       <text x="28" y="63" font-family="Arial,sans-serif" font-size="14.5" class="bn-sub">Unicode ↔ Bijoy + Word files · Free forever, no signup</text>
       <g class="bn-cta">
         <rect x="588" y="28" width="116" height="34" rx="17" class="bn-cta-bg"/>
@@ -289,7 +287,7 @@
       <div class="docx-strip" id="docx-strip">
         <svg class="docx-strip__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         <span class="docx-strip__text" id="docx-strip-text">Template loaded</span>
-        <button class="docx-strip__clear" id="docx-strip-clear" type="button" aria-label="Remove DOCX template">
+        <button class="docx-strip__clear" id="docx-strip-clear" type="button" aria-label="Remove loaded file">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
@@ -434,7 +432,7 @@
       <circle cx="660" cy="114" r="62" class="bn-orb" opacity="0.07">
         <animate attributeName="cy" values="114;102;114" dur="5.5s" repeatCount="indefinite"/>
       </circle>
-      <text x="36" y="40" font-family="Sora,Arial,sans-serif" font-size="24" font-weight="800" class="bn-title">Word Files? Done in Seconds.</text>
+      <text x="36" y="40" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="24" font-weight="800" class="bn-title">Word Files? Done in Seconds.</text>
       <text x="36" y="63" font-family="Arial,sans-serif" font-size="14.5" class="bn-sub">Upload · Convert · Download — tables and bold stay as they were</text>
       <g class="bn-cta">
         <rect x="588" y="28" width="116" height="34" rx="17" class="bn-cta-bg"/>
@@ -449,17 +447,17 @@
     <div class="info-box__body" id="info-box-body">
       <ul class="info-box__features">
         <li><strong>LipiLab</strong> হলো <strong>বাংলা লেখালেখির দৈনন্দিন কাজগুলো</strong> সহজ করার একটি টুল।</li>
+        <li>অনেক <strong>অনলাইন কনভার্টারে</strong> ফাইলের <strong>সাজানো-গোছানো অবস্থা নষ্ট</strong> হয়ে যায়। <strong>LipiLab</strong> তৈরি করা হয়েছে সেই সমস্যাটা মাথায় রেখেই, যাতে আপনার <strong>ডকুমেন্ট আগের মতোই</strong> থাকে।</li>
         <li>বাংলা লেখাকে <strong>ইউনিকোড থেকে বিজয়</strong> কিংবা <strong>বিজয় থেকে ইউনিকোডে</strong> রূপান্তর করতে চান? শুধু লেখা পেস্ট করলেই <strong>LipiLab</strong> নিজেই বুঝে নেয় কোন <strong>ফরম্যাট থেকে কোন ফরম্যাটে</strong> পরিবর্তন করতে হবে।</li>
         <li>আপনি চাইলে <strong>Live Mode</strong> ব্যবহার করতে পারেন। এতে লেখার সাথে সাথে পরিবর্তিত ফলাফল দেখতে পাবেন। আর যদি নিজে নিয়ন্ত্রণ করতে চান, তাহলে <strong>Convert বাটন</strong> চাপলেই হবে।</li>
         <li><strong>Word ফাইল</strong> নিয়েও ঝামেলা নেই। ফাইল আপলোড করুন, কনভার্ট করুন, তারপর আবার ডাউনলোড করে নিন। সবচেয়ে ভালো বিষয় হলো, আপনার ডকুমেন্টের <strong>ফরম্যাটিং নষ্ট হবে না</strong>। <strong>Bold, Italic, Table, Column</strong> বা অন্যান্য লেআউট যেমন ছিল, তেমনই থাকবে। ইংরেজি লেখা ইংরেজিতেই থাকবে, বাংলা লেখা বাংলাতেই।</li>
-        <li>অনেক <strong>অনলাইন কনভার্টারে</strong> ফাইলের <strong>সাজানো-গোছানো অবস্থা নষ্ট</strong> হয়ে যায়। <strong>LipiLab</strong> তৈরি করা হয়েছে সেই সমস্যাটা মাথায় রেখেই, যাতে আপনার <strong>ডকুমেন্ট আগের মতোই</strong> থাকে।</li>
         <li>কাজ শেষ হলে <strong>এক ক্লিকেই</strong> ফলাফল ডাউনলোড করতে পারবেন। সাধারণ <strong>Text (.txt)</strong>, <strong>Word (.docx)</strong> কিংবা <strong>PDF</strong> — যেটা দরকার, সেটাই বেছে নিন।</li>
         <li>দ্রুত কাজের জন্য রয়েছে <strong>Copy, Paste, Clear, Swap, Undo, Redo</strong> এবং পরিচিত <strong>Keyboard Shortcut</strong>-এর সুবিধা। পাশাপাশি লেখার <strong>অক্ষর ও শব্দ গণনা</strong>ও দেখতে পারবেন।</li>
         <li>রাতে কাজ করতে স্বাচ্ছন্দ্য পেতে আছে <strong>Dark Mode</strong>।</li>
         <li>সবচেয়ে গুরুত্বপূর্ণ বিষয় হলো, <strong>আপনার তথ্য আপনার কাছেই থাকে</strong>। LipiLab-এর সব প্রক্রিয়া আপনার <strong>ব্রাউজারের মধ্যেই</strong> সম্পন্ন হয়। কোনো লেখা বা ফাইল <strong>অন্য কোথাও পাঠানো হয় না</strong>।</li>
-        <li>আর হ্যাঁ, LipiLab <strong>সম্পূর্ণ ফ্রি</strong>। ব্যবহার করতে কোনো <strong>অ্যাকাউন্ট খোলারও দরকার নেই</strong>।</li>
+        <li class="info-box__free">আর হ্যাঁ, LipiLab <strong>সম্পূর্ণ ফ্রি</strong>। ব্যবহার করতে কোনো <strong>অ্যাকাউন্ট খোলারও দরকার নেই</strong>।</li>
       </ul>
-      <p class="info-box__foot">শিগগিরই যুক্ত হচ্ছে আরও কিছু সুবিধা, যেমন <strong>Spell Check</strong> এবং <strong>MCQ Serial Generator</strong>।</p>
+      <p class="info-box__foot">শিগগিরই যুক্ত হচ্ছে আরও কিছু সুবিধা, যেমন <strong>Spell Check</strong> এবং <strong>Related</strong> ফিচার সমূহ।</p>
     </div>
   </div>
 
@@ -474,7 +472,7 @@
       <circle cx="70" cy="114" r="62" class="bn-orb" opacity="0.07">
         <animate attributeName="cy" values="114;102;114" dur="7s" repeatCount="indefinite"/>
       </circle>
-      <text x="28" y="38" font-family="Sora,Arial,sans-serif" font-size="20" font-weight="800" class="bn-title">Professional Bangla Document Tools</text>
+      <text x="28" y="38" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="800" class="bn-title">Professional Bangla Document Tools</text>
       <text x="28" y="64" font-family="Arial,sans-serif" font-size="13" class="bn-sub">Convert, edit and export Bangla text without losing formatting.</text>
       <g class="bn-cta">
         <rect x="588" y="28" width="116" height="34" rx="17" class="bn-cta-bg"/>
@@ -615,7 +613,7 @@
       <circle cx="280" cy="0" r="46" class="bn-orb" opacity="0.10">
         <animate attributeName="cy" values="0;12;0" dur="5s" repeatCount="indefinite"/>
       </circle>
-      <text x="20" y="44" font-family="Sora,Arial,sans-serif" font-size="18" font-weight="800" class="bn-title">LipiLab</text>
+      <text x="20" y="44" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="800" class="bn-title">LipiLab</text>
       <text x="20" y="64" font-family="Arial,sans-serif" font-size="12.5" class="bn-sub">Free forever · Private · No signup</text>
       <g class="bn-cta">
         <rect x="206" y="36" width="82" height="28" rx="14" class="bn-cta-bg"/>
@@ -636,6 +634,6 @@
 </div>
 
 <script src="partner.js?v=13"></script>
-<script src="app.js?v=27"></script>
+<script src="app.js?v=31"></script>
 </body>
 </html>

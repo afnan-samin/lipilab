@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    LipiLab — Bangla Unicode <-> Bijoy Converter (single-file)
 
    Section map:
@@ -464,7 +464,6 @@ var els = {
   confirmCloseBtn: document.getElementById('confirm-close-btn'),
   confirmCancelBtn: document.getElementById('confirm-cancel-btn'),
   confirmOkBtn: document.getElementById('confirm-ok-btn'),
-  pointsBalance: document.getElementById('points-balance'),
   undoBtn: document.getElementById('undo-btn'),
   redoBtn: document.getElementById('redo-btn'),
   infoBox: document.getElementById('info-box'),
@@ -821,6 +820,13 @@ function openDownloadModal() {
 
 function copyUnmapReportFallback(text) {
   try {
+    /* The page ships with user-select:none (styles.css body rule) and the
+       preview no longer opts back in, so selection has to be re-enabled for a
+       moment - otherwise addRange() has nothing execCommand('copy') can read. */
+    var prevUserSelect = els.unmapPreview.style.userSelect;
+    var prevWebkitUserSelect = els.unmapPreview.style.webkitUserSelect;
+    els.unmapPreview.style.userSelect = 'text';
+    els.unmapPreview.style.webkitUserSelect = 'text';
     var range = document.createRange();
     range.selectNodeContents(els.unmapPreview);
     var sel = window.getSelection();
@@ -828,9 +834,11 @@ function copyUnmapReportFallback(text) {
     sel.addRange(range);
     var ok = document.execCommand('copy');
     sel.removeAllRanges();
-    showToast(ok ? 'Report copied' : 'Copy failed — select the text and copy it');
+    els.unmapPreview.style.userSelect = prevUserSelect;
+    els.unmapPreview.style.webkitUserSelect = prevWebkitUserSelect;
+    showToast(ok ? 'Report copied' : 'Copy failed — try again');
   } catch (e) {
-    showToast('Copy failed — select the text and copy it');
+    showToast('Copy failed — try again');
   }
 }
 
@@ -944,16 +952,16 @@ var convertBtnBaseTitle = 'Convert (Ctrl+Enter)';
 function setConvertButtonMode(docxLoaded) {
   // Convert button label stays fixed: always "Convert".
   els.convertBtnLabel.textContent = 'Convert';
-  convertBtnBaseTitle = docxLoaded ? 'Convert & download the DOCX' : 'Convert (Ctrl+Enter)';
+  convertBtnBaseTitle = docxLoaded ? 'Convert the DOCX' : 'Convert (Ctrl+Enter)';
   updateConvertBtnState();
 }
 
 function updateConvertBtnState() {
   if (!els.convertBtn) return;
   // Live mode ON  -> Convert button disabled (conversion happens automatically).
-  // Live mode OFF -> Convert button enabled (unless quota-locked).
+  // Live mode OFF -> Convert button enabled.
   var liveOff = !appState.liveMode;
-  var allow = liveOff && !quotaLocked;
+  var allow = liveOff;
   els.convertBtn.disabled = !allow;
   els.convertBtn.classList.toggle('is-disabled', !allow);
   els.convertBtn.setAttribute('aria-disabled', String(!allow));
@@ -965,6 +973,16 @@ function updateConvertBtnState() {
     : (appState.liveMode
         ? 'Live mode is ON — text converts as you type (Ctrl+L for manual convert)'
         : 'Free quota exceeded');
+}
+
+/* Single source of truth for the Live toggle: flips the flag, paints the
+   switch + badge, and re-gates the Convert button. Called by the Live button
+   and by every file upload, which forces Live OFF so the user converts by hand. */
+function setLiveMode(on) {
+  appState.liveMode = !!on;
+  els.liveModeBtn.setAttribute('aria-checked', String(appState.liveMode));
+  els.encodingBadge.classList.toggle('encoding-badge--live', appState.liveMode);
+  updateConvertBtnState(); // live ON -> disabled, live OFF -> enabled
 }
 
 function updateDirectionPillPosition() {
@@ -1255,7 +1273,6 @@ function convertPlainTextChunked(text) {
       setWarningBadge(unmappable, unmappableSeen);
       showConversionSuccess(mode);
       maybeShowPostNote();
-      chargePointsDelta(els.inputTextarea.value);
       persistState();
     }
 
@@ -1287,7 +1304,6 @@ function convertPlainTextChunked(text) {
       setWarningBadge(0);
       showConversionSuccess(mode);
       maybeShowPostNote();
-      chargePointsDelta(els.inputTextarea.value);
       persistState();
     }
 
@@ -1478,25 +1494,39 @@ function buildBlankDocxBlob(tokens) {
    Unicode → Bijoy: each <w:r> run's text is tokenized with the
    SAME tokenizer as the plain-text path. A run that mixes
    Bangla and non-Bangla is SPLIT into sibling runs — one per
-   token — each cloning the original <w:rPr> (so bold/italic/
-   underline/size/color survive) and overriding only the font
-   for the Bangla-converted piece. Non-Bangla pieces keep their
-   original font untouched, which is what "preserve formatting/
-   keep English text unchanged" requires for DOCX specifically
-   (the plain-textbox path instead normalises English to Times
-   New Roman, matching index.html's own downloadDoc()).
+   output side — each cloning the original <w:rPr> (so bold/
+   italic/underline/size/color survive) and overriding only the
+   font for the Bangla-converted piece.
+
+   English font rule (this is what the two pickers promise, and
+   what the plain-text path already did): non-Bangla pieces get
+   the picked English font (Times New Roman by default) — but
+   ONLY when the source run sat in a Bangla face. Keeping the
+   source font unconditionally is what produced "the English came
+   out in Kalpurush": a document whose every run is tagged Kalpurush
+   (very common — the author picks one font for the whole file)
+   otherwise rendered its English in a Bangla face. A run already
+   in a real Latin face (Cambria, Times New Roman, Arial, Calibri)
+   keeps the document author's own choice and is never touched.
+   A run with no Bangla at all is font-only re-tagged; its text
+   stays byte-identical.
 
    Bijoy → Unicode: there is no character-level way to tell
    Bijoy Bangla from English (same code points), exactly as in
    index.html. For DOCX the separation instead uses the run's
    *font name* — only runs tagged with a known Bijoy font are
-   converted; everything else is left completely untouched. This
-   is the "appropriate Bijoy-font detection" the brief asks for.
+   converted; everything else is left completely untouched (except
+   the same English font rule above). This is the "appropriate
+   Bijoy-font detection" the brief asks for. A converted run that
+   carries embedded ASCII English is split the same way, so the
+   English half does not inherit the Bangla face.
 
    Only <w:t> text and the <w:rFonts> font name are ever touched;
    <w:pPr> (alignment, list numbering, spacing) and the rest of
    <w:rPr> (bold/italic/underline/size/color) are never rewritten,
    only cloned, so paragraph/list/table formatting is preserved.
+   <w:lastRenderedPageBreak/> is Word's cached pagination hint and
+   is carried across a split rather than dropped.
 
    Known limitation (documented, not silently ignored): if a
    single Bangla word was already split across multiple <w:r>
@@ -1606,10 +1636,21 @@ function syncEnglishFontSelect() {
   fillSelect(els.englishFontSelect, FONTS.english, getSelectedEnglishFont());
 }
 /* The preview textarea can only render one face, so it uses the Bangla pick.
+   The pick must match the OUTPUT ENCODING, not just be "a Bangla font":
+   Bijoy output is ANSI bytes that only a Bijoy face (SutonnyMJ /
+   TonnyBanglaMJ) can shape, while Unicode output needs an Unicode face
+   (Kalpurush / Nirmala UI / ...). Forcing the Unicode pick onto Bijoy
+   output is what makes the previewed letters look torn apart, because the
+   Unicode font lays the raw bytes out one by one instead of reordering
+   them into conjuncts. --font-bijoy is the CSS fallback for exactly that
+   reason; it only kicks in when the chosen Bijoy face is not installed.
    English is applied to the DOCX only. */
 function applyOutputPreviewFont() {
   if (!els.outputTextarea) return;
-  els.outputTextarea.style.fontFamily = '"' + getSelectedBanglaFont() + '", var(--font-bangla)';
+  var isBijoyOutput = currentOutputEncoding() === 'unicode-to-bijoy';
+  els.outputTextarea.style.fontFamily = isBijoyOutput
+    ? '"' + getSelectedBanglaFont() + '", var(--font-bijoy)'
+    : '"' + getSelectedBanglaFont() + '", var(--font-bangla)';
 }
 var WORD_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
 var XML_NS = 'http://www.w3.org/XML/1998/namespace';
@@ -1617,6 +1658,27 @@ var XML_NS = 'http://www.w3.org/XML/1998/namespace';
 function isBijoyFontName(name) {
   if (!name) return false;
   return BIJOY_FONT_NAMES.some(function (fn) { return name.toLowerCase() === fn.toLowerCase(); });
+}
+
+/* Windows/system Bangla faces that are not in either picker list but do turn up
+   in real documents (the DOCX path reads the font off the file, not the picker). */
+var EXTRA_BANGLA_FONT_NAMES = ['Mangal', 'Siyam Rupali', 'Aparajita'];
+
+/* Is this a font that carries Bangla glyphs? Latin text tagged with one of
+   these renders with a Bangla face — that is the "English came out in
+   Kalpurush" report: a document whose every run (English included) is tagged
+   Kalpurush keeps English in Kalpurush unless we re-tag it.
+   Built from the SAME lists the two font pickers use (BIJOY_FONT_NAMES +
+   FONTS.bijoy + FONTS.unicode) plus the few system faces above, so this stays
+   a single source of truth — adding a font to a picker needs no second edit.
+   A run already in a genuine Latin face (Cambria, Times New Roman, Arial,
+   Calibri...) is deliberately NOT in this list, so a document's own English
+   formatting always survives untouched. */
+function isBanglaFontName(name) {
+  if (!name) return false;
+  var n = String(name).toLowerCase();
+  return BIJOY_FONT_NAMES.concat(FONTS.bijoy, FONTS.unicode, EXTRA_BANGLA_FONT_NAMES)
+    .some(function (fn) { return String(fn).toLowerCase() === n; });
 }
 
 function getRunFontName(rPrEl) {
@@ -1748,6 +1810,11 @@ function runRPrSignature(runEl) {
 
 // True only for runs holding nothing but properties + text (no tab,
 // break, drawing, bookmark, field, etc.).
+// w:lastRenderedPageBreak is explicitly allowed: it is Word's cached
+// pagination hint from the last repaint, carries no text and no formatting,
+// and Word recomputes it on the next one. Treating it as "not plain text"
+// made the whole run skip conversion, so its Bangla stayed Unicode while the
+// rest of the paragraph converted — a real miss on real documents.
 function runIsPlainText(runEl) {
   var kids = runEl.childNodes;
   var hasT = false;
@@ -1757,6 +1824,7 @@ function runIsPlainText(runEl) {
     var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
     if (n === 'rPr') continue;
     if (n === 't') { hasT = true; continue; }
+    if (n === 'lastRenderedPageBreak') continue;
     return false;
   }
   return hasT;
@@ -1817,6 +1885,123 @@ function mergeSameFontRuns(doc) {
   }
 }
 
+/* Group a token list into maximal runs of ONE output side ('bangla' or
+   'latin'), so a run of N tokens becomes far fewer runs on disk instead of one
+   run per token. Whitespace and punctuation ('space'/'other') inherit the
+   surrounding side — the same effectiveType rule tokenizeMixedText() already
+   applies for plain text — so `word + space + word` stays ONE Bangla group
+   rather than three. Leading whitespace (no side yet) looks ahead to the first
+   content token; a space renders identically in either font and both
+   ConvertToASCII() and ConvertToUnicode() pass ASCII whitespace through
+   byte-identical, so attaching it to the first group is always safe. */
+function groupTokensBySide(tokens) {
+  function tokenSide(tok) {
+    if (tok.type === 'bangla') return 'bangla';
+    return tok.effectiveType === 'bangla' ? 'bangla' : 'latin';
+  }
+  var firstContentSide = 'latin';
+  for (var fi = 0; fi < tokens.length; fi++) {
+    if (tokens[fi].type !== 'space' && tokens[fi].type !== 'other') {
+      firstContentSide = tokenSide(tokens[fi]);
+      break;
+    }
+  }
+  var groups = [];
+  tokens.forEach(function (tok) {
+    var isWS = (tok.type === 'space' || tok.type === 'other');
+    var side = isWS && groups.length === 0 ? firstContentSide : tokenSide(tok);
+    var last = groups[groups.length - 1];
+    if (last && last.side === side) last.raws.push(tok.raw);
+    else groups.push({ side: side, raws: [tok.raw] });
+  });
+  return groups;
+}
+
+/* The English font to stamp on Latin pieces of this run, or null to leave the
+   run's own font alone. A run tagged with a Bangla face (the very common
+   "every run in this document is Kalpurush / SutonnyMJ" case) has English
+   that would render in that Bangla face, so it gets the picked English font
+   instead. A run that already carries a genuine Latin face (Cambria, Times New
+   Roman, Arial, Calibri...) is the document author's own English formatting
+   and is left exactly as it is. */
+function englishFontForRun(runEl, stylesDoc) {
+  var src = getEffectiveFontName(runEl, stylesDoc || null);
+  return isBanglaFontName(src) ? getSelectedEnglishFont() : null;
+}
+
+/* A run with no Bangla in it (English-only, or punctuation) still needs the
+   same font treatment when it sits in a Bangla face. Two guards keep this
+   from touching more than it must:
+     - whitespace-only runs are skipped (applySpaceRunFonts() owns those), and
+     - so are runs with no letter/digit at all: a pure "---" or "====" divider
+       is decorative, the author chose its font on purpose, and re-tagging it
+       buys nothing. Every run that actually carries English (letters or ASCII
+       digits, e.g. "71 ভাগ") is re-tagged. */
+function retagEnglishOnlyRun(runEl, doc, rPrEl, text, stylesDoc) {
+  if (!/[A-Za-z0-9]/.test(text || '')) return false;
+  var english = englishFontForRun(runEl, stylesDoc);
+  if (!english) return false; // already a real Latin font — document's own, keep it
+  if (!rPrEl) { rPrEl = doc.createElementNS(WORD_NS, 'w:rPr'); runEl.insertBefore(rPrEl, runEl.firstChild); }
+  setRunFont(ensureRunFonts(rPrEl, doc), english);
+  return true;
+}
+
+/* Replace `runEl` with one <w:r> per side-group (see groupTokensBySide). Every
+   new run clones the original <w:rPr>, so bold/italic/underline/size/colour/
+   spacing all survive; only the FONT is overridden:
+     - Bangla side -> the picked Bangla font, after `convertBangla` when given
+       (pass null when the text is already in its final encoding)
+     - Latin side  -> `englishFontName`, or the original font when that is null
+   `tagBanglaLang` adds w:lang="bn-BD" to the Bangla runs only, so English
+   pieces keep the document's own language tag. */
+function replaceRunWithSideGroups(runEl, doc, rPrEl, groups, convertBangla, englishFontName, tagBanglaLang) {
+  var newRuns = groups.map(function (g) {
+    var newRun = doc.createElementNS(WORD_NS, 'w:r');
+    var newRPr = rPrEl ? rPrEl.cloneNode(true) : null;
+    var text = g.raws.join('');
+    if (g.side === 'bangla') {
+      if (convertBangla) text = convertBangla(text);
+      if (!newRPr) newRPr = doc.createElementNS(WORD_NS, 'w:rPr');
+      setRunFont(ensureRunFonts(newRPr, doc), getSelectedBanglaFont());
+      if (tagBanglaLang) setRunLang(newRPr, doc);
+    } else if (englishFontName) {
+      if (!newRPr) newRPr = doc.createElementNS(WORD_NS, 'w:rPr');
+      setRunFont(ensureRunFonts(newRPr, doc), englishFontName);
+    }
+    if (newRPr) newRun.appendChild(newRPr);
+    var newT = doc.createElementNS(WORD_NS, 'w:t');
+    newT.setAttributeNS(XML_NS, 'xml:space', 'preserve');
+    newT.textContent = text;
+    newRun.appendChild(newT);
+    return newRun;
+  });
+  // Merge adjacent new runs with identical rPr before inserting, so a mixed run
+  // of N tokens does not become N runs on disk: Bangla pieces share the same
+  // font-tagged rPr and consecutive spaces/punctuation share the original one,
+  // so both collapse back and the run count stays near the original.
+  newRuns = mergeAdjacentRuns(newRuns, doc);
+  // Word's cached page-break hint is not part of rPr, so cloning rPr drops it.
+  // Carry it onto the first new run (after its rPr) so splitting a run does not
+  // silently discard it; Word recomputes it on the next repaint anyway.
+  var pageBreak = null;
+  for (var ci = 0; ci < runEl.childNodes.length; ci++) {
+    var ck = runEl.childNodes[ci];
+    if (!ck || ck.nodeType !== 1) continue;
+    if ((ck.localName || (ck.nodeName || '').split(':').pop()) === 'lastRenderedPageBreak') { pageBreak = ck; break; }
+  }
+  if (pageBreak && newRuns.length) {
+    var first = newRuns[0];
+    var firstRPr = first.getElementsByTagName('w:rPr')[0];
+    var clonedBreak = pageBreak.cloneNode(true);
+    if (firstRPr && firstRPr.nextSibling) first.insertBefore(clonedBreak, firstRPr.nextSibling);
+    else first.appendChild(clonedBreak);
+  }
+  var parent = runEl.parentNode;
+  newRuns.forEach(function (r) { parent.insertBefore(r, runEl); });
+  parent.removeChild(runEl);
+  return newRuns;
+}
+
 function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
   // Phase 3 fix: only plain-text runs are convertible. A wrapper run that
   // holds w:pict/w:drawing (VML/DrawingML textbox, image, shape...) is
@@ -1856,7 +2041,26 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
     if (!isBijoyFontName(currentFont)) return 0; // not Bijoy-tagged — leave untouched
     // Phase 5 fix (DOCX): same per-token Bijoy-range gate as plain text —
     // a Bijoy run with embedded ASCII ("Avgvi hello") keeps its English.
-    setRunText(convertBijoyTextMixed(originalText));
+    var convertedText = convertBijoyTextMixed(originalText);
+
+    // English font fix: this run was tagged with a Bijoy face, so ASCII
+    // English carried inside it used to be stamped with that Bangla font and
+    // rendered as Kalpurush/Nirmala. The output is Unicode by now, so the
+    // shared tokenizer can split it by side: Bangla -> the picked Bangla
+    // font, English -> the picked English font.
+    var bGroups = groupTokensBySide(tokenizeMixedText(convertedText));
+    var bHasEnglish = bGroups.some(function (g) {
+      return g.side === 'latin' && /[A-Za-z0-9]/.test(g.raws.join(''));
+    });
+
+    if (bHasEnglish) {
+      // Mixed output — convertBangla is null: the text is already Unicode.
+      replaceRunWithSideGroups(runEl, doc, rPrEl, bGroups, null, getSelectedEnglishFont(), true);
+      if (counter) counter.converted++;
+      return 1;
+    }
+
+    setRunText(convertedText);
     if (!rPrEl) { rPrEl = doc.createElementNS(WORD_NS, 'w:rPr'); runEl.insertBefore(rPrEl, runEl.firstChild); }
     setRunFont(ensureRunFonts(rPrEl, doc), getSelectedBanglaFont());
     setRunLang(rPrEl, doc);
@@ -1867,7 +2071,14 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
   // direction === 'uni2bijoy'
   var tokens = tokenizeMixedText(originalText);
   var hasBangla = tokens.some(function (t) { return t.type === 'bangla'; });
-  if (!hasBangla) return 0; // nothing Bangla in this run — leave untouched
+  if (!hasBangla) {
+    // Nothing to convert in this run — but the text can still be English
+    // sitting in a Bangla face, which is how a document whose every run is
+    // Kalpurush ends up rendering its English in Kalpurush. Re-tag the FONT
+    // only; the text itself stays byte-identical.
+    retagEnglishOnlyRun(runEl, doc, rPrEl, originalText, stylesDoc);
+    return 0;
+  }
 
   if (tokens.length === 1) {
     // whole run is a single Bangla token — convert in place, no split needed
@@ -1878,64 +2089,17 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
     return 1;
   }
 
-  // Phase 4 fix: build one w:r per maximal same-output-font group instead of
-  // one w:r per token. A Bangla word + its trailing space both render in
-  // SutonnyMJ after conversion, so they belong in the same run; likewise
-  // consecutive non-Bangla tokens share the original rPr. Tokens are grouped
-  // by their *effective* output side (bangla vs. non-bangla), with
-  // whitespace ('space'/'other') inheriting the surrounding side — the same
-  // effectiveType rule tokenizeMixedText() already applies for plain text —
-  // so `word + space + word` stays ONE Bangla run instead of N runs.
-  // Leading whitespace (no side yet) looks ahead to the first content
-  // token; a space renders identically in either font and ConvertToASCII
-  // passes ASCII whitespace through byte-identical, so attaching it to the
-  // first group is always safe.
-  function tokenSide(tok) {
-    if (tok.type === 'bangla') return 'bangla';
-    return tok.effectiveType === 'bangla' ? 'bangla' : 'latin';
-  }
-  var firstContentSide = 'latin';
-  for (var fi = 0; fi < tokens.length; fi++) {
-    if (tokens[fi].type !== 'space' && tokens[fi].type !== 'other') {
-      firstContentSide = tokenSide(tokens[fi]);
-      break;
-    }
-  }
-  var groups = [];
-  tokens.forEach(function (tok) {
-    var isWS = (tok.type === 'space' || tok.type === 'other');
-    var side = isWS && groups.length === 0 ? firstContentSide : tokenSide(tok);
-    var last = groups[groups.length - 1];
-    if (last && last.side === side) last.raws.push(tok.raw);
-    else groups.push({ side: side, raws: [tok.raw] });
-  });
-
-  var newRuns = groups.map(function (g) {
-    var newRun = doc.createElementNS(WORD_NS, 'w:r');
-    var newRPr = rPrEl ? rPrEl.cloneNode(true) : null;
-    var text = g.raws.join('');
-    if (g.side === 'bangla') {
-      text = convertBanglaGroupToBijoy(text);
-      if (!newRPr) newRPr = doc.createElementNS(WORD_NS, 'w:rPr');
-      setRunFont(ensureRunFonts(newRPr, doc), getSelectedBanglaFont());
-    }
-    if (newRPr) newRun.appendChild(newRPr);
-    var newT = doc.createElementNS(WORD_NS, 'w:t');
-    newT.setAttributeNS(XML_NS, 'xml:space', 'preserve');
-    newT.textContent = text;
-    newRun.appendChild(newT);
-    return newRun;
-  });
-
-  // Phase 4 fix: merge adjacent new runs with identical rPr before inserting,
-  // so a mixed run of N tokens does not become N runs on disk. Bangla pieces
-  // share the same font-tagged rPr; consecutive spaces/punctuation share the
-  // original rPr — both collapse back, keeping run count near the original.
-  newRuns = mergeAdjacentRuns(newRuns, doc);
-
-  var parent = runEl.parentNode;
-  newRuns.forEach(function (r) { parent.insertBefore(r, runEl); });
-  parent.removeChild(runEl);
+  // One <w:r> per maximal same-output-side group (Phase 4), each cloning the
+  // original <w:rPr> so bold/italic/underline/size/colour survive untouched.
+  // English font fix: Latin pieces get the picked English font when the source
+  // run sat in a Bangla face; a run already in a real Latin face keeps its own.
+  replaceRunWithSideGroups(
+    runEl, doc, rPrEl,
+    groupTokensBySide(tokens),
+    convertBanglaGroupToBijoy,
+    englishFontForRun(runEl, stylesDoc),
+    false
+  );
   if (counter) counter.converted++;
   return 1;
 }
@@ -2097,17 +2261,19 @@ function loadDocxFile(file) {
   }).then(function (xmlStr) {
     var preview = extractPreviewText(xmlStr);
     els.inputTextarea.value = preview;
-    quotaWatermark = 0; // DOCX text — Convert click charges total words
-    PointsBackend.save(pointsBalance, pointsLedger);
+    els.outputTextarea.value = ''; // nothing converted yet — the user presses Convert
     syncUndoBase();
     lockInputForDocx(true);
     els.docxStripText.textContent = file.name;
+    els.docxStrip.dataset.kind = 'docx';
     els.docxStrip.classList.add('show');
     updateStats();
     applyEncodingFonts();
     resetOutputFonts(); // new template resets picks to the encoding defaults
     setConvertButtonMode(true);
-    if (appState.liveMode) convertPlainText(); else setStatusIdle();
+    // A DOCX upload always leaves Live mode: Convert now waits for a click.
+    setLiveMode(false);
+    setStatusIdle();
     showToast('DOCX template loaded — click Convert');
   }).catch(function (err) {
     setStatusIdle();
@@ -2177,8 +2343,32 @@ function rememberPatchedDocx(r) {
   }
 }
 
+/* Convert the loaded DOCX template in memory: patch every part, remember the
+   result and preview it in the output pane. It does NOT download — the user
+   picks a format from the Download dialog when they are ready. */
 function convertDocxTemplate() {
-  if (quotaLocked) { setStatusQuotaExhausted(); showQuotaExhaustedToast(0); return; }
+  if (!appState.docxZip || !appState.docxFile) { showToast('No DOCX template loaded.'); return; }
+  showProcessing(true, 'Converting DOCX…');
+
+  patchDocxParts().then(function (r) {
+    rememberPatchedDocx(r);
+    showConversionSuccess(r.direction === 'uni2bijoy' ? 'unicode-to-bijoy' : 'bijoy-to-unicode');
+    // Never claim success when nothing converted — the font may be unsupported.
+    if (!r.converted) {
+      showToast('কোনো বাংলা টেক্সট শনাক্ত হয়নি — ফাইলের ফন্ট সমর্থিত কিনা যাচাই করুন');
+    } else {
+      showToast('DOCX converted — choose a format from Download');
+    }
+  }).catch(function (err) {
+    setStatusIdle();
+    showToast('Error: ' + err.message);
+  });
+}
+
+/* Build the converted DOCX and hand it to the browser. Runs the same patch as
+   the Convert button, so it works straight from the Download dialog even if the
+   user never pressed Convert first. This is the ONLY place a DOCX downloads. */
+function downloadDocxTemplate() {
   if (!appState.docxZip || !appState.docxFile) { showToast('No DOCX template loaded.'); return; }
   showProcessing(true, 'Building DOCX file…');
 
@@ -2198,7 +2388,7 @@ function convertDocxTemplate() {
     if (!out.converted) {
       showToast('কোনো বাংলা টেক্সট শনাক্ত হয়নি — ফাইলের ফন্ট সমর্থিত কিনা যাচাই করুন');
     } else {
-      showToast('DOCX converted and downloaded!');
+      showToast('DOCX downloaded!');
     }
   }).catch(function (err) {
     setStatusIdle();
@@ -2359,528 +2549,74 @@ if (typeof window !== 'undefined' && window.addEventListener) {
   window.addEventListener('afterprint', restoreOutputAfterPrint);
 }
 
+
 /* ------------------------------------------------------------
-   11c. POINTS (device-local) — 10 hajar daily, 1 point per word.
-   Balance resets every night 12 (BD time). Ledger saved locally.
-   Live mode: each completed word is charged immediately on input.
-   Manual/upload mode: Convert click charges all uncharged words.
-   FUTURE ADMIN MOVE: only PointsBackend.load/save talk to storage.
-   Point them at the server later — no other code changes needed.
+   12. KEYBOARD SHORTCUTS
+   Matches frontend.html's own shortcuts panel exactly (that
+   file was established as the UI/UX source of truth, so its
+   documented bindings win over script.md's differing ones).
 ------------------------------------------------------------ */
-/* GitHub free version: converter + ads only. No points, no quota,
-   no login, no history, no server calls. The quota/auth code below
-   stays in the file (shared with the full version) but is fully
-   bypassed while this flag is true. */
-var FREE_MODE = true;
+/* ------------------------------------------------------------
+   12. KEYBOARD SHORTCUTS
+   Matches frontend.html's own shortcuts panel exactly (that
+   file was established as the UI/UX source of truth, so its
+   documented bindings win over script.md's differing ones).
+   ------------------------------------------------------------ */
+function wireKeyboardShortcuts() {
+  document.addEventListener('keydown', function (e) {
+    var key = e.key;
+    var inOutput = document.activeElement === els.outputTextarea;
+    var inField = document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT';
 
-var DAILY_POINTS = 10000; // 10 hajar per device per day
-
-/* Server-authoritative quota (Cloudflare Worker + D1).
-   The browser only displays the balance and asks to spend — the worker
-   holds the real ledger, so editing localStorage cannot create points.
-   NOTE: QUOTA_CLIENT_KEY is visible in this file (browser code is always
-   readable). It only stops blind bots; real security = server ledger +
-   rate limits. The device hash is never shown in any UI. */
-var QUOTA_API = 'https://lipilab-quota.myteletalk38.workers.dev';
-var QUOTA_CLIENT_KEY = 'a9f3k7zq2m8x4p6w1n5b0c3d7e2f6g8h1j9k4m2n7p5q8r3s6t1u4v9w2x7y5z3a8b6c4d2e9f7g5h3j1k8m1v8w6x4y2z9a7b5c3d1e8f6g4h2j9';
-
-/* No login in the free version: anonymous device quota only (bypassed
-   while FREE_MODE is true). Kept declared so quotaPost stays safe. */
-var authToken = null;
-var POINTS_LEDGER_MAX = 2000; // keep newest N entries; balance is always fully deducted
-var pointsBalance = DAILY_POINTS;
-var pointsLedger = []; // newest last: { w: word, d: -1, b: balanceAfter, t: timestamp, g: batchId }
-var quotaWatermark = 0; // words already paid for (persisted)
-var quotaDate = ''; // BD date string the balance belongs to
-var quotaLocked = false;
-var quotaToastShownAt = 0;
-var walletTickTimer = null;
-
-function bdPad(n) { return (n < 10 ? '0' : '') + n; }
-function bdToday() {
-  var bd = new Date(Date.now() + 6 * 3600 * 1000);
-  return bd.getUTCFullYear() + '-' + bdPad(bd.getUTCMonth() + 1) + '-' + bdPad(bd.getUTCDate());
-}
-function msUntilBdMidnight() {
-  var now = Date.now();
-  var bd = new Date(now + 6 * 3600 * 1000);
-  var nextMidUtc = Date.UTC(bd.getUTCFullYear(), bd.getUTCMonth(), bd.getUTCDate() + 1, 0, 0, 0) - 6 * 3600 * 1000;
-  return Math.max(0, nextMidUtc - now);
-}
-function formatCountdown(ms) {
-  var s = Math.floor(ms / 1000);
-  var h = Math.floor(s / 3600); s -= h * 3600;
-  var m = Math.floor(s / 60); s -= m * 60;
-  return h + 'h ' + m + 'm ' + s + 's';
-}
-function countWords(text) {
-  var t = (text || '').trim();
-  return t === '' ? 0 : t.split(/\s+/).length;
-}
-function splitWords(text) {
-  var t = (text || '').trim();
-  return t === '' ? [] : t.split(/\s+/);
-}
-
-// Tamper-evident signature for the wallet. Any hand edit of the stored
-// balance/date/watermark (Application tab or Console) breaks the signature
-// and the quota locks until the next refresh. NOTE: the pepper lives in
-// this readable file, so this stops casual users — not someone reading
-// the source. Real enforcement needs a server (see htdocs-ready/api/).
-var QUOTA_PEPPER = 'lipilab-q1-v1::7f3a9c2e41bd';
-function quotaHash(str) {
-  var h1 = 0xdeadbeef, h2 = 0x41c6ce57;
-  for (var i = 0; i < str.length; i++) {
-    var ch = str.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
-  }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  return (h2 >>> 0).toString(16) + (h1 >>> 0).toString(16);
-}
-function signQuota(balance, date, watermark) {
-  return quotaHash('v1|' + balance + '|' + date + '|' + watermark + '|' + QUOTA_PEPPER);
+    if (e.ctrlKey && !e.shiftKey && !e.altKey && key === 'Enter') { e.preventDefault(); els.convertBtn.click(); return; }
+    if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 'l' || key === 'L')) { e.preventDefault(); els.liveModeBtn.click(); return; }
+    if (e.ctrlKey && e.shiftKey && !e.altKey && (key === 'c' || key === 'C')) { e.preventDefault(); els.clearBtn.click(); return; }
+    if (e.ctrlKey && e.shiftKey && !e.altKey && (key === 's' || key === 'S')) { e.preventDefault(); els.swapBtn.click(); return; }
+    if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 'c' || key === 'C') && inOutput) { e.preventDefault(); els.copyBtn.click(); return; }
+    if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 's' || key === 'S')) { e.preventDefault(); if (els.downloadOpenBtn) els.downloadOpenBtn.click(); return; }
+    if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 'd' || key === 'D')) { e.preventDefault(); els.themeToggleBtn.click(); return; }
+    if (key === '?' && !inField && !e.ctrlKey && !e.altKey) { openShortcuts(); return; }
+    if (key === 'Escape' && els.unmapModal && !els.unmapModal.hidden) { closeUnmapModal(); return; }
+    if (key === 'Escape') {
+      if (els.downloadModal && !els.downloadModal.hidden) { closeDialog(els.downloadModal); return; }
+    }
+    if (key === 'Escape' && !els.shortcutsPanel.hidden) { closeShortcuts(); return; }
+  });
 }
 
 /* ------------------------------------------------------------
-   11c-2. SERVER QUOTA — device fingerprint + worker ledger.
-   Formula identical to fingerprint-test.html (canvas+audio+screen+
-   timezone+platform, no UA): fp-v1|h(canvas)|h(audio)|h(screen)|h(tz)|h(plat)
+   13. INIT
 ------------------------------------------------------------ */
-var srvBalance = 0;    // last server-confirmed balance
-var srvDate = '';      // BD date the srvBalance belongs to
-var pendingSpend = 0;  // spent locally, not yet confirmed by server
-var srvReady = false;  // true after first successful server sync
-var flushTimer = null;
-var flushInFlight = false;
-
-function fpCanvasSig() {
+function safeInitStep(fn, label) {
   try {
-    var c = document.createElement('canvas');
-    c.width = 280; c.height = 60;
-    var x = c.getContext('2d');
-    if (!x) return 'no-canvas';
-    x.textBaseline = 'top';
-    x.font = "16px 'Arial'";
-    x.fillStyle = '#f60';
-    x.fillRect(10, 10, 80, 30);
-    x.fillStyle = '#069';
-    x.fillText('LipiLab gizmo 123', 100, 12);
-    x.strokeStyle = '#000';
-    x.beginPath(); x.arc(40, 40, 18, 0, Math.PI * 2); x.stroke();
-    var g = x.createLinearGradient(0, 0, 280, 0);
-    g.addColorStop(0, '#ff0000'); g.addColorStop(1, '#0000ff');
-    x.fillStyle = g;
-    x.fillRect(190, 35, 80, 15);
-    return c.toDataURL();
-  } catch (e) { return 'no-canvas'; }
-}
-
-function fpAudioSig() {
-  return new Promise(function (resolve) {
-    try {
-      var AC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-      if (!AC) { resolve('no-audio'); return; }
-      var ctx = new AC(1, 44100, 44100);
-      var osc = ctx.createOscillator();
-      osc.type = 'triangle';
-      osc.frequency.value = 10000;
-      var comp = ctx.createDynamicsCompressor();
-      osc.connect(comp); comp.connect(ctx.destination);
-      osc.start(0);
-      ctx.startRendering().then(function (buf) {
-        var d = buf.getChannelData(0);
-        var sum = 0;
-        for (var i = 0; i < d.length; i += 97) sum += Math.abs(d[i]);
-        // Quantized: raw float wobbles slightly per page load — rounding
-        // keeps the signal stable so one device keeps one hash.
-        resolve('audio:' + Math.round(sum));
-      }).catch(function () { resolve('no-audio'); });
-    } catch (e) { resolve('no-audio'); }
-  });
-}
-
-function fpScreenStr() {
-  try { return [window.screen.width, window.screen.height, window.screen.colorDepth].join('x'); }
-  catch (e) { return 'no-screen'; }
-}
-
-function fpTzStr() {
-  try { return Intl.DateTimeFormat().resolvedOptions().timeZone + '|' + new Date().getTimezoneOffset(); }
-  catch (e) { return 'no-tz'; }
-}
-
-function fpPlatStr() {
-  try {
-    return [navigator.platform, navigator.hardwareConcurrency,
-      (navigator.deviceMemory || '?'), navigator.maxTouchPoints].join('|');
-  } catch (e) { return 'no-plat'; }
-}
-
-var deviceHashPromise = null;
-function getDeviceHash() {
-  if (!deviceHashPromise) {
-    deviceHashPromise = fpAudioSig().then(function (audio) {
-      var parts = [quotaHash(fpCanvasSig()), quotaHash(audio), quotaHash(fpScreenStr()),
-        quotaHash(fpTzStr()), quotaHash(fpPlatStr())];
-      return quotaHash('fp-v1|' + parts.join('|'));
-    });
-  }
-  return deviceHashPromise;
-}
-
-function quotaPost(path, body) {
-  var headers = { 'Content-Type': 'application/json' };
-  if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
-  return fetch(QUOTA_API + path, {
-    method: 'POST',
-    headers: headers,
-    body: JSON.stringify(body)
-  }).then(function (res) {
-    return res.json().then(function (data) { return { status: res.status, data: data }; });
-  });
-}
-
-async function quotaHmac(msg) {
-  var key = await crypto.subtle.importKey(
-    'raw', new TextEncoder().encode(QUOTA_CLIENT_KEY),
-    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-  var sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(msg));
-  return Array.prototype.map.call(new Uint8Array(sig), function (b) {
-    return ('0' + b.toString(16)).slice(-2);
-  }).join('');
-}
-
-async function serverQuota(hash) {
-  var r = await quotaPost('/quota', { deviceHash: hash });
-  if (r.status === 200 && r.data && r.data.ok) return r.data;
-  throw { code: 'server', status: r.status };
-}
-
-async function serverSpend(hash, words) {
-  var ts = Date.now();
-  var nonce = Math.random().toString(36).slice(2) + ts.toString(36);
-  var sig = await quotaHmac([hash, words, ts, nonce].join('|'));
-  var r = await quotaPost('/spend',
-    { deviceHash: hash, words: words, ts: ts, nonce: nonce, sig: sig });
-  if (r.status === 200 && r.data && r.data.ok) return r.data;
-  if (r.data && r.data.error === 'quota_exhausted') {
-    throw { code: 'quota_exceeded', balance: r.data.balance };
-  }
-  throw { code: 'server', status: r.status };
-}
-
-// Displayed balance always derives from the server: srv - pending.
-// Local edits can only lower it until the next sync corrects it.
-function syncDisplay() {
-  pointsBalance = Math.max(0, srvBalance - pendingSpend);
-}
-
-function saveSrv() {
-  try {
-    localStorage.setItem('lipilab:srv-balance', String(srvBalance));
-    localStorage.setItem('lipilab:srv-date', srvDate || bdToday());
-    localStorage.setItem('lipilab:pending-spend', String(pendingSpend));
-  } catch (e) { /* non-fatal */ }
-}
-
-async function refreshQuota() {
-  var hash = await getDeviceHash();
-  var r = await serverQuota(hash);
-  srvBalance = Math.max(0, r.balance | 0);
-  srvDate = bdToday();
-  quotaDate = srvDate;
-  saveSrv();
-  syncDisplay();
-  srvReady = true;
-  renderPoints();
-  renderPointsHistory();
-  updateQuotaLock();
-  return r;
-}
-
-function scheduleFlush() {
-  if (pendingSpend <= 0 || flushInFlight) return;
-  clearTimeout(flushTimer);
-  flushTimer = setTimeout(flushNow, 800);
-}
-
-async function flushNow() {
-  if (flushInFlight || pendingSpend <= 0) return;
-  flushInFlight = true;
-  try {
-    var hash = await getDeviceHash();
-    var sent = pendingSpend;
-    var r = await serverSpend(hash, sent);
-    srvBalance = Math.max(0, r.balance | 0);
-    srvDate = bdToday();
-    quotaDate = srvDate;
-    pendingSpend = Math.max(0, pendingSpend - sent);
-    saveSrv();
-    syncDisplay();
-    srvReady = true;
-    renderPoints();
-    updateQuotaLock();
-  } catch (e) {
-    if (e && e.code === 'quota_exceeded') {
-      try { await refreshQuota(); } catch (e2) { /* stay locked */ }
-    }
-    // network/server errors: keep pending, retry on next schedule
-  } finally {
-    flushInFlight = false;
+    fn();
+  } catch (err) {
+    if (window.console && console.error) console.error('LipiLab init step failed (' + label + '):', err);
   }
 }
 
-function showConnectingToast() {
-  var now = Date.now();
-  if (now - quotaToastShownAt < 2500) return;
-  quotaToastShownAt = now;
-  showToast('Connecting to quota server…');
+function init() {
+  // Each step is fault-isolated: a problem in one (e.g. theme detection on an
+  // unusual browser) must never stop wireEvents() from running, or every
+  // button on the page silently goes dead with no visible error.
+  safeInitStep(initTheme, 'theme');
+  safeInitStep(restoreState, 'restore-state');
+  safeInitStep(updateStats, 'stats');
+  safeInitStep(applyEncodingFonts, 'encoding-fonts');
+  safeInitStep(function () { setEncodingBadge(resolveMode()); }, 'encoding-badge');
+  safeInitStep(setStatusIdle, 'status-idle-init');
+  safeInitStep(function () { els.encodingBadge.classList.toggle('encoding-badge--live', appState.liveMode); }, 'live-badge-init');
+  safeInitStep(function () { setConvertButtonMode(false); }, 'convert-button-mode');
+  safeInitStep(updateConvertBtnState, 'convert-btn-state');
+  safeInitStep(wireEvents, 'wire-events');
+  safeInitStep(wireKeyboardShortcuts, 'wire-keyboard-shortcuts');
+  safeInitStep(updateOfflineIndicator, 'offline-indicator');
+  safeInitStep(initAskChoice, 'choice-prompt');
+  safeInitStep(initRefreshGuard, 'refresh-guard');
+  safeInitStep(initGatekeep, 'gatekeep');
+  safeInitStep(function () { syncUndoBase(); updateUndoButtons(); }, 'undo-init');
+  requestAnimationFrame(function () { safeInitStep(updateDirectionPillPosition, 'direction-pill'); });
 }
-
-var PointsBackend = {
-  load: function () {
-    var today = bdToday();
-    var data = { balance: DAILY_POINTS, ledger: [], watermark: 0, date: today, tampered: false };
-    try {
-      var rawDate = localStorage.getItem('lipilab:quota-date');
-      var rawBal = localStorage.getItem('lipilab:points-balance');
-      var rawLed = localStorage.getItem('lipilab:points-ledger');
-      var rawCount = localStorage.getItem('lipilab:points-count');
-      var rawSig = localStorage.getItem('lipilab:quota-sig');
-      var allEmpty = rawDate === null && rawBal === null && rawLed === null && rawCount === null && rawSig === null;
-      if (allEmpty) return data; // brand-new device — full points, nothing to verify
-      var ledger = [];
-      if (rawLed) { try { var arr = JSON.parse(rawLed); if (Array.isArray(arr)) ledger = arr; } catch (e2) { /* keep empty */ } }
-      data.ledger = ledger;
-      var date = (typeof rawDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawDate)) ? rawDate : today;
-      // Stored day is in the future (date-key or clock tampering) → lock.
-      if (date > today) { data.tampered = true; data.date = today; return data; }
-      // Past day → legitimate daily refresh, history kept.
-      if (date < today) { data.date = today; return data; }
-      // Same day: accept values, but never more than a fresh day.
-      var bal = (rawBal !== null && !isNaN(parseInt(rawBal, 10))) ? Math.max(0, parseInt(rawBal, 10)) : DAILY_POINTS;
-      var wm = (rawCount !== null && !isNaN(parseInt(rawCount, 10))) ? Math.max(0, parseInt(rawCount, 10)) : 0;
-      if (bal > DAILY_POINTS) bal = DAILY_POINTS;
-      data.balance = bal; data.watermark = wm; data.date = today;
-      // Signature present but wrong → value edited by hand (Application/Console).
-      // Missing signature = pre-signature install → migrate once and re-sign.
-      if (rawSig !== null && rawSig !== signQuota(bal, today, wm)) {
-        data.tampered = true;
-      }
-    } catch (e) { /* corrupted storage → fresh wallet, never a lock */ }
-    return data;
-  },
-  save: function (balance, ledger) {
-    try {
-      var day = quotaDate || bdToday();
-      localStorage.setItem('lipilab:points-balance', String(balance));
-      localStorage.setItem('lipilab:points-ledger', JSON.stringify(ledger));
-      localStorage.setItem('lipilab:points-count', String(quotaWatermark));
-      localStorage.setItem('lipilab:quota-date', day);
-      localStorage.setItem('lipilab:quota-sig', signQuota(balance, day, quotaWatermark));
-    } catch (e) { /* non-fatal */ }
-  }
-};
-
-function formatPoints(n) {
-  return Number(n).toLocaleString('en-US');
-}
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, function (c) {
-    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-  });
-}
-function renderPoints() {
-  if (els.pointsBalance) els.pointsBalance.textContent = formatPoints(pointsBalance);
-  var walletBal = document.getElementById('wallet-balance');
-  if (walletBal) walletBal.textContent = formatPoints(pointsBalance) + ' points';
-  renderWalletRefresh();
-}
-function renderWalletRefresh() {
-  var box = document.getElementById('wallet-refresh');
-  if (!box) return;
-  var left = formatCountdown(msUntilBdMidnight());
-  box.innerHTML = 'Refreshes at 12 AM (BD time) &bull; <strong>' + left + '</strong> left &bull; <strong>' + formatPoints(DAILY_POINTS) + '</strong> points';
-}
-// Charged at every successful conversion (manual + live). Only a GROWING
-// word count costs: typing one word slowly costs 1 point total, never more.
-function setStatusQuotaExhausted() {
-  els.processingText.textContent = 'Free quota exceeded';
-  els.processingProgress.classList.remove('processing-progress--show');
-  els.processingPercent.textContent = '';
-  els.processingSpinner.hidden = true;
-  els.processingSuccessIcon.hidden = true;
-  els.processingIndicator.classList.remove('processing-success', 'processing-idle');
-  els.processingIndicator.hidden = false;
-}
-
-function updateQuotaLock() {
-  if (FREE_MODE) {
-    // Free version: quota never locks. Keep inputs usable.
-    quotaLocked = false;
-    updateConvertBtnState(); // live mode still gates the button
-    if (els.pasteBtn) {
-      els.pasteBtn.disabled = false;
-      els.pasteBtn.classList.remove('is-disabled');
-    }
-    var uploadLabel = document.querySelector('label[for="file-upload-input"]');
-    if (uploadLabel) uploadLabel.classList.remove('is-disabled');
-    if (els.fileUploadInput) els.fileUploadInput.disabled = false;
-    return;
-  }
-  // Locked when out of points OR before the first server sync
-  // (fail-closed: no verified balance, no conversion).
-  var locked = pointsBalance <= 0 || !srvReady;
-  quotaLocked = locked;
-  updateConvertBtnState(); // combines quota lock with live-mode gate
-  if (els.inputTextarea) {
-    // DOCX template lock wins when quota is fine; quota lock wins always.
-    var docxLock = !!(appState && appState.docxZip);
-    els.inputTextarea.readOnly = locked || docxLock;
-    els.inputTextarea.classList.toggle('panel__textarea--locked', locked || docxLock);
-  }
-  if (els.pasteBtn) {
-    els.pasteBtn.disabled = locked;
-    els.pasteBtn.classList.toggle('is-disabled', locked);
-  }
-  var uploadLabel = document.querySelector('label[for="file-upload-input"]');
-  if (uploadLabel) uploadLabel.classList.toggle('is-disabled', locked);
-  if (els.fileUploadInput) els.fileUploadInput.disabled = locked;
-  if (locked) setStatusQuotaExhausted();
-}
-
-function pushHistory(words, batchId) {
-  if (!words.length) return;
-  // Optimistic local deduct; the server confirms via flush (source of truth).
-  pendingSpend += words.length;
-  saveSrv();
-  syncDisplay();
-  for (var i = 0; i < words.length; i++) {
-    pointsLedger.push({ w: words[i].slice(0, 60), d: -1, b: pointsBalance, t: Date.now(), g: batchId });
-  }
-  if (pointsLedger.length > POINTS_LEDGER_MAX) {
-    pointsLedger = pointsLedger.slice(pointsLedger.length - POINTS_LEDGER_MAX);
-  }
-  PointsBackend.save(pointsBalance, pointsLedger);
-  historyPage = 1;
-  renderPoints();
-  renderPointsHistory();
-  updateQuotaLock();
-  scheduleFlush();
-}
-
-// Tries to charge only the NEW words since last charge.
-// Returns charged count (>=0), or -1 when balance is insufficient
-// (nothing deducted, caller must block the conversion).
-function tryChargeDelta(text) {
-  if (FREE_MODE) return 0; // free version: unlimited, nothing to charge
-  var words = splitWords(text);
-  var curr = words.length;
-  if (curr < quotaWatermark) {
-    quotaWatermark = curr; // shortened — no refund, lower watermark
-    PointsBackend.save(pointsBalance, pointsLedger);
-    return 0;
-  }
-  var addedCount = curr - quotaWatermark;
-  if (addedCount <= 0) return 0;
-  if (pointsBalance < addedCount) return -1;
-  var added = words.slice(curr - addedCount);
-  pushHistory(added, Date.now());
-  quotaWatermark = curr;
-  PointsBackend.save(pointsBalance, pointsLedger);
-  return addedCount;
-}
-
-function showQuotaExhaustedToast(needed) {
-  var now = Date.now();
-  if (now - quotaToastShownAt < 2500) return;
-  quotaToastShownAt = now;
-  if (needed > 0) showToast('Free quota exceeded (need ' + needed + ' words, ' + formatPoints(pointsBalance) + ' left)');
-  else showToast('Free quota exceeded');
-}
-
-// Live-mode gate: charge newly completed words immediately.
-// Returns true when conversion may proceed, false when blocked.
-function gateLiveCharge(text) {
-  if (FREE_MODE) return true;
-  if (!srvReady) { showConnectingToast(); return false; }
-  var r = tryChargeDelta(text);
-  if (r === -1) {
-    setStatusQuotaExhausted();
-    updateQuotaLock();
-    showQuotaExhaustedToast(countWords(text) - quotaWatermark);
-    return false;
-  }
-  return true;
-}
-
-// Back-compat wrappers (old call sites).
-function chargePointsDelta(text) { gateLiveCharge(text); return 0; }
-var historyPage = 1;
-var historyPerPage = 25;
-var expandedBatches = {}; // batchKey -> true (in-memory only)
-function renderPointsHistory() {
-  var list = document.getElementById('history-list');
-  var info = document.getElementById('history-pageinfo');
-  var prev = document.getElementById('history-prev');
-  var next = document.getElementById('history-next');
-  var total = pointsLedger.length;
-  var pages = Math.max(1, Math.ceil(total / historyPerPage));
-  if (historyPage > pages) historyPage = pages;
-  if (historyPage < 1) historyPage = 1;
-  if (!list) return;
-  if (!total) {
-    list.innerHTML = '<p class="muted">No conversions yet.</p>';
-  } else {
-    // Newest first; only the visible page slice is rendered (fast even at 1000 rows).
-    // Entries are grouped by conversion batch into expandable rows.
-    var end = total - (historyPage - 1) * historyPerPage;
-    var start = Math.max(0, end - historyPerPage);
-    var groups = [];
-    var groupIndex = {};
-    for (var i = end - 1; i >= start; i--) {
-      var entry = pointsLedger[i];
-      var key = (entry && entry.g) ? ('g' + entry.g) : 'earlier';
-      if (!groupIndex[key]) {
-        groupIndex[key] = { key: key, entries: [] };
-        groups.push(groupIndex[key]);
-      }
-      groupIndex[key].entries.push(entry);
-    }
-    var html = '';
-    groups.forEach(function (group) {
-      var n = group.entries.length;
-      var bal = group.entries[0].b;
-      var title = group.key === 'earlier' ? 'Earlier entries' : (n + (n === 1 ? ' word' : ' words'));
-      var open = !!expandedBatches[group.key];
-      html += '<div class="ledger-group">'
-        + '<button type="button" class="ledger-group__head" data-batch="' + group.key + '" aria-expanded="' + open + '">'
-        + '<span class="ledger-group__top"><span class="ledger-group__title"><span class="ledger-group__chev" aria-hidden="true">'
-        + (open ? '▾' : '▸')
-        + '</span> ' + escapeHtml(title) + '</span>'
-        + '<span class="ledger-group__delta">-' + n + '</span></span>'
-        + '<span class="ledger-group__bal">' + formatPoints(bal) + '</span>'
-        + '</button>'
-        + '<div class="ledger-group__kids"' + (open ? '' : ' hidden') + '>';
-      group.entries.forEach(function (e) {
-        html += '<div class="ledger-point ledger-point--kid">'
-          + '<div class="ledger-point__top"><span class="ledger-point__word">'
-          + escapeHtml(e.w)
-          + '</span><span class="ledger-point__delta">-1</span></div>'
-          + '<div class="ledger-point__bal">' + formatPoints(e.b) + '</div>'
-          + '</div>';
-      });
-      html += '</div></div>';
-    });
-    list.innerHTML = html;
-  }
-  if (info) info.textContent = total + ' entries · Page ' + historyPage + ' of ' + pages;
-  if (prev) prev.disabled = (historyPage <= 1);
-  if (next) next.disabled = (historyPage >= pages);
-}
-
 function wireEvents() {
   els.themeToggleBtn.addEventListener('click', toggleTheme);
 
@@ -2898,10 +2634,7 @@ function wireEvents() {
   });
 
   els.liveModeBtn.addEventListener('click', function () {
-    appState.liveMode = !appState.liveMode;
-    els.liveModeBtn.setAttribute('aria-checked', String(appState.liveMode));
-    els.encodingBadge.classList.toggle('encoding-badge--live', appState.liveMode);
-    updateConvertBtnState(); // live ON -> disabled, live OFF -> enabled
+    setLiveMode(!appState.liveMode);
     if (appState.liveMode) convertPlainText(); else setStatusIdle();
   });
 
@@ -2911,20 +2644,16 @@ function wireEvents() {
     // Same gate the disabled state expresses: with live mode on the text
     // already converts as it is typed, so a click (or the Ctrl+Enter shortcut,
     // which calls .click()) must not start a second, manual run.
-    if (appState.liveMode || quotaLocked) return;
     if (appState.docxZip) { startManualConvert('Converting DOCX…', convertDocxTemplate); return; }
     startManualConvert('Converting…', convertPlainText);
   });
 
   els.pasteBtn.addEventListener('click', function () {
-    if (quotaLocked) { showQuotaExhaustedToast(0); return; }
     if (navigator.clipboard && navigator.clipboard.readText) {
       navigator.clipboard.readText().then(function (text) {
         snapshotForUndo();
         clearDocxTemplate();
         els.inputTextarea.value = text;
-        quotaWatermark = 0; // bulk new text — next live tick / Convert click charges total
-        PointsBackend.save(pointsBalance, pointsLedger);
         syncUndoBase();
         updateStats();
         setStatusIdle();
@@ -2954,7 +2683,6 @@ function wireEvents() {
   }
 
   els.fileUploadInput.addEventListener('change', function (e) {
-    if (quotaLocked) { showQuotaExhaustedToast(0); e.target.value = ''; return; }
     var file = e.target.files[0];
     if (!file) return;
     // Phase 8: legacy .doc is binary OLE — not convertible client-side.
@@ -2972,13 +2700,20 @@ function wireEvents() {
         snapshotForUndo();
         clearDocxTemplate();
         els.inputTextarea.value = ev.target.result;
-        quotaWatermark = 0; // uploaded file — Convert click charges total words
-        PointsBackend.save(pointsBalance, pointsLedger);
+        els.outputTextarea.value = ''; // nothing converted yet — the user presses Convert
         syncUndoBase();
         updateStats();
-        setStatusIdle();
         resetOutputFonts(); // a new file resets font picks to the encoding defaults
-        scheduleLiveConvert();
+        // A file upload always leaves Live mode: Convert now waits for a click.
+        setLiveMode(false);
+        setStatusIdle();
+        // Text uploads get the same loaded-file strip a DOCX template does, so
+        // the filename stays visible above the input and can be dropped in one
+        // click. Never lockInputForDocx() here — a text file stays editable.
+        els.docxStripText.textContent = file.name;
+        els.docxStrip.dataset.kind = 'text';
+        els.docxStrip.classList.add('show');
+        showToast('File loaded — click Convert');
       };
       reader.readAsText(file);
     }
@@ -3008,11 +2743,14 @@ function wireEvents() {
 
   els.docxStripClear.addEventListener('click', function () {
     snapshotForUndo();
+    // The strip holds either a Word template ('docx') or an uploaded text file
+    // ('text') — name the right one so the toast matches what the X removed.
+    var kind = els.docxStrip.dataset.kind;
     clearDocxTemplate();
     els.inputTextarea.value = '';
     updateStats();
     setStatusIdle();
-    showToast('Template removed');
+    showToast(kind === 'text' ? 'File removed' : 'Template removed');
   });
 
   els.swapBtn.addEventListener('click', function () {
@@ -3023,8 +2761,6 @@ function wireEvents() {
     els.inputTextarea.value = outputVal;
     els.outputTextarea.value = inputVal;
     appState.parsedData = [];
-    quotaWatermark = 0; // swapped text counts as new input — prevents free swap-convert loop
-    PointsBackend.save(pointsBalance, pointsLedger);
     updateStats();
     setStatusIdle();
     persistState();
@@ -3051,7 +2787,7 @@ function wireEvents() {
   }
 
   function downloadAsDocx() {
-    if (appState.docxZip) { convertDocxTemplate(); return; }
+    if (appState.docxZip) { downloadDocxTemplate(); return; }
     if (appState.parsedData.length === 0) {
       var inputText = els.inputTextarea.value;
       if (!inputText || !inputText.trim()) { showToast('Nothing to download as docx file'); return; }
@@ -3161,67 +2897,7 @@ window.addEventListener('resize', updateDirectionPillPosition);
   window.addEventListener('offline', updateOfflineIndicator);
 }
 
-/* ------------------------------------------------------------
-   12. KEYBOARD SHORTCUTS
-   Matches frontend.html's own shortcuts panel exactly (that
-   file was established as the UI/UX source of truth, so its
-   documented bindings win over script.md's differing ones).
------------------------------------------------------------- */
-function wireKeyboardShortcuts() {
-  document.addEventListener('keydown', function (e) {
-    var key = e.key;
-    var inOutput = document.activeElement === els.outputTextarea;
-    var inField = document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT';
 
-    if (e.ctrlKey && !e.shiftKey && !e.altKey && key === 'Enter') { e.preventDefault(); els.convertBtn.click(); return; }
-    if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 'l' || key === 'L')) { e.preventDefault(); els.liveModeBtn.click(); return; }
-    if (e.ctrlKey && e.shiftKey && !e.altKey && (key === 'c' || key === 'C')) { e.preventDefault(); els.clearBtn.click(); return; }
-    if (e.ctrlKey && e.shiftKey && !e.altKey && (key === 's' || key === 'S')) { e.preventDefault(); els.swapBtn.click(); return; }
-    if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 'c' || key === 'C') && inOutput) { e.preventDefault(); els.copyBtn.click(); return; }
-    if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 's' || key === 'S')) { e.preventDefault(); if (els.downloadOpenBtn) els.downloadOpenBtn.click(); return; }
-    if (e.ctrlKey && !e.shiftKey && !e.altKey && (key === 'd' || key === 'D')) { e.preventDefault(); els.themeToggleBtn.click(); return; }
-    if (key === '?' && !inField && !e.ctrlKey && !e.altKey) { openShortcuts(); return; }
-    if (key === 'Escape' && els.unmapModal && !els.unmapModal.hidden) { closeUnmapModal(); return; }
-    if (key === 'Escape') {
-      if (els.downloadModal && !els.downloadModal.hidden) { closeDialog(els.downloadModal); return; }
-    }
-    if (key === 'Escape' && !els.shortcutsPanel.hidden) { closeShortcuts(); return; }
-  });
-}
-
-/* ------------------------------------------------------------
-   13. INIT
------------------------------------------------------------- */
-function safeInitStep(fn, label) {
-  try {
-    fn();
-  } catch (err) {
-    if (window.console && console.error) console.error('LipiLab init step failed (' + label + '):', err);
-  }
-}
-
-function init() {
-  // Each step is fault-isolated: a problem in one (e.g. theme detection on an
-  // unusual browser) must never stop wireEvents() from running, or every
-  // button on the page silently goes dead with no visible error.
-  safeInitStep(initTheme, 'theme');
-  safeInitStep(restoreState, 'restore-state');
-  safeInitStep(updateStats, 'stats');
-  safeInitStep(applyEncodingFonts, 'encoding-fonts');
-  safeInitStep(function () { setEncodingBadge(resolveMode()); }, 'encoding-badge');
-  safeInitStep(setStatusIdle, 'status-idle-init');
-  safeInitStep(function () { els.encodingBadge.classList.toggle('encoding-badge--live', appState.liveMode); }, 'live-badge-init');
-  safeInitStep(function () { setConvertButtonMode(false); }, 'convert-button-mode');
-  safeInitStep(updateConvertBtnState, 'convert-btn-state');
-  safeInitStep(wireEvents, 'wire-events');
-  safeInitStep(wireKeyboardShortcuts, 'wire-keyboard-shortcuts');
-  safeInitStep(updateOfflineIndicator, 'offline-indicator');
-  safeInitStep(initAskChoice, 'choice-prompt');
-  safeInitStep(initRefreshGuard, 'refresh-guard');
-  safeInitStep(initGatekeep, 'gatekeep');
-  safeInitStep(function () { syncUndoBase(); updateUndoButtons(); }, 'undo-init');
-  requestAnimationFrame(function () { safeInitStep(updateDirectionPillPosition, 'direction-pill'); });
-}
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
