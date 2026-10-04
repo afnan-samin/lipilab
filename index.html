@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8" />
@@ -20,18 +20,15 @@
 <link rel="apple-touch-icon" href="favicon.svg" />
 
 <!-- JSZip: needed for both blank-DOCX generation and DOCX template round-trip patching -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
 
-<!-- UI + Bangla web fonts (CDN only — no local asset files) -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Kalpurush:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Bangla faces are self-hosted (see the @font-face block at the top of
+     styles.css) so the page renders identically with the network switched off.
+     Latin uses the platform's own UI font and needs no webfont at all. -->
 
-<!-- Kalpurush: SutonnyMJ-style Bangla webfont (SIL OFL) -->
-<link rel="preconnect" href="https://fonts.maateen.me">
-<link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet">
 
-<link rel="stylesheet" href="styles.css?v=54">
+
+<link rel="stylesheet" href="styles.css?v=66">
 </head>
 <body>
 
