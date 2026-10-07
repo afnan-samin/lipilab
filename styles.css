@@ -556,10 +556,11 @@ button{ font-family:inherit; }
 /* `hidden` must beat the display:flex above — otherwise a finished conversion
    or download row stays on screen showing stale text ("Building DOCX file…"). */
 #processing-indicator[hidden]{ display:none; }
-.processing-progress{ width:80px; height:6px; border-radius:var(--radius-pill); background:var(--border); overflow:hidden; display:none; }
-.processing-progress--show{ display:inline-block; }
-.processing-progress__fill{ height:100%; width:0%; background:var(--tertiary); border-radius:var(--radius-pill); transition:width 0.12s linear; }
-.processing-percent{ font-variant-numeric:tabular-nums; min-width:32px; }
+.processing-progress{ width:96px; height:8px; border-radius:var(--radius-pill); background:var(--border); overflow:hidden; display:none; flex-shrink:0; align-self:center; }
+.processing-progress--show{ display:inline-block; min-width:96px; vertical-align:middle; }
+.processing-progress__fill{ display:block; height:100%; width:0%; background:var(--tertiary); border-radius:var(--radius-pill); transition:width 0.12s linear; }
+.processing-percent{ font-variant-numeric:tabular-nums; min-width:32px; flex-shrink:0; }
+.file-btn[aria-disabled="true"], .file-btn.is-disabled{ opacity:.42; cursor:not-allowed; }
 .processing-success{ color:#16a34a; font-weight:700; display:flex; align-items:center; gap:6px; }
 .processing-success__icon{ display:inline-flex; }
 .processing-success__icon[hidden]{ display:none; }
@@ -809,6 +810,9 @@ body.dlg-open{ overflow:hidden; }
 .dlg__btn--ghost:hover{ background:var(--border); }
 .dlg__btn--danger{ background:var(--danger); color:#fff; }
 .dlg__btn--danger:hover{ background:color-mix(in srgb, var(--danger) 85%, #000); }
+.dlg__btn--keep{ background:var(--tertiary); color:var(--tertiary-contrast); }
+.dlg__btn--keep:hover{ background:var(--tertiary-hover); }
+.panel--input.is-dragover .panel__textarea{ border-color:var(--tertiary); box-shadow:0 0 0 2px var(--tertiary-soft); }
 
 /* ---- Shortcuts modal ---- */
 .shortcuts-panel{ position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:20px; }

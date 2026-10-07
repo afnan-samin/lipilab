@@ -26,7 +26,7 @@
 <!-- UI + Bangla web fonts are self-hosted in /fonts and declared at the top of
      styles.css — no Google Fonts, no maateen.me, no network request at all. -->
 
-<link rel="stylesheet" href="styles.css?v=68">
+<link rel="stylesheet" href="styles.css?v=70">
 </head>
 <body>
 
@@ -565,6 +565,25 @@
   </div>
 </div>
 
+<div class="dlg dlg--sm" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" hidden>
+  <div class="dlg__backdrop" data-close></div>
+  <div class="dlg__card">
+    <div class="dlg__header">
+      <h2 class="dlg__title" id="confirm-modal-title">Replace current input?</h2>
+      <button type="button" class="icon-btn icon-btn--sm" id="confirm-close-btn" aria-label="Close confirm dialog" title="Close (Esc)">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="dlg__body">
+      <p class="dlg__lead" id="confirm-modal-body">Input already has text or a file. Delete it to load the dropped file, or Keep the current input.</p>
+      <div class="dlg__actions">
+        <button type="button" class="dlg__btn dlg__btn--danger" id="confirm-ok-btn">Delete</button>
+        <button type="button" class="dlg__btn dlg__btn--keep" id="confirm-cancel-btn">Keep</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="unmap-modal" id="unmap-modal" role="dialog" aria-modal="true" aria-labelledby="unmap-modal-title" hidden>
   <div class="unmap-modal__backdrop" id="unmap-backdrop" aria-hidden="true"></div>
   <div class="unmap-modal__card">
@@ -634,6 +653,6 @@
 </div>
 
 <script src="partner.js?v=13"></script>
-<script src="app.js?v=32"></script>
+<script src="app.js?v=38"></script>
 </body>
 </html>

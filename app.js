@@ -51,10 +51,12 @@ var reverseBijoyRoFolaReplacements = buildInverseMap(bijoyRoFolaReplacements);
 var uni2bijoyPatterns = null;
 
 var bijoy_string_conversion_map = {
+    "¯¬æ": "স্লু", "c&Í": "প্ত", "c­": "প্ল্য", "eyø": "ব্লু", "¤ª": "ম্র", "¤œ": "ম্ন", "¤c": "ম্প", "j¥": "ল্ম", "Y¥": "ণ্ম", "Kø": "ক্ল", "¯¬": "স্ল", "Ë¦": "ত্ত্ব", "k©¦": "র্শ্ব", "R¦": "জ্ব", "•ÿ": "ঙ্ক্ষ", "•M": "ঙ্গ", "ÿ¥": "ক্ষ্ম", "ÿè": "ক্ষ্ণ", "¦": "্ব",
+    "½y": "ঙ্গু", "”Q¡": "চ্ছ্ব", "”T": "চ্ঞ", "¾¡": "জ্জ্ব", "Ë¡": "ত্ত্ব", "šÍ¡": "ন্ত্ব", "›Ø": "ন্দ্ব", "®ú": "ষ্প",
     "i¨": "র‌্য", "ª¨": "্র্য", "°": "ক্ক", "±": "ক্ট", "³": "ক্ত", "K¡": "ক্ব", "¯Œ": "স্ক্র", "µ": "ক্র", "K¬": "ক্ল", "¶è": "ক্ষ্ণ", "þ": "হ্ম", "²": "ক্ষ্ম", "•¶": "ঙ্ক্ষ", "¶": "ক্ষ", "ÿz": "ক্ষু", "ÿ‚": "ক্ষূ", "ÿ": "ক্ষ", "·": "ক্স", "´": "ক্ম", "¸": "গু", "»": "গ্ধ", "Mœ": "গ্ন", "M¥": "গ্ম", "Mªƒ": "গ্রূ", "Møæ": "গ্লু", "Mø": "গ্ল", "Mªæ": "গ্রু", "Nœ": "ঘ্ন", "¼": "ঙ্ক", "•L": "ঙ্খ", "½": "ঙ্গ", "•N": "ঙ্ঘ", "”P": "চ্চ", "”Q": "চ্ছ", "R¡": "জ্ব", "¾": "জ্জ", "À": "জ্ঝ", "Á": "জ্ঞ", "Â": "ঞ্চ", "Ã": "ঞ্ছ", "Ä": "ঞ্জ", "Å": "ঞ্ঝ", "Æ": "ট্ট", "U¡": "ট্ব", "U¥": "ট্ম", "Ç": "ড্ড", "È": "ণ্ট", "É": "ণ্ঠ", "Ý": "ন্স", "Ð": "ণ্ড", "š‘": "ন্তু", "Y^": "ণ্ব", "Ë": "ত্ত", "Ì": "ত্থ", "Z¥": "ত্ম", "Z¡": "ত্ব", "Zœ": "ত্ন", "Îæ": "ত্রু", "Îƒ": "ত্রূ", "Î": "ত্র", "_¡": "থ্ব", "˜M": "দ্গ", "˜N": "দ্ঘ", "Ï": "দ্দ", "×": "দ্ধ", "˜¡": "দ্ব", "Ø": "দ্ব", "™£": "দ্ভ্র", "™¢": "দ্ভ", "Ù": "দ্ম", "`ªæ": "দ্রু", "`ªƒ": "দ্রূ", "aªƒ": "ধ্রূ", "aŸ": "ধ্ব", "a¥": "ধ্ম", "›U": "ন্ট", "Ú": "ন্ঠ", "Û": "ন্ড", "šÍ": "ন্ত", "š¿": "ন্ত্র", "š’": "ন্থ", "›`": "ন্দ", "Ü": "ন্ধ", "Yœ": "ণ্ণ", "bœ": "ন্ন", "š^": "ন্ব", "b¥": "ন্ম", "Þ": "প্ট", "ß": "প্ত", "cœ": "প্ন", "à": "প্প", "cøæ": "প্লু", "cø": "প্ল", "cªæ": "প্রু", "á": "প্স", "d¬z": "ফ্লু", "d¬‚": "ফ্লূ", "d¬": "ফ্ল", "â": "ব্জ", "ã": "ব্দ", "ä": "ব্ধ", "eŸ": "ব্ব", "eø": "ব্ল", "å": "ভ্র", "gœ": "ম্ন", "¤ú": "ম্প", "ç": "ম্ফ", "¤^": "ম্ব", "¤¢": "ম্ভ", "¤£": "ম্ভ্র", "¤§": "ম্ম", "¤ø": "ম্ল", "iæ": "রু", "iƒ": "রূ", "é": "ল্ক", "ê": "ল্গ", "ë": "ল্ট", "ì": "ল্ড", "í": "ল্প", "î": "ল্ফ", "jø": "ল্ল", "kªƒ": "শ্রূ", "kªæ": "শ্রু", "ï": "শু", "kø": "শ্ল", "ð": "শ্চ", "ñ": "শ্ছ", "kœ": "শ্ন", "k^": "শ্ব", "^": "্ব", "k¦": "শ্ব", "k¥": "শ্ম", "®‹": "ষ্ক", "®Œ": "ষ্ক্র", "ó": "ষ্ট", "ô": "ষ্ঠ", "ò": "ষ্ণ", "õ": "ষ্ফ", "®§": "ষ্ম", "¯‹": "স্ক", "÷": "স্ট", "ö": "স্খ", "¯Í": "স্ত", "¯‘": "স্তু", "¯¿": "স্ত্র", "¯’": "স্থ", "mœ": "স্ন", "¯ú": "স্প", "ù": "স্ফ", "¯^": "স্ব", "¯§": "স্ম", "¯ø": "স্ল", "¯": "স", "œ": "্ন", "û": "হু", "nŸ": "হ্ব", "nè": "হ্ণ", "ý": "হ্ন", "n¬": "হ্ল", "ü": "হৃ", "©": "র্", "Av": "আ", "A": "অ", "B": "ই", "C": "ঈ", "D": "উ", "E": "ঊ", "F": "ঋ", "G": "এ", "H": "ঐ", "I": "ও", "J": "ঔ", "K": "ক", "L": "খ", "M": "গ", "N": "ঘ", "O": "ঙ", "P": "চ", "Q": "ছ", "R": "জ", "S": "ঝ", "T": "ঞ", "U": "ট", "V": "ঠ", "W": "ড", "X": "ঢ", "Y": "ণ", "Z": "ত", "_": "থ", "`": "দ", "a": "ধ", "b": "ন", "c": "প", "d": "ফ", "e": "ব", "f": "ভ", "g": "ম", "h": "য", "i": "র", "j": "ল", "k": "শ", "l": "ষ", "m": "স", "n": "হ", "o": "ড়", "p": "ঢ়", "q": "য়", "r": "ৎ", "0": "০", "1": "১", "2": "২", "3": "৩", "4": "৪", "5": "৫", "6": "৬", "7": "৭", "8": "৮", "9": "৯", "v": "া", "w": "ি", "x": "ী", "y": "ু", "~": "ূ", "‚": "ূ", "„": "ৃ", "‡": "ে", "†": "ে", "ˆ": "ৈ", "‰": "ৈ", "Š": "ৗ", "Ô": "‘", "Õ": "’", "|": "।", "Ò": "“", "Ó": "”", "s": "ং", "t": "ঃ", "u": "ঁ", "ª": "্র", "Ö": "্র", "«": "্র", "¨": "্য", "&": "্", "…": "ৃ", "Ñ": "—", "\\": "॥"
 };
 
-var correctBijoy = { "&ª": "ª" };
+var correctBijoy = { "&ª": "ª", "&ø": "ø", "¯ÍÍ": "¯Í", "šÍÍ": "šÍ" };
 var correctUnicode = { "šত্ম": "ন্ত", "¯ত্ম": "স্ত" };
 var bijoyPatterns = null;
 
@@ -509,6 +511,7 @@ var appState = {
   parsedData: [],
   patchedDocxXml: null,   // last converted word/document.xml (for table PDF)
   patchedDirection: null,
+  docxAutoHint: null,     // 'bijoy-to-unicode' | 'unicode-to-bijoy' from DOCX fonts
   outputEncoding: 'bijoy-to-unicode',
   banglaFont: null,      // resolved name from FONTS for the active encoding
   englishFont: null
@@ -585,16 +588,18 @@ function showToast(message, kind) {
 }
 
 function showProcessing(active, label, percent) {
-  if (label) els.processingText.textContent = label;
   els.processingIndicator.hidden = !active;
   els.processingIndicator.classList.remove('processing-success', 'processing-idle');
   els.processingSpinner.hidden = false;
   els.processingSuccessIcon.hidden = true;
   if (typeof percent === 'number') {
+    var p = Math.max(0, Math.min(100, percent));
+    els.processingText.textContent = label || 'Converting…';
     els.processingProgress.classList.add('processing-progress--show');
-    els.processingProgressFill.style.width = Math.max(0, Math.min(100, percent)) + '%';
-    els.processingPercent.textContent = Math.round(percent) + '%';
+    els.processingProgressFill.style.width = p + '%';
+    els.processingPercent.textContent = Math.round(p) + '%';
   } else {
+    if (label) els.processingText.textContent = label;
     els.processingProgress.classList.remove('processing-progress--show');
     els.processingPercent.textContent = '';
   }
@@ -763,6 +768,29 @@ function closeUnmapModal() {
    Clicking the backdrop cancels, Escape closes, and focus returns to whatever
    opened the dialog. */
 var dlgLastFocused = null;
+var confirmOnOk = null;
+var confirmOnCancel = null;
+
+function openConfirm(onOk, onCancel) {
+  confirmOnOk = typeof onOk === 'function' ? onOk : null;
+  confirmOnCancel = typeof onCancel === 'function' ? onCancel : null;
+  if (!openDialog(els.confirmModal)) {
+    var cancel = confirmOnCancel;
+    confirmOnOk = null;
+    confirmOnCancel = null;
+    if (cancel) cancel();
+  }
+}
+
+function settleConfirm(accepted) {
+  var ok = confirmOnOk;
+  var cancel = confirmOnCancel;
+  confirmOnOk = null;
+  confirmOnCancel = null;
+  closeDialog(els.confirmModal);
+  if (accepted) { if (ok) ok(); }
+  else { if (cancel) cancel(); }
+}
 
 function openDialog(dlg) {
   if (!dlg) return false;
@@ -781,7 +809,7 @@ function openDialog(dlg) {
     ask.classList.remove('ask-overlay--show');
     dlg.askWasOpen = true;
   }
-  var first = dlg.querySelector('.dlg__format, .dlg__btn--danger, .dlg__btn--ghost');
+  var first = dlg.querySelector('.dlg__btn--keep, .dlg__format, .dlg__btn--danger, .dlg__btn--ghost');
   if (first && first.focus) first.focus();
   return true;
 }
@@ -877,6 +905,14 @@ function countStats(text) {
   return { chars: chars, words: words };
 }
 
+function updateDownloadBtnState() {
+  if (!els.downloadOpenBtn) return;
+  var empty = !els.outputTextarea || !String(els.outputTextarea.value || '').trim();
+  els.downloadOpenBtn.setAttribute('aria-disabled', empty ? 'true' : 'false');
+  els.downloadOpenBtn.classList.toggle('is-disabled', empty);
+  els.downloadOpenBtn.title = empty ? 'nothing here to download' : 'Download (Ctrl+S)';
+}
+
 function updateStats() {
   var inStats = countStats(els.inputTextarea.value);
   var outStats = countStats(els.outputTextarea.value);
@@ -885,6 +921,18 @@ function updateStats() {
   els.outputCharCount.textContent = outStats.chars;
   els.outputWordCount.textContent = outStats.words;
   syncEmptyHint();
+  updateDownloadBtnState();
+}
+
+function inputHasContent() {
+  if (els.inputTextarea && String(els.inputTextarea.value || '').trim()) return true;
+  if (els.docxStrip && els.docxStrip.classList.contains('show')) return true;
+  if (appState.docxZip || appState.docxFile) return true;
+  return false;
+}
+
+function dropFailedToast(name) {
+  showToast('"' + (name || 'file') + '" upload failed');
 }
 
 var SAMPLE_BN = 'বাংলা ভাষা আমাদের মাতৃভাষা। LipiLab দিয়ে ইউনিকোড থেকে বিজয় এবং বিজয় থেকে ইউনিকোডে সহজেই রূপান্তর করা যায়।';
@@ -903,11 +951,27 @@ function fillSampleText() {
   els.inputTextarea.focus();
 }
 
+function detectDocxHintFromXml(xml) {
+  if (!xml) return null;
+  var bijoy = 0, uni = 0, m, re = /w:ascii="([^"]+)"/g;
+  while ((m = re.exec(xml)) !== null) {
+    if (isBijoyFontName(m[1])) bijoy++;
+    else if (isBanglaFontName(m[1])) uni++;
+  }
+  if (!bijoy && !uni) return null;
+  return bijoy >= uni ? 'bijoy-to-unicode' : 'unicode-to-bijoy';
+}
+
+function detectAutoDirection(text, docxHint) {
+  if (docxHint === 'bijoy-to-unicode' || docxHint === 'unicode-to-bijoy') return docxHint;
+  return /[\u0980-\u09FF]/.test(text || '') ? 'unicode-to-bijoy' : 'bijoy-to-unicode';
+}
+
 function resolveMode() {
   var checked = document.querySelector('input[name="conversion-direction"]:checked');
   var value = checked ? checked.value : 'unicode-to-bijoy';
   if (value === 'auto') {
-    return /[\u0980-\u09FF]/.test(els.inputTextarea.value) ? 'unicode-to-bijoy' : 'bijoy-to-unicode';
+    return detectAutoDirection(els.inputTextarea ? els.inputTextarea.value : '', appState.docxAutoHint || null);
   }
   return value;
 }
@@ -1096,6 +1160,7 @@ function closeShortcuts() {
    separation is possible or attempted in this direction.
 ------------------------------------------------------------ */
 var LARGE_TEXT_THRESHOLD = 20000; // characters — above this, convert in chunks with progress
+var DOCX_RUN_BATCH = 10000; // DOCX w:r nodes per animation frame
 var conversionRunId = 0;
 
 // Shared guard: an empty box has nothing to convert or download.
@@ -1830,6 +1895,25 @@ function runIsPlainText(runEl) {
   return hasT;
 }
 
+/* Convertible runs may also hold Word layout markers that sit next to
+   w:t in the same <w:r>: w:tab (two-column MCQ options), w:br, w:cr.
+   Those markers are not text and must stay; skipping the whole run left
+   File 1's two-column option text in Bijoy. Drawings/fields still skip.
+   Merge still uses runIsPlainText, so a tabbed run never joins neighbors. */
+function runIsConvertible(runEl) {
+  var kids = runEl.childNodes;
+  var hasT = false;
+  for (var i = 0; i < kids.length; i++) {
+    var k = kids[i];
+    if (!k || k.nodeType !== 1) continue;
+    var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
+    if (n === 'rPr' || n === 'lastRenderedPageBreak' || n === 'tab' || n === 'br' || n === 'cr') continue;
+    if (n === 't') { hasT = true; continue; }
+    return false;
+  }
+  return hasT;
+}
+
 function runText(runEl) {
   var ts = runEl.getElementsByTagName('w:t');
   var s = '';
@@ -1980,21 +2064,29 @@ function replaceRunWithSideGroups(runEl, doc, rPrEl, groups, convertBangla, engl
   // font-tagged rPr and consecutive spaces/punctuation share the original one,
   // so both collapse back and the run count stays near the original.
   newRuns = mergeAdjacentRuns(newRuns, doc);
-  // Word's cached page-break hint is not part of rPr, so cloning rPr drops it.
-  // Carry it onto the first new run (after its rPr) so splitting a run does not
-  // silently discard it; Word recomputes it on the next repaint anyway.
-  var pageBreak = null;
+  // Layout markers are not part of rPr, so cloning rPr drops them. Carry
+  // w:lastRenderedPageBreak / w:tab / w:br / w:cr onto the first new run
+  // (before its w:t) so a two-column tab+text split does not lose the tab.
+  var layoutKids = [];
   for (var ci = 0; ci < runEl.childNodes.length; ci++) {
     var ck = runEl.childNodes[ci];
     if (!ck || ck.nodeType !== 1) continue;
-    if ((ck.localName || (ck.nodeName || '').split(':').pop()) === 'lastRenderedPageBreak') { pageBreak = ck; break; }
+    var cn = ck.localName || (ck.nodeName || '').split(':').pop();
+    if (cn === 'lastRenderedPageBreak' || cn === 'tab' || cn === 'br' || cn === 'cr') layoutKids.push(ck);
   }
-  if (pageBreak && newRuns.length) {
+  if (layoutKids.length && newRuns.length) {
     var first = newRuns[0];
-    var firstRPr = first.getElementsByTagName('w:rPr')[0];
-    var clonedBreak = pageBreak.cloneNode(true);
-    if (firstRPr && firstRPr.nextSibling) first.insertBefore(clonedBreak, firstRPr.nextSibling);
-    else first.appendChild(clonedBreak);
+    var anchor = null;
+    for (var fi = 0; fi < first.childNodes.length; fi++) {
+      var fk = first.childNodes[fi];
+      if (!fk || fk.nodeType !== 1) continue;
+      if ((fk.localName || (fk.nodeName || '').split(':').pop()) === 't') { anchor = fk; break; }
+    }
+    for (var li = 0; li < layoutKids.length; li++) {
+      var clonedLayout = layoutKids[li].cloneNode(true);
+      if (anchor) first.insertBefore(clonedLayout, anchor);
+      else first.appendChild(clonedLayout);
+    }
   }
   var parent = runEl.parentNode;
   newRuns.forEach(function (r) { parent.insertBefore(r, runEl); });
@@ -2010,7 +2102,7 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
   // are plain-text runs themselves, so they are still converted normally
   // when the global w:r loop reaches them; they are never merged with
   // outer-paragraph runs because mergeSameFontRuns groups per-w:p.
-  if (!runIsPlainText(runEl)) return 0;
+  if (!runIsConvertible(runEl)) return 0;
   var tEls = runEl.getElementsByTagName('w:t');
   if (!tEls.length) return; // w:tab, w:br, drawings, etc. — nothing to convert
   var originalText = '';
@@ -2039,9 +2131,11 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
     // as 0 so patchDocumentXmlString can raise the zero-conversion warning.
     var currentFont = getEffectiveFontName(runEl, stylesDoc || null);
     if (!isBijoyFontName(currentFont)) return 0; // not Bijoy-tagged — leave untouched
-    // Phase 5 fix (DOCX): same per-token Bijoy-range gate as plain text —
-    // a Bijoy run with embedded ASCII ("Avgvi hello") keeps its English.
-    var convertedText = convertBijoyTextMixed(originalText);
+    // Font tag is the evidence this run is Bijoy. convertBijoyTextMixed()
+    // still gates ASCII-only words as "maybe English" (কলহন / Kjnb fails
+    // the consonant-soup check), which left File 1's two-column options
+    // unconverted. Trust the face and convert the whole run.
+    var convertedText = ConvertToUnicode(originalText);
 
     // English font fix: this run was tagged with a Bijoy face, so ASCII
     // English carried inside it used to be stamped with that Bangla font and
@@ -2211,6 +2305,36 @@ function patchDocumentXmlString(xmlString, direction, stylesDoc, counter) {
   return { xml: serialized, converted: local.converted };
 }
 
+function yieldFrame() {
+  return new Promise(function (resolve) { requestAnimationFrame(function () { resolve(); }); });
+}
+
+function patchDocumentXmlInBatches(xmlString, direction, stylesDoc, onProgress) {
+  var doc = new DOMParser().parseFromString(xmlString, 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length) throw new Error('Could not parse DOCX XML');
+  mergeSameFontRuns(doc);
+  var spaceFont = direction === 'uni2bijoy' ? spaceFontForDocText(collectDocText(doc)) : null;
+  var runs = Array.prototype.slice.call(doc.getElementsByTagName('w:r'));
+  var local = { converted: 0 };
+  var i = 0;
+  if (onProgress) onProgress(0);
+  function convertBatch() {
+    var end = Math.min(i + DOCX_RUN_BATCH, runs.length);
+    for (; i < end; i++) splitRunForConversion(runs[i], doc, direction, stylesDoc || null, local);
+    if (onProgress) onProgress(runs.length ? (i / runs.length) * 100 : 100);
+    if (i < runs.length) return yieldFrame().then(convertBatch);
+    mergeSameFontRuns(doc);
+    if (direction === 'bijoy2uni') spaceFont = spaceFontForDocText(collectDocText(doc));
+    applySpaceRunFonts(doc, spaceFont);
+    var serialized = new XMLSerializer().serializeToString(doc);
+    if (serialized.indexOf('<?xml') !== 0) {
+      serialized = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + serialized;
+    }
+    return Promise.resolve({ xml: serialized, converted: local.converted });
+  }
+  return Promise.resolve().then(convertBatch);
+}
+
 
 function extractPreviewText(xmlString) {
   // No truncation: the full document's text is shown, however long it is.
@@ -2250,6 +2374,44 @@ function findHeaderFooterParts(zip) {
   }).catch(function () { return []; });
 }
 
+function ingestFile(file) {
+  if (!file) return;
+  if (file.name.toLowerCase().endsWith('.doc') && !file.name.toLowerCase().endsWith('.docx')) {
+    showToast('.doc সমর্থিত নয় — Word থেকে .docx হিসেবে Save করে আবার চেষ্টা করুন');
+    return;
+  }
+  if (file.name.toLowerCase().endsWith('.docx')) {
+    loadDocxFile(file);
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function (ev) {
+    snapshotForUndo();
+    clearDocxTemplate();
+    els.inputTextarea.value = ev.target.result;
+    els.outputTextarea.value = '';
+    syncUndoBase();
+    updateStats();
+    resetOutputFonts();
+    setLiveMode(false);
+    setStatusIdle();
+    els.docxStripText.textContent = file.name;
+    els.docxStrip.dataset.kind = 'text';
+    els.docxStrip.classList.add('show');
+    showToast('File loaded — click Convert');
+  };
+  reader.readAsText(file);
+}
+
+function handleDroppedFile(file) {
+  if (!file) return;
+  if (!inputHasContent()) {
+    ingestFile(file);
+    return;
+  }
+  openConfirm(function () { ingestFile(file); }, function () { dropFailedToast(file.name); });
+}
+
 function loadDocxFile(file) {
   showProcessing(true, 'Loading DOCX…');
   JSZip.loadAsync(file).then(function (zip) {
@@ -2259,6 +2421,7 @@ function loadDocxFile(file) {
     appState.docxZip = zip;
     return docXmlFile.async('string');
   }).then(function (xmlStr) {
+    appState.docxAutoHint = detectDocxHintFromXml(xmlStr);
     var preview = extractPreviewText(xmlStr);
     els.inputTextarea.value = preview;
     els.outputTextarea.value = ''; // nothing converted yet — the user presses Convert
@@ -2269,6 +2432,7 @@ function loadDocxFile(file) {
     els.docxStrip.classList.add('show');
     updateStats();
     applyEncodingFonts();
+    setEncodingBadge(resolveMode());
     resetOutputFonts(); // new template resets picks to the encoding defaults
     setConvertButtonMode(true);
     // A DOCX upload always leaves Live mode: Convert now waits for a click.
@@ -2287,6 +2451,7 @@ function clearDocxTemplate() {
   appState.docxFile = null;
   appState.patchedDocxXml = null;
   appState.patchedDirection = null;
+  appState.docxAutoHint = null;
   var box = document.getElementById('print-doc');
   if (box) box.innerHTML = '';
   try { document.body.classList.remove('print-docx'); } catch (e) { /* non-fatal */ }
@@ -2297,7 +2462,7 @@ function clearDocxTemplate() {
 
 /* Patches DOCX parts and resolves { zip, mainXml, direction } without
    downloading — shared by DOCX download and table-preserving PDF print. */
-function patchDocxParts() {
+function patchDocxParts(onProgress) {
   var mode = resolveMode();
   var direction = mode === 'unicode-to-bijoy' ? 'uni2bijoy' : 'bijoy2uni';
   setEncodingBadge(mode);
@@ -2313,22 +2478,35 @@ function patchDocxParts() {
         catch (e) { stylesDoc = null; }
       }).catch(function () { stylesDoc = null; }) : Promise.resolve();
       return stylesReady.then(function () {
-        var jobs = partsToPatch.map(function (path) {
+        var pi = 0;
+        function nextPart() {
+          if (pi >= partsToPatch.length) {
+            if (onProgress) onProgress(100);
+            return { zip: freshZip, mainXml: state.mainXml, direction: direction, extras: state.extras, converted: totalConverted };
+          }
+          var path = partsToPatch[pi++];
           var partFile = freshZip.file(path);
-          if (!partFile) return Promise.resolve();
+          if (!partFile) return nextPart();
           return partFile.async('string').then(function (xml) {
-            // Phase 2: per-part counter; old string path unused here so we
-            // take the { xml, converted } form explicitly.
-            var out = patchDocumentXmlString(xml, direction, stylesDoc, { converted: 0 });
-            totalConverted += out.converted;
-            if (path === 'word/document.xml') state.mainXml = out.xml;
-            else state.extras.push({ path: path, xml: out.xml });
-            freshZip.file(path, out.xml);
+            function report(p) {
+              if (!onProgress) return;
+              var base = path === 'word/document.xml' ? 0 : 95;
+              var span = path === 'word/document.xml' ? 95 : 5;
+              onProgress(base + (p / 100) * span);
+            }
+            var done = path === 'word/document.xml'
+              ? patchDocumentXmlInBatches(xml, direction, stylesDoc, report)
+              : Promise.resolve(patchDocumentXmlString(xml, direction, stylesDoc, { converted: 0 }));
+            return done.then(function (out) {
+              totalConverted += out.converted;
+              if (path === 'word/document.xml') state.mainXml = out.xml;
+              else state.extras.push({ path: path, xml: out.xml });
+              freshZip.file(path, out.xml);
+              return nextPart();
+            });
           });
-        });
-        return Promise.all(jobs).then(function () {
-          return { zip: freshZip, mainXml: state.mainXml, direction: direction, extras: state.extras, converted: totalConverted };
-        });
+        }
+        return nextPart();
       });
     });
   });
@@ -2348,9 +2526,9 @@ function rememberPatchedDocx(r) {
    picks a format from the Download dialog when they are ready. */
 function convertDocxTemplate() {
   if (!appState.docxZip || !appState.docxFile) { showToast('No DOCX template loaded.'); return; }
-  showProcessing(true, 'Converting DOCX…');
+  showProcessing(true, 'Converting…', 0);
 
-  patchDocxParts().then(function (r) {
+  patchDocxParts(function (p) { showProcessing(true, 'Converting…', p); }).then(function (r) {
     rememberPatchedDocx(r);
     showConversionSuccess(r.direction === 'uni2bijoy' ? 'unicode-to-bijoy' : 'bijoy-to-unicode');
     // Never claim success when nothing converted — the font may be unsupported.
@@ -2370,9 +2548,9 @@ function convertDocxTemplate() {
    user never pressed Convert first. This is the ONLY place a DOCX downloads. */
 function downloadDocxTemplate() {
   if (!appState.docxZip || !appState.docxFile) { showToast('No DOCX template loaded.'); return; }
-  showProcessing(true, 'Building DOCX file…');
+  showProcessing(true, 'Building DOCX file…', 0);
 
-  patchDocxParts().then(function (r) {
+  patchDocxParts(function (p) { showProcessing(true, 'Building DOCX file…', p); }).then(function (r) {
     rememberPatchedDocx(r);
     return r.zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', compression: 'DEFLATE', compressionOptions: { level: 6 } }).then(function (blob) {
       return { blob: blob, direction: r.direction, converted: r.converted || 0 };
@@ -2578,6 +2756,7 @@ function wireKeyboardShortcuts() {
     if (key === '?' && !inField && !e.ctrlKey && !e.altKey) { openShortcuts(); return; }
     if (key === 'Escape' && els.unmapModal && !els.unmapModal.hidden) { closeUnmapModal(); return; }
     if (key === 'Escape') {
+      if (els.confirmModal && !els.confirmModal.hidden) { settleConfirm(false); return; }
       if (els.downloadModal && !els.downloadModal.hidden) { closeDialog(els.downloadModal); return; }
     }
     if (key === 'Escape' && !els.shortcutsPanel.hidden) { closeShortcuts(); return; }
@@ -2684,41 +2863,37 @@ function wireEvents() {
 
   els.fileUploadInput.addEventListener('change', function (e) {
     var file = e.target.files[0];
-    if (!file) return;
-    // Phase 8: legacy .doc is binary OLE — not convertible client-side.
-    // Fail loudly with guidance instead of silently misreading it as text.
-    if (file.name.toLowerCase().endsWith('.doc') && !file.name.toLowerCase().endsWith('.docx')) {
-      showToast('.doc সমর্থিত নয় — Word থেকে .docx হিসেবে Save করে আবার চেষ্টা করুন');
-      e.target.value = '';
-      return;
-    }
-    if (file.name.toLowerCase().endsWith('.docx')) {
-      loadDocxFile(file);
-    } else {
-      var reader = new FileReader();
-      reader.onload = function (ev) {
-        snapshotForUndo();
-        clearDocxTemplate();
-        els.inputTextarea.value = ev.target.result;
-        els.outputTextarea.value = ''; // nothing converted yet — the user presses Convert
-        syncUndoBase();
-        updateStats();
-        resetOutputFonts(); // a new file resets font picks to the encoding defaults
-        // A file upload always leaves Live mode: Convert now waits for a click.
-        setLiveMode(false);
-        setStatusIdle();
-        // Text uploads get the same loaded-file strip a DOCX template does, so
-        // the filename stays visible above the input and can be dropped in one
-        // click. Never lockInputForDocx() here — a text file stays editable.
-        els.docxStripText.textContent = file.name;
-        els.docxStrip.dataset.kind = 'text';
-        els.docxStrip.classList.add('show');
-        showToast('File loaded — click Convert');
-      };
-      reader.readAsText(file);
-    }
     e.target.value = '';
+    if (!file) return;
+    ingestFile(file);
   });
+
+  var dropTarget = document.querySelector('.panel--input');
+  if (dropTarget) {
+    dropTarget.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      dropTarget.classList.add('is-dragover');
+    });
+    dropTarget.addEventListener('dragleave', function (e) {
+      if (e.relatedTarget && dropTarget.contains(e.relatedTarget)) return;
+      dropTarget.classList.remove('is-dragover');
+    });
+    dropTarget.addEventListener('drop', function (e) {
+      e.preventDefault();
+      dropTarget.classList.remove('is-dragover');
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) handleDroppedFile(f);
+    });
+  }
+
+  if (els.confirmOkBtn) els.confirmOkBtn.addEventListener('click', function () { settleConfirm(true); });
+  if (els.confirmCancelBtn) els.confirmCancelBtn.addEventListener('click', function () { settleConfirm(false); });
+  if (els.confirmCloseBtn) els.confirmCloseBtn.addEventListener('click', function () { settleConfirm(false); });
+  if (els.confirmModal) {
+    Array.prototype.forEach.call(els.confirmModal.querySelectorAll('[data-close]'), function (node) {
+      node.addEventListener('click', function () { settleConfirm(false); });
+    });
+  }
 
   function clearAllNow() {
     snapshotForUndo();
@@ -2800,6 +2975,10 @@ function wireEvents() {
   }
 
   if (els.downloadOpenBtn) els.downloadOpenBtn.addEventListener('click', function () {
+    if (els.downloadOpenBtn.getAttribute('aria-disabled') === 'true') {
+      showToast('nothing here to download');
+      return;
+    }
     openDownloadModal();
   });
   wireDialog(els.downloadModal, els.downloadCloseBtn, { backdrop: false });
