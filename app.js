@@ -2533,7 +2533,7 @@ function convertDocxTemplate() {
     showConversionSuccess(r.direction === 'uni2bijoy' ? 'unicode-to-bijoy' : 'bijoy-to-unicode');
     // Never claim success when nothing converted — the font may be unsupported.
     if (!r.converted) {
-      showToast('কোনো বাংলা টেক্সট শনাক্ত হয়নি — ফাইলের ফন্ট সমর্থিত কিনা যাচাই করুন');
+      showToast('No related text detected.');
     } else {
       showToast('DOCX converted — choose a format from Download');
     }
@@ -2564,7 +2564,7 @@ function downloadDocxTemplate() {
     // Phase 2 fix: never claim success when nothing converted — tell the
     // user the font may be unsupported instead of a false success toast.
     if (!out.converted) {
-      showToast('কোনো বাংলা টেক্সট শনাক্ত হয়নি — ফাইলের ফন্ট সমর্থিত কিনা যাচাই করুন');
+      showToast('No related text detected.');
     } else {
       showToast('DOCX downloaded!');
     }
