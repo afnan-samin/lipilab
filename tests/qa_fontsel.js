@@ -41,7 +41,7 @@ const swap=await p.evaluate(async()=>{
   await new Promise(r=>setTimeout(r,120));
   out.b2u={b:r('bangla-font-select'), sel:document.getElementById('bangla-font-select').value};
   return out;});
-ok('Unicode→Bijoy switches to the Bijoy font list', swap.u2b.b.join(',')==='SutonnyMJ,TonnyBanglaMJ', swap.u2b.b.join(','));
+ok('Unicode→Bijoy switches to the Bijoy font list', swap.u2b.b.join(',')==='SutonnyMJ,TonnyBanglaMJ,ArialKhanMJ', swap.u2b.b.join(','));
 ok('Unicode→Bijoy default is SutonnyMJ', swap.u2b.sel==='SutonnyMJ', swap.u2b.sel);
 ok('Bijoy→Unicode switches back to the Unicode list', swap.b2u.b.join(',').indexOf('Kalpurush')===0, swap.b2u.b.join(','));
 ok('Bijoy→Unicode default is Kalpurush', swap.b2u.sel==='Kalpurush', swap.b2u.sel);

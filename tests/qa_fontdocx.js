@@ -39,7 +39,7 @@ ok('English default is Times New Roman', E.defaultEnglishFont()==='Times New Rom
 
 // Bangla list follows OUTPUT encoding
 ok('Unicode output -> Unicode font list', E.banglaListForEncoding('bijoy-to-unicode').indexOf('Kalpurush')>-1);
-ok('Bijoy output -> Bijoy font list', E.banglaListForEncoding('unicode-to-bijoy').join(',')==='SutonnyMJ,TonnyBanglaMJ');
+ok('Bijoy output -> Bijoy font list', E.banglaListForEncoding('unicode-to-bijoy').join(',')==='SutonnyMJ,TonnyBanglaMJ,ArialKhanMJ');
 
 // unknown name falls back
 ok('unknown Bangla name falls back to default',

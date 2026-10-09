@@ -1213,8 +1213,6 @@ function convertPlainTextSync(text) {
       if (tok.type === 'bangla') {
         item.text = ConvertToASCII(tok.raw);
         unmappable += countUnmappable(item.text, unmappableSeen);
-      } else if (tok.type === 'latin') {
-        item.text = tok.raw;
       } else {
         item.text = tok.raw;
       }
@@ -1245,22 +1243,43 @@ function convertPlainTextSync(text) {
    gated one by one, which is what made a whole Bijoy paragraph come
    out mostly unconverted.
 ------------------------------------------------------------ */
-function convertBijoyTextMixed(text) {
+function convertLeavingUnicodeBangla(text, convertRest) {
+  if (!text) return text;
+  var re = /([\u0980-\u09FF\u0964\u0965]+)|([^\u0980-\u09FF\u0964\u0965]+)/g;
+  var out = '', m;
+  while ((m = re.exec(text)) !== null) {
+    out += m[1] !== undefined ? m[1] : convertRest(m[2]);
+  }
+  return out;
+}
+
+function convertBijoySpan(text) {
   if (!text) return text;
   var tokens = splitBijoyTokens(text);
   var plan = planBijoyTokenConversions(tokens);
   var isBijoy = plan.strong ||
     (plan.candidates > 0 && plan.asciiConvertible >= 1 && plan.asciiConvertible * 2 >= plan.candidates);
-  if (!isBijoy) return text; // no Bijoy evidence: leave the text byte-identical
+  if (!isBijoy) return text;
   var out = '';
   for (var i = 0; i < tokens.length; i++) {
     var d = plan.decoded[i];
-    // A Bijoy-only glyph anywhere in the string proves the whole string is
-    // Bijoy, so every token that cannot be Bangla gets converted. Without that
-    // proof the string is only *probably* Bijoy, so require the stricter
-    // verdict per token before touching it.
     var use = d && d.text !== null && (plan.strong || d.strict);
     out += use ? d.text : tokens[i].raw;
+  }
+  return out;
+}
+
+function convertBijoyTextMixed(text) {
+  return convertLeavingUnicodeBangla(text, convertBijoySpan);
+}
+
+function convertUnicodeTextMixed(text) {
+  if (!text) return text;
+  var tokens = tokenizeMixedText(text);
+  var out = '';
+  for (var i = 0; i < tokens.length; i++) {
+    var tok = tokens[i];
+    out += tok.type === 'bangla' ? ConvertToASCII(tok.raw) : tok.raw;
   }
   return out;
 }
@@ -1599,7 +1618,7 @@ function buildBlankDocxBlob(tokens) {
    tracked-changes artifacts), each run is still tokenized on its
    own text. Cross-run word reconstruction is out of scope here.
 ------------------------------------------------------------ */
-var BIJOY_FONT_NAMES = ['SutonnyMJ', 'SutonnyOMJ', 'Sutonny', 'SulekhaBangla', 'Ekushey', 'Bijoy', 'BijoyBangla'];
+var BIJOY_FONT_NAMES = ['SutonnyMJ', 'SutonnyOMJ', 'Sutonny', 'SulekhaBangla', 'Ekushey', 'Bijoy', 'BijoyBangla', 'ArialKhanMJ', 'TonnyBanglaMJ'];
 // Phase 2 fix: style-level fallback — a run with no direct rFonts inherits the
 // paragraph style's font (w:pStyle -> styles.xml) and finally docDefaults.
 // stylesDoc is optional (parsed styles.xml); null = run-level check only.
@@ -1615,7 +1634,7 @@ var UNICODE_TARGET_FONT = 'Nirmala UI'; // Phase 6 fix: Times New Roman has no B
    Nirmala UI last, where it still acts as a Unicode-safe fallback.
 ------------------------------------------------------------ */
 var FONTS = {
-  bijoy: ['SutonnyMJ', 'TonnyBanglaMJ'],
+  bijoy: ['SutonnyMJ', 'TonnyBanglaMJ', 'ArialKhanMJ'],
   unicode: ['Kalpurush', 'Nikosh', 'Shonar Bangla', 'Vrinda', 'SolaimanLipi', 'Nirmala UI'],
   english: ['Times New Roman', 'Cambria', 'Lucida Fax', 'Arial', 'Calibri']
 };
@@ -1835,6 +1854,53 @@ function setRunFont(rFontsEl, fontName) {
   rFontsEl.removeAttribute('w:hAnsiTheme');
   rFontsEl.removeAttribute('w:cstheme');
   rFontsEl.removeAttribute('w:eastAsiaTheme');
+  rFontsEl.removeAttribute('w:hint');
+}
+
+function clearComplexScriptLock(rPrEl) {
+  if (!rPrEl) return;
+  var kids = rPrEl.childNodes;
+  for (var i = kids.length - 1; i >= 0; i--) {
+    var k = kids[i];
+    if (!k || k.nodeType !== 1) continue;
+    var n = k.localName || (k.nodeName && k.nodeName.split(':').pop()) || '';
+    if (n !== 'cs') continue;
+    var val = k.getAttribute('w:val');
+    if (!val || val === 'true' || val === '1') rPrEl.removeChild(k);
+  }
+}
+
+function applyBanglaFace(rPrEl, doc, fontName) {
+  if (!rPrEl) return;
+  setRunFont(ensureRunFonts(rPrEl, doc), fontName);
+  clearComplexScriptLock(rPrEl);
+}
+
+function ensureFontInFontTable(xmlString, fontName) {
+  if (!xmlString || !fontName) return xmlString;
+  if (xmlString.indexOf('w:name="' + fontName + '"') !== -1) return xmlString;
+  var doc = new DOMParser().parseFromString(xmlString, 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length) return xmlString;
+  var fontsEl = doc.getElementsByTagName('w:fonts')[0] || doc.documentElement;
+  if (!fontsEl) return xmlString;
+  var existing = fontsEl.getElementsByTagName('w:font');
+  for (var i = 0; i < existing.length; i++) {
+    if (existing[i].getAttribute('w:name') === fontName) return xmlString;
+  }
+  var fontEl = doc.createElementNS(WORD_NS, 'w:font');
+  fontEl.setAttribute('w:name', fontName);
+  var charset = doc.createElementNS(WORD_NS, 'w:charset');
+  charset.setAttribute('w:val', '00');
+  fontEl.appendChild(charset);
+  var family = doc.createElementNS(WORD_NS, 'w:family');
+  family.setAttribute('w:val', 'auto');
+  fontEl.appendChild(family);
+  fontsEl.appendChild(fontEl);
+  var serialized = new XMLSerializer().serializeToString(doc);
+  if (serialized.indexOf('<?xml') !== 0) {
+    serialized = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + serialized;
+  }
+  return serialized;
 }
 
 function setRunLang(rPrEl, doc) {
@@ -2010,6 +2076,9 @@ function groupTokensBySide(tokens) {
    and is left exactly as it is. */
 function englishFontForRun(runEl, stylesDoc) {
   var src = getEffectiveFontName(runEl, stylesDoc || null);
+  // Already-Bijoy faces store Bangla as ASCII. Do not retag those bytes as
+  // English — that is what made lecture 16 wrap and lose glyphs.
+  if (isBijoyFontName(src)) return null;
   return isBanglaFontName(src) ? getSelectedEnglishFont() : null;
 }
 
@@ -2046,7 +2115,7 @@ function replaceRunWithSideGroups(runEl, doc, rPrEl, groups, convertBangla, engl
     if (g.side === 'bangla') {
       if (convertBangla) text = convertBangla(text);
       if (!newRPr) newRPr = doc.createElementNS(WORD_NS, 'w:rPr');
-      setRunFont(ensureRunFonts(newRPr, doc), getSelectedBanglaFont());
+      applyBanglaFace(newRPr, doc, getSelectedBanglaFont());
       if (tagBanglaLang) setRunLang(newRPr, doc);
     } else if (englishFontName) {
       if (!newRPr) newRPr = doc.createElementNS(WORD_NS, 'w:rPr');
@@ -2135,7 +2204,7 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
     // still gates ASCII-only words as "maybe English" (কলহন / Kjnb fails
     // the consonant-soup check), which left File 1's two-column options
     // unconverted. Trust the face and convert the whole run.
-    var convertedText = ConvertToUnicode(originalText);
+    var convertedText = convertLeavingUnicodeBangla(originalText, ConvertToUnicode);
 
     // English font fix: this run was tagged with a Bijoy face, so ASCII
     // English carried inside it used to be stamped with that Bangla font and
@@ -2156,7 +2225,7 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
 
     setRunText(convertedText);
     if (!rPrEl) { rPrEl = doc.createElementNS(WORD_NS, 'w:rPr'); runEl.insertBefore(rPrEl, runEl.firstChild); }
-    setRunFont(ensureRunFonts(rPrEl, doc), getSelectedBanglaFont());
+    applyBanglaFace(rPrEl, doc, getSelectedBanglaFont());
     setRunLang(rPrEl, doc);
     if (counter) counter.converted++;
     return 1;
@@ -2166,10 +2235,22 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
   var tokens = tokenizeMixedText(originalText);
   var hasBangla = tokens.some(function (t) { return t.type === 'bangla'; });
   if (!hasBangla) {
-    // Nothing to convert in this run — but the text can still be English
-    // sitting in a Bangla face, which is how a document whose every run is
-    // Kalpurush ends up rendering its English in Kalpurush. Re-tag the FONT
-    // only; the text itself stays byte-identical.
+    // Nothing to convert. Already-Bijoy faces store Bangla as ASCII bytes
+    // ('wmsnj' in SutonnyMJ). Re-tagging those as English (Times New Roman)
+    // is what garbled lecture 16: glyphs vanished, table cells wrapped.
+    var srcFont = getEffectiveFontName(runEl, stylesDoc || null);
+    if (isBijoyFontName(srcFont)) {
+      // Text stays (already Bijoy). Stamp the picked Bijoy face and drop
+      // Word's w:hint="cs" / empty w:cs so the user can change fonts later.
+      var picked = getSelectedBanglaFont();
+      if (!isBijoyFontName(picked)) return 0;
+      if (!rPrEl) { rPrEl = doc.createElementNS(WORD_NS, 'w:rPr'); runEl.insertBefore(rPrEl, runEl.firstChild); }
+      applyBanglaFace(rPrEl, doc, picked);
+      if (counter) counter.converted++;
+      return 1;
+    }
+    // Unicode-face English sitting in Kalpurush still gets the English pick;
+    // the text itself stays byte-identical.
     retagEnglishOnlyRun(runEl, doc, rPrEl, originalText, stylesDoc);
     return 0;
   }
@@ -2178,7 +2259,7 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
     // whole run is a single Bangla token — convert in place, no split needed
     setRunText(ConvertToASCII(tokens[0].raw));
     if (!rPrEl) { rPrEl = doc.createElementNS(WORD_NS, 'w:rPr'); runEl.insertBefore(rPrEl, runEl.firstChild); }
-    setRunFont(ensureRunFonts(rPrEl, doc), getSelectedBanglaFont());
+    applyBanglaFace(rPrEl, doc, getSelectedBanglaFont());
     if (counter) counter.converted++;
     return 1;
   }
@@ -2259,6 +2340,10 @@ function spaceFontForDocText(text) {
       else if ((c >= 65 && c <= 90) || (c >= 97 && c <= 122)) english++;
     }
   }
+  // No Unicode Bangla: already-Bijoy ASCII is not English. Retagging those
+  // space runs (SutonnyMJ → Times New Roman) changed metrics and wrapped
+  // lecture 16's table cells.
+  if (!bangla) return null;
   return bangla >= english ? getSelectedBanglaFont() : getSelectedEnglishFont();
 }
 
@@ -2279,7 +2364,22 @@ function applySpaceRunFonts(doc, fontName) {
   }
 }
 
+function restampBijoyFaces(doc, fontName) {
+  if (!fontName || !isBijoyFontName(fontName)) return;
+  var rFonts = doc.getElementsByTagName('w:rFonts');
+  for (var i = 0; i < rFonts.length; i++) {
+    var el = rFonts[i];
+    var name = el.getAttribute('w:ascii') || el.getAttribute('w:hAnsi') || el.getAttribute('w:cs') || el.getAttribute('w:eastAsia') || '';
+    if (!isBijoyFontName(name)) continue;
+    setRunFont(el, fontName);
+    var parent = el.parentNode;
+    if (parent) clearComplexScriptLock(parent);
+  }
+}
+
 function patchDocumentXmlString(xmlString, direction, stylesDoc, counter) {
+  if (direction === 'uni2bijoy') appState.outputEncoding = 'unicode-to-bijoy';
+  else if (direction === 'bijoy2uni') appState.outputEncoding = 'bijoy-to-unicode';
   var doc = new DOMParser().parseFromString(xmlString, 'application/xml');
   if (doc.getElementsByTagName('parsererror').length) throw new Error('Could not parse DOCX XML');
   mergeSameFontRuns(doc); // pre-pass: join split words first (see above)
@@ -2295,6 +2395,7 @@ function patchDocumentXmlString(xmlString, direction, stylesDoc, counter) {
   mergeSameFontRuns(doc);
   if (direction === 'bijoy2uni') spaceFont = spaceFontForDocText(collectDocText(doc));
   applySpaceRunFonts(doc, spaceFont);
+  if (direction === 'uni2bijoy') restampBijoyFaces(doc, getSelectedBanglaFont());
   var serialized = new XMLSerializer().serializeToString(doc);
   if (serialized.indexOf('<?xml') !== 0) {
     serialized = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + serialized;
@@ -2310,6 +2411,8 @@ function yieldFrame() {
 }
 
 function patchDocumentXmlInBatches(xmlString, direction, stylesDoc, onProgress) {
+  if (direction === 'uni2bijoy') appState.outputEncoding = 'unicode-to-bijoy';
+  else if (direction === 'bijoy2uni') appState.outputEncoding = 'bijoy-to-unicode';
   var doc = new DOMParser().parseFromString(xmlString, 'application/xml');
   if (doc.getElementsByTagName('parsererror').length) throw new Error('Could not parse DOCX XML');
   mergeSameFontRuns(doc);
@@ -2326,6 +2429,7 @@ function patchDocumentXmlInBatches(xmlString, direction, stylesDoc, onProgress) 
     mergeSameFontRuns(doc);
     if (direction === 'bijoy2uni') spaceFont = spaceFontForDocText(collectDocText(doc));
     applySpaceRunFonts(doc, spaceFont);
+    if (direction === 'uni2bijoy') restampBijoyFaces(doc, getSelectedBanglaFont());
     var serialized = new XMLSerializer().serializeToString(doc);
     if (serialized.indexOf('<?xml') !== 0) {
       serialized = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + serialized;
@@ -2481,8 +2585,20 @@ function patchDocxParts(onProgress) {
         var pi = 0;
         function nextPart() {
           if (pi >= partsToPatch.length) {
-            if (onProgress) onProgress(100);
-            return { zip: freshZip, mainXml: state.mainXml, direction: direction, extras: state.extras, converted: totalConverted };
+            var banglaFace = getSelectedBanglaFont();
+            var englishFace = getSelectedEnglishFont();
+            var tableFile = freshZip.file('word/fontTable.xml');
+            var finish = function () {
+              if (onProgress) onProgress(100);
+              return { zip: freshZip, mainXml: state.mainXml, direction: direction, extras: state.extras, converted: totalConverted };
+            };
+            if (!tableFile) return finish();
+            return tableFile.async('string').then(function (ftXml) {
+              var next = ensureFontInFontTable(ftXml, banglaFace);
+              next = ensureFontInFontTable(next, englishFace);
+              freshZip.file('word/fontTable.xml', next);
+              return finish();
+            }).catch(finish);
           }
           var path = partsToPatch[pi++];
           var partFile = freshZip.file(path);
