@@ -180,7 +180,7 @@ sandbox.window.localStorage = sandbox.localStorage;
 sandbox.window.document = doc;
 sandbox.window.navigator = sandbox.navigator;
 
-var src = fs.readFileSync(APP, 'utf8');
+var src = fs.readFileSync(APP.replace(/app\.js$/, 'engine.js'), 'utf8') + '\n' + fs.readFileSync(APP, 'utf8');
 vm.runInNewContext(src, sandbox, { filename: 'app.js' });
 
 function tick(ms) { return new Promise(function (r) { setTimeout(r, ms || 5); }); }
