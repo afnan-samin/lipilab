@@ -1931,19 +1931,18 @@ function groupTokensBySide(tokens) {
   return groups;
 }
 
-/* The English font to stamp on Latin pieces of this run, or null to leave the
-   run's own font alone. A run tagged with a Bangla face (the very common
-   "every run in this document is Kalpurush / SutonnyMJ" case) has English
-   that would render in that Bangla face, so it gets the picked English font
-   instead. A run that already carries a genuine Latin face (Cambria, Times New
-   Roman, Arial, Calibri...) is the document author's own English formatting
-   and is left exactly as it is. */
+/* The English font to stamp on Latin pieces of this run. Every non-Bijoy run
+   takes the picked English font — exactly like the Bangla side always takes
+   the picked Bangla font. The old rule preserved a run that already carried
+   a Latin face (Cambria, Times New Roman, Arial, Calibri...), which is why
+   the English picker looked dead: a document whose English already sat in
+   one of those faces never changed when the picker changed. */
 function englishFontForRun(runEl, stylesDoc) {
   var src = getEffectiveFontName(runEl, stylesDoc || null);
   // Already-Bijoy faces store Bangla as ASCII. Do not retag those bytes as
   // English — that is what made lecture 16 wrap and lose glyphs.
   if (isBijoyFontName(src)) return null;
-  return isBanglaFontName(src) ? getSelectedEnglishFont() : null;
+  return getSelectedEnglishFont();
 }
 
 /* A run with no Bangla in it (English-only, or punctuation) still needs the
@@ -1957,7 +1956,7 @@ function englishFontForRun(runEl, stylesDoc) {
 function retagEnglishOnlyRun(runEl, doc, rPrEl, text, stylesDoc) {
   if (!/[A-Za-z0-9]/.test(text || '')) return false;
   var english = englishFontForRun(runEl, stylesDoc);
-  if (!english) return false; // already a real Latin font — document's own, keep it
+  if (!english) return false; // Bijoy face — English bytes stay untouched
   if (!rPrEl) { rPrEl = doc.createElementNS(WORD_NS, 'w:rPr'); runEl.insertBefore(rPrEl, runEl.firstChild); }
   setRunFont(ensureRunFonts(rPrEl, doc), english);
   return true;
@@ -2130,8 +2129,9 @@ function splitRunForConversion(runEl, doc, direction, stylesDoc, counter) {
 
   // One <w:r> per maximal same-output-side group (Phase 4), each cloning the
   // original <w:rPr> so bold/italic/underline/size/colour survive untouched.
-  // English font fix: Latin pieces get the picked English font when the source
-  // run sat in a Bangla face; a run already in a real Latin face keeps its own.
+  // English font fix: Latin pieces get the picked English font (same as the
+  // Bangla side always gets the picked Bangla font); Bijoy source faces are
+  // left alone so their ASCII Bangla bytes are never retagged as English.
   replaceRunWithSideGroups(
     runEl, doc, rPrEl,
     groupTokensBySide(tokens),
