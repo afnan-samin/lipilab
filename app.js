@@ -1868,7 +1868,8 @@ function runsHaveSameRPr(a, b) {
   return runRPrSignature(a) === runRPrSignature(b);
 }
 function mergeSameFontRuns(doc) {
-  var paras = doc.getElementsByTagName('w:p');
+  // Same live-NodeList trap as restampBijoyFaces (see there): snapshot first.
+  var paras = Array.prototype.slice.call(doc.getElementsByTagName('w:p'));
   for (var pi = 0; pi < paras.length; pi++) {
     var kids = paras[pi].childNodes;
     var firstRun = null, firstT = null;
@@ -2212,7 +2213,9 @@ function spaceFontForDocText(text) {
 
 function applySpaceRunFonts(doc, fontName) {
   if (!fontName) return;
-  var runs = doc.getElementsByTagName('w:r');
+  // Live NodeList + insertBefore() inside the loop = O(N^2). Snapshot first
+  // (same trap as restampBijoyFaces).
+  var runs = Array.prototype.slice.call(doc.getElementsByTagName('w:r'));
   for (var i = 0; i < runs.length; i++) {
     var runEl = runs[i];
     if (!runIsPlainText(runEl)) continue;
@@ -2229,7 +2232,12 @@ function applySpaceRunFonts(doc, fontName) {
 
 function restampBijoyFaces(doc, fontName) {
   if (!fontName || !isBijoyFontName(fontName)) return;
-  var rFonts = doc.getElementsByTagName('w:rFonts');
+  // Snapshot to a static array FIRST: getElementsByTagName returns a LIVE
+  // NodeList, so setAttribute() inside the loop re-runs the whole-document
+  // query on every iteration (O(N^2) — 70s on an 18k-font file). Iterating a
+  // snapshot keeps it O(N).
+  var live = doc.getElementsByTagName('w:rFonts');
+  var rFonts = Array.prototype.slice.call(live);
   for (var i = 0; i < rFonts.length; i++) {
     var el = rFonts[i];
     var name = el.getAttribute('w:ascii') || el.getAttribute('w:hAnsi') || el.getAttribute('w:cs') || el.getAttribute('w:eastAsia') || '';
