@@ -16,8 +16,9 @@
 <meta name="twitter:description" content="Convert Bangla Unicode and Bijoy text and Word files. Free, private, no signup." />
 <link rel="canonical" href="https://lipilab.pro.bd" />
 <title>LipiLab — Bangla Unicode ↔ Bijoy Converter</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg" />
-<link rel="apple-touch-icon" href="favicon.svg" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=2" />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=2" />
+<link rel="apple-touch-icon" href="favicon-180.png?v=2" />
 
 <!-- JSZip: needed for both blank-DOCX generation and DOCX template round-trip patching.
      Self-hosted so DOCX upload/download keeps working with the network off. -->
@@ -26,7 +27,7 @@
 <!-- UI + Bangla web fonts are self-hosted in /fonts and declared at the top of
      styles.css — no Google Fonts, no maateen.me, no network request at all. -->
 
-<link rel="stylesheet" href="styles.css?v=70">
+<link rel="stylesheet" href="styles.css?v=89">
 </head>
 <body>
 
@@ -103,16 +104,7 @@
 
 <header class="app-header" role="banner" style="top:0;left:0;right:0;margin:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;">
     <div class="app-header__brand">
-      <svg class="app-logo" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-        <rect width="36" height="36" rx="9" fill="url(#logo-grad)" />
-        <text class="app-logo__letter" x="50%" y="26" text-anchor="middle" font-family="'Kalpurush','Noto Sans Bengali',serif" font-size="22" font-weight="700" fill="#fff">ল</text>
-        <defs>
-          <linearGradient id="logo-grad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop class="bn-logo-a" offset="0%" />
-            <stop class="bn-logo-b" offset="100%" />
-          </linearGradient>
-        </defs>
-      </svg>
+      <img class="app-logo" src="logo-full.svg?v=2" width="36" height="36" alt="" />
       <div class="app-brand-text">
       <span class="app-brand-name"><span class="brand-l">L</span>ipi<span class="brand-l brand-l--2">L</span>ab</span>
       <span class="app-brand-tagline">বাংলা লেখার জন্য একটাই ল্যাব</span>
@@ -121,16 +113,17 @@
 
     <nav class="app-header__actions" aria-label="Application controls">
       <button class="icon-btn" id="theme-toggle-btn" type="button" aria-label="Switch to dark mode" title="Toggle theme (Ctrl+D)">
-        <svg class="icon icon--sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <svg class="icon icon--sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <circle cx="12" cy="12" r="5" fill="none"/>
           <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
           <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
           <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
         </svg>
-        <svg class="icon icon--moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <svg class="icon icon--moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
         </svg>
+        <span class="theme-toggle__label">Light</span>
       </button>
       <button class="icon-btn" id="shortcuts-open-btn" type="button" aria-label="Keyboard shortcuts" aria-expanded="false" aria-controls="shortcuts-panel" title="Keyboard shortcuts (?)">
         <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -138,9 +131,14 @@
           <path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M7.5 16.5h9"/>
         </svg>
       </button>
-      <button class="features-btn" id="features-open-btn" type="button" aria-controls="info-box" title="Go to the LipiLab features list">
-        <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/></svg>
-        Features
+      <button class="features-btn" id="features-open-btn" type="button" aria-controls="tools-nav" title="Go to the LipiLab converter">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 3 4 7l4 4"/>
+          <path d="M4 7h16"/>
+          <path d="M16 21l4-4-4-4"/>
+          <path d="M20 17H4"/>
+        </svg>
+        Convert
       </button>
     </nav>
   </header>
@@ -168,6 +166,25 @@
     <!-- Slot managed by partner.js — real code in PARTNER.top replaces this demo. -->
   </div>
 
+  <div class="info-box" id="info-box" aria-labelledby="info-box-title">
+    <h2 class="info-box__title" id="info-box-title">LipiLab দিয়ে কী কী করা যায়?</h2>
+    <div class="info-box__body" id="info-box-body">
+      <ul class="info-box__features">
+        <li><strong>LipiLab</strong> হলো <strong>বাংলা লেখালেখির দৈনন্দিন কাজগুলো</strong> সহজ করার একটি টুল।</li>
+        <li>অনেক <strong>অনলাইন কনভার্টারে</strong> ফাইলের <strong>সাজানো-গোছানো অবস্থা নষ্ট</strong> হয়ে যায়। <strong>LipiLab</strong> তৈরি করা হয়েছে সেই সমস্যাটা মাথায় রেখেই, যাতে আপনার <strong>ডকুমেন্ট আগের মতোই</strong> থাকে।</li>
+        <li>বাংলা লেখাকে <strong>ইউনিকোড থেকে বিজয়</strong> কিংবা <strong>বিজয় থেকে ইউনিকোডে</strong> রূপান্তর করতে চান? শুধু লেখা পেস্ট করলেই <strong>LipiLab</strong> নিজেই বুঝে নেয় কোন <strong>ফরম্যাট থেকে কোন ফরম্যাটে</strong> পরিবর্তন করতে হবে।</li>
+        <li>আপনি চাইলে <strong>Live Mode</strong> ব্যবহার করতে পারেন। এতে লেখার সাথে সাথে পরিবর্তিত ফলাফল দেখতে পাবেন। আর যদি নিজে নিয়ন্ত্রণ করতে চান, তাহলে <strong>Convert বাটন</strong> চাপলেই হবে।</li>
+        <li><strong>Word ফাইল</strong> নিয়েও ঝামেলা নেই। ফাইল আপলোড করুন, কনভার্ট করুন, তারপর আবার ডাউনলোড করে নিন। সবচেয়ে ভালো বিষয় হলো, আপনার ডকুমেন্টের <strong>ফরম্যাটিং নষ্ট হবে না</strong>। <strong>Bold, Italic, Table, Column</strong> বা অন্যান্য লেআউট যেমন ছিল, তেমনই থাকবে। ইংরেজি লেখা ইংরেজিতেই থাকবে, বাংলা লেখা বাংলাতেই।</li>
+        <li>কাজ শেষ হলে <strong>এক ক্লিকেই</strong> ফলাফল ডাউনলোড করতে পারবেন। সাধারণ <strong>Text (.txt)</strong>, <strong>Word (.docx)</strong> কিংবা <strong>PDF</strong> — যেটা দরকার, সেটাই বেছে নিন।</li>
+        <li>দ্রুত কাজের জন্য রয়েছে <strong>Copy, Paste, Clear, Swap, Undo, Redo</strong> এবং পরিচিত <strong>Keyboard Shortcut</strong>-এর সুবিধা। পাশাপাশি লেখার <strong>অক্ষর ও শব্দ গণনা</strong>ও দেখতে পারবেন।</li>
+        <li>রাতে কাজ করতে স্বাচ্ছন্দ্য পেতে আছে <strong>Dark Mode</strong>।</li>
+        <li>সবচেয়ে গুরুত্বপূর্ণ বিষয় হলো, <strong>আপনার তথ্য আপনার কাছেই থাকে</strong>। LipiLab-এর সব প্রক্রিয়া আপনার <strong>ব্রাউজারের মধ্যেই</strong> সম্পন্ন হয়। কোনো লেখা বা ফাইল <strong>অন্য কোথাও পাঠানো হয় না</strong>।</li>
+        <li class="info-box__free">আর হ্যাঁ, LipiLab <strong>সম্পূর্ণ ফ্রি</strong>। ব্যবহার করতে কোনো <strong>অ্যাকাউন্ট খোলারও দরকার নেই</strong>।</li>
+      </ul>
+      <p class="info-box__foot">শিগগিরই যুক্ত হচ্ছে আরও কিছু সুবিধা, যেমন <strong>Spell Check</strong> এবং <strong>Related</strong> ফিচার সমূহ।</p>
+    </div>
+  </div>
+
   <nav class="tools-nav" id="tools-nav" aria-label="Tools">
     <button class="tools-nav__btn is-active" data-view="converter" type="button">Converter</button>
     <button class="tools-nav__btn tools-nav__btn--tease tools-nav__btn--tease-light" data-view="spellcheck" type="button" aria-label="Spell Check — coming soon" title="This feature is coming soon...">
@@ -184,11 +201,11 @@
       <legend class="visually-hidden">Conversion direction</legend>
       <label class="direction-selector__option" for="dir-unicode-bijoy">
         <input class="direction-selector__input visually-hidden" type="radio" id="dir-unicode-bijoy" name="conversion-direction" value="unicode-to-bijoy" />
-        <span class="direction-selector__label"><span class="dir-label--full">Unicode → Bijoy</span><span class="dir-label--short">Uni → Bijoy</span></span>
+        <span class="direction-selector__label"><span class="dir-label--full">Unicode → Bijoy</span><span class="dir-label--short">Unicode → Bijoy</span></span>
       </label>
       <label class="direction-selector__option" for="dir-bijoy-unicode">
         <input class="direction-selector__input visually-hidden" type="radio" id="dir-bijoy-unicode" name="conversion-direction" value="bijoy-to-unicode" />
-        <span class="direction-selector__label"><span class="dir-label--full">Bijoy → Unicode</span><span class="dir-label--short">Bijoy → Uni</span></span>
+        <span class="direction-selector__label"><span class="dir-label--full">Bijoy → Unicode</span><span class="dir-label--short">Bijoy → Unicode</span></span>
       </label>
       <label class="direction-selector__option" for="dir-auto">
         <input class="direction-selector__input visually-hidden" type="radio" id="dir-auto" name="conversion-direction" value="auto" checked />
@@ -272,9 +289,9 @@
             <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/></svg>
           </button>
           <button class="icon-btn icon-btn--sm" id="paste-btn" type="button" aria-label="Paste from clipboard" title="Paste">
-            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect class="bn-icon-tint" x="8" y="3" width="8" height="4" rx="1" fill-opacity=".22"/><path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/><path d="M9 13h6M9 17h4"/></svg>
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect class="bn-icon-tint" x="8" y="2" width="8" height="4" rx="1" fill-opacity=".22"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11v6"/><polyline points="9 14 12 17 15 14"/></svg>
           </button>
-          <label class="icon-btn icon-btn--sm" for="file-upload-input" title="Upload .txt or .docx file" tabindex="0" role="button" aria-label="Upload text or DOCX file">
+          <label class="icon-btn icon-btn--sm" id="file-upload-btn" for="file-upload-input" title="Upload .txt or .docx file" tabindex="0" role="button" aria-label="Upload text or DOCX file">
             <input type="file" id="file-upload-input" class="visually-hidden" accept=".txt,.docx" tabindex="-1" />
             <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           </label>
@@ -421,6 +438,43 @@
   </div>
   </main>
 
+  <div class="howto-box" id="howto-box" aria-labelledby="howto-box-title">
+    <h2 class="howto-box__title" id="howto-box-title">কীভাবে ব্যবহার করবেন</h2>
+    <div class="howto-box__body">
+      <p class="howto-box__intro">বাংলা লেখা বা Word ফাইল রূপান্তর করতে নিচের ধাপগুলো অনুসরণ করুন।</p>
+      <div class="howto-box__steps">
+        <article class="howto-box__step">
+          <div class="howto-box__step-head">
+            <span class="howto-box__num" aria-hidden="true">1</span>
+            <h3 class="howto-box__step-title">লেখা পেস্ট করুন বা ফাইল আপলোড করুন</h3>
+          </div>
+          <p class="howto-box__step-body">Input বক্সে আপনার বাংলা লেখা পেস্ট করুন। চাইলে সমর্থিত Word (.docx) ফাইল আপলোড করতে বা সরাসরি বক্সে ড্রপ করতেও পারেন।</p>
+        </article>
+        <article class="howto-box__step">
+          <div class="howto-box__step-head">
+            <span class="howto-box__num" aria-hidden="true">2</span>
+            <h3 class="howto-box__step-title">কনভার্সনের দিক বেছে নিন</h3>
+          </div>
+          <p class="howto-box__step-body">Unicode → Bijoy অথবা Bijoy → Unicode নির্বাচন করুন। কোন ফরম্যাটের লেখা ব্যবহার করছেন, তা নিশ্চিত না হলে Auto Detect ব্যবহার করতে পারেন।</p>
+        </article>
+        <article class="howto-box__step">
+          <div class="howto-box__step-head">
+            <span class="howto-box__num" aria-hidden="true">3</span>
+            <h3 class="howto-box__step-title">ফলাফল দেখুন ও যাচাই করুন</h3>
+          </div>
+          <p class="howto-box__step-body">Live Mode চালু থাকলে লেখার সঙ্গে সঙ্গে ফলাফল দেখুন। Live Mode বন্ধ থাকলে Convert বাটনে ক্লিক করুন। প্রয়োজনে উপলভ্য Font options থেকে উপযুক্ত ফন্ট নির্বাচন করুন।</p>
+        </article>
+        <article class="howto-box__step">
+          <div class="howto-box__step-head">
+            <span class="howto-box__num" aria-hidden="true">4</span>
+            <h3 class="howto-box__step-title">কপি করুন বা ডাউনলোড করুন</h3>
+          </div>
+          <p class="howto-box__step-body">ফলাফল ঠিক থাকলে Copy করে নিন অথবা Download অপশন থেকে উপলভ্য DOCX কিংবা TXT ফরম্যাটে সংরক্ষণ করুন।</p>
+        </article>
+      </div>
+    </div>
+  </div>
+
   <div class="pl-slot pl-slot--wide" id="spot-bottom" aria-label="Notice">
     <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab bottom banner">
       <defs>
@@ -442,22 +496,73 @@
     <!-- PARTNER MEDIA CODE GOES HERE (wide media unit). Real code in PARTNER.bottom replaces this demo. -->
   </div>
 
-  <div class="info-box" id="info-box" aria-labelledby="info-box-title">
-    <h2 class="info-box__title" id="info-box-title">LipiLab দিয়ে কী কী করা যায়?</h2>
-    <div class="info-box__body" id="info-box-body">
-      <ul class="info-box__features">
-        <li><strong>LipiLab</strong> হলো <strong>বাংলা লেখালেখির দৈনন্দিন কাজগুলো</strong> সহজ করার একটি টুল।</li>
-        <li>অনেক <strong>অনলাইন কনভার্টারে</strong> ফাইলের <strong>সাজানো-গোছানো অবস্থা নষ্ট</strong> হয়ে যায়। <strong>LipiLab</strong> তৈরি করা হয়েছে সেই সমস্যাটা মাথায় রেখেই, যাতে আপনার <strong>ডকুমেন্ট আগের মতোই</strong> থাকে।</li>
-        <li>বাংলা লেখাকে <strong>ইউনিকোড থেকে বিজয়</strong> কিংবা <strong>বিজয় থেকে ইউনিকোডে</strong> রূপান্তর করতে চান? শুধু লেখা পেস্ট করলেই <strong>LipiLab</strong> নিজেই বুঝে নেয় কোন <strong>ফরম্যাট থেকে কোন ফরম্যাটে</strong> পরিবর্তন করতে হবে।</li>
-        <li>আপনি চাইলে <strong>Live Mode</strong> ব্যবহার করতে পারেন। এতে লেখার সাথে সাথে পরিবর্তিত ফলাফল দেখতে পাবেন। আর যদি নিজে নিয়ন্ত্রণ করতে চান, তাহলে <strong>Convert বাটন</strong> চাপলেই হবে।</li>
-        <li><strong>Word ফাইল</strong> নিয়েও ঝামেলা নেই। ফাইল আপলোড করুন, কনভার্ট করুন, তারপর আবার ডাউনলোড করে নিন। সবচেয়ে ভালো বিষয় হলো, আপনার ডকুমেন্টের <strong>ফরম্যাটিং নষ্ট হবে না</strong>। <strong>Bold, Italic, Table, Column</strong> বা অন্যান্য লেআউট যেমন ছিল, তেমনই থাকবে। ইংরেজি লেখা ইংরেজিতেই থাকবে, বাংলা লেখা বাংলাতেই।</li>
-        <li>কাজ শেষ হলে <strong>এক ক্লিকেই</strong> ফলাফল ডাউনলোড করতে পারবেন। সাধারণ <strong>Text (.txt)</strong>, <strong>Word (.docx)</strong> কিংবা <strong>PDF</strong> — যেটা দরকার, সেটাই বেছে নিন।</li>
-        <li>দ্রুত কাজের জন্য রয়েছে <strong>Copy, Paste, Clear, Swap, Undo, Redo</strong> এবং পরিচিত <strong>Keyboard Shortcut</strong>-এর সুবিধা। পাশাপাশি লেখার <strong>অক্ষর ও শব্দ গণনা</strong>ও দেখতে পারবেন।</li>
-        <li>রাতে কাজ করতে স্বাচ্ছন্দ্য পেতে আছে <strong>Dark Mode</strong>।</li>
-        <li>সবচেয়ে গুরুত্বপূর্ণ বিষয় হলো, <strong>আপনার তথ্য আপনার কাছেই থাকে</strong>। LipiLab-এর সব প্রক্রিয়া আপনার <strong>ব্রাউজারের মধ্যেই</strong> সম্পন্ন হয়। কোনো লেখা বা ফাইল <strong>অন্য কোথাও পাঠানো হয় না</strong>।</li>
-        <li class="info-box__free">আর হ্যাঁ, LipiLab <strong>সম্পূর্ণ ফ্রি</strong>। ব্যবহার করতে কোনো <strong>অ্যাকাউন্ট খোলারও দরকার নেই</strong>।</li>
+  <div class="word-box" id="word-box" aria-labelledby="word-box-title">
+    <h2 class="word-box__title" id="word-box-title">Word ফাইল কীভাবে কনভার্ট করবেন!</h2>
+    <div class="word-box__body">
+      <p>আপনার DOCX ফাইল আপলোড করুন, বাংলা লেখার প্রয়োজনীয় রূপান্তর করুন, তারপর ফাইলটি ডাউনলোড করুন। ইংরেজি লেখা ও ডকুমেন্টের formatting যতটা সম্ভব অক্ষত রাখার জন্য ফাইলটি ডাউনলোডের পর একবার যাচাই করে নিন।</p>
+      <ul class="word-box__points">
+        <li>DOCX ফাইল আপলোড</li>
+        <li>Unicode ↔ Bijoy রূপান্তর</li>
+        <li>রূপান্তরিত ফাইল ডাউনলোড</li>
+        <li>একই ফাইলে বাংলা ও ইংরেজি লেখা (যাচাই করে নিন)</li>
+        <li>Bold, টেবিল, কলাম ও লেআউট যতটা সম্ভব অক্ষত (যাচাই করে নিন)</li>
       </ul>
-      <p class="info-box__foot">শিগগিরই যুক্ত হচ্ছে আরও কিছু সুবিধা, যেমন <strong>Spell Check</strong> এবং <strong>Related</strong> ফিচার সমূহ।</p>
+      <button type="button" class="word-box__cta" id="word-cta-btn">Convert a Word File</button>
+    </div>
+  </div>
+
+  <div class="pl-slot pl-slot--wide" id="spot-after-word" aria-label="Notice">
+    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab Word banner">
+      <defs>
+        </defs>
+      <rect width="728" height="90" class="bn-bg"/>
+      <circle cx="80" cy="-24" r="72" class="bn-orb" opacity="0.10">
+        <animate attributeName="cy" values="-24;-10;-24" dur="6.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="660" cy="114" r="62" class="bn-orb" opacity="0.07">
+        <animate attributeName="cy" values="114;102;114" dur="5.5s" repeatCount="indefinite"/>
+      </circle>
+      <text x="36" y="40" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" class="bn-title">Keep Your Word Layout Intact</text>
+      <text x="36" y="64" font-family="Arial,sans-serif" font-size="13.5" class="bn-sub">Upload · Convert · Download — check mixed Bangla and English once</text>
+      <g class="bn-cta">
+        <rect x="588" y="28" width="116" height="34" rx="17" class="bn-cta-bg"/>
+        <text x="646" y="50" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" class="bn-cta-text">Upload Now</text>
+      </g>
+    </svg>
+    <!-- PARTNER MEDIA CODE GOES HERE (wide media unit). Real code in PARTNER.afterWord replaces this demo. -->
+  </div>
+
+  <div class="faq-box" id="faq-box" aria-labelledby="faq-box-title">
+    <h2 class="faq-box__title" id="faq-box-title">সাধারণ জিজ্ঞাসা</h2>
+    <div class="faq-box__body">
+      <details class="faq-box__item">
+        <summary class="faq-box__q">LipiLab ব্যবহার করতে কি অ্যাকাউন্ট খুলতে হবে?</summary>
+        <p class="faq-box__a">না। LipiLab ব্যবহার করার জন্য কোনো অ্যাকাউন্ট তৈরি বা রেজিস্ট্রেশনের প্রয়োজন নেই।</p>
+      </details>
+      <details class="faq-box__item">
+        <summary class="faq-box__q">আমার লেখা বা Word ফাইল কি সার্ভারে আপলোড হয়?</summary>
+        <p class="faq-box__a">আপনার লেখা ও ফাইল আপনার ব্রাউজারেই প্রসেস হয়। কনভার্সনের জন্য সেগুলো কোনো সার্ভারে পাঠানো হয় না।</p>
+      </details>
+      <details class="faq-box__item">
+        <summary class="faq-box__q">Unicode ও Bijoy-এর মধ্যে পার্থক্য কী?</summary>
+        <p class="faq-box__a">Unicode বাংলা ওয়েবসাইট, সামাজিক যোগাযোগমাধ্যম এবং আধুনিক অ্যাপে ব্যবহারের উপযোগী। অন্যদিকে, Bijoy-ভিত্তিক পুরোনো ডকুমেন্ট ও কিছু প্রকাশনা-প্রক্রিয়ায় বিশেষ encoding ও font ব্যবহৃত হয়। LipiLab দিয়ে দুই ফরম্যাটের মধ্যে লেখা রূপান্তর করা যায়।</p>
+      </details>
+      <details class="faq-box__item">
+        <summary class="faq-box__q">একই Word ফাইলে বাংলা ও ইংরেজি লেখা থাকলে কী হবে?</summary>
+        <p class="faq-box__a">রূপান্তরের সময় বাংলা অংশ পরিবর্তন হওয়ার কথা, আর ইংরেজি লেখা ও অন্যান্য কনটেন্ট অপরিবর্তিত থাকা উচিত। টেবিল, Bold, Column এবং অন্যান্য formatting গুরুত্বপূর্ণ হলে ডাউনলোড করা ফাইলটি একবার যাচাই করে নিন।</p>
+      </details>
+      <details class="faq-box__item">
+        <summary class="faq-box__q">রূপান্তরের পর লেখায় ভুল থাকলে কী করব?</summary>
+        <p class="faq-box__a">সমস্যার অংশটি এবং সম্ভব হলে মূল ও রূপান্তরিত লেখার স্ক্রিনশটসহ Support-এ যোগাযোগ করুন। Word ফাইলে সমস্যা হলে কোন ফাইলে এবং কোন অংশে সমস্যা হচ্ছে, সেটিও উল্লেখ করুন।</p>
+      </details>
+      <details class="faq-box__item">
+        <summary class="faq-box__q">LipiLab কি বিনামূল্যে ব্যবহার করা যায়?</summary>
+        <p class="faq-box__a">হ্যাঁ। বর্তমানে উপলভ্য Converter ফিচারগুলো বিনামূল্যে ব্যবহার করা যায় এবং অ্যাকাউন্ট খোলার প্রয়োজন নেই।</p>
+      </details>
+      <details class="faq-box__item">
+        <summary class="faq-box__q">Spell Check ও MCQ Serial কি এখন ব্যবহার করা যায়?</summary>
+        <p class="faq-box__a">এই ফিচারগুলো এখন Coming Soon। চালু হলে ওয়েবসাইটে জানানো হবে।</p>
+      </details>
     </div>
   </div>
 
@@ -488,6 +593,27 @@
       <p>তাছাড়া কোনো ফিচার-সংক্রান্ত পরামর্শ বা অভিজ্ঞতা শেয়ারিংয়ের জন্যও আমাদের নির্দ্বিধায় মেইল করতে পারেন।</p>
       <p class="support-box__contact">Contact: <a class="support-mail" href="mailto:unknownacone@gmail.com">unknownacone@gmail.com</a></p>
     </div>
+  </div>
+
+  <div class="pl-slot pl-slot--wide" id="spot-after-support" aria-label="Notice">
+    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab support banner">
+      <defs>
+        </defs>
+      <rect width="728" height="90" class="bn-bg"/>
+      <circle cx="648" cy="-24" r="72" class="bn-orb" opacity="0.10">
+        <animate attributeName="cy" values="-24;-10;-24" dur="6s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="70" cy="114" r="62" class="bn-orb" opacity="0.07">
+        <animate attributeName="cy" values="114;102;114" dur="7s" repeatCount="indefinite"/>
+      </circle>
+      <text x="28" y="40" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" class="bn-title">Stuck on a File? We Can Help</text>
+      <text x="28" y="64" font-family="Arial,sans-serif" font-size="13.5" class="bn-sub">Send a screenshot of the original and the converted file</text>
+      <g class="bn-cta">
+        <rect x="588" y="28" width="116" height="34" rx="17" class="bn-cta-bg"/>
+        <text x="646" y="50" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" class="bn-cta-text">Email Us</text>
+      </g>
+    </svg>
+    <!-- PARTNER MEDIA CODE GOES HERE (wide media unit). Real code in PARTNER.afterSupport replaces this demo. -->
   </div>
 
   <footer class="app-credit" role="contentinfo">
@@ -652,8 +778,8 @@
   </div>
 </div>
 
-<script src="partner.js?v=13"></script>
+<script src="partner.js?v=14"></script>
 <script src="engine.js?v=1"></script>
-<script src="app.js?v=44"></script>
+<script src="app.js?v=48"></script>
 </body>
 </html>

@@ -333,6 +333,7 @@ var els = {
   redoBtn: document.getElementById('redo-btn'),
   infoBox: document.getElementById('info-box'),
   featuresOpenBtn: document.getElementById('features-open-btn'),
+  wordCtaBtn: document.getElementById('word-cta-btn'),
   converterView: document.getElementById('view-converter'),
   toolsNav: document.getElementById('tools-nav'),
   statusbar: document.getElementById('app-statusbar'),
@@ -961,6 +962,8 @@ function scheduleLiveConvert() {
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   els.themeToggleBtn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  var themeLabel = els.themeToggleBtn.querySelector('.theme-toggle__label');
+  if (themeLabel) themeLabel.textContent = theme === 'dark' ? 'Dark' : 'Light';
   try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* non-fatal */ }
   syncThemeColorMeta(theme);
 }
@@ -1739,6 +1742,20 @@ function applyBanglaFace(rPrEl, doc, fontName) {
   clearComplexScriptLock(rPrEl);
 }
 
+/* Word names a Bengali fallback face in its theme (theme1.xml ->
+   <a:font script="Beng" typeface="Vrinda"/>) in addition to the per-run fonts.
+   After conversion that theme face is stale: a document converted to Bijoy
+   would still advertise a Unicode Bangla face as its Bengali fallback, so a
+   search/replace or a run that inherits the theme still shows Unicode. Rewrite
+   it to the picked face so the whole package agrees with the converted text. */
+function restampThemeBanglaFont(xmlString, fontName) {
+  if (!xmlString || !fontName) return xmlString;
+  return xmlString.replace(
+    /(<a:font\b[^>]*\bscript="Beng"[^>]*\btypeface=")[^"]*(")/g,
+    '$1' + fontName + '$2'
+  );
+}
+
 function ensureFontInFontTable(xmlString, fontName) {
   if (!xmlString || !fontName) return xmlString;
   if (xmlString.indexOf('w:name="' + fontName + '"') !== -1) return xmlString;
@@ -1868,7 +1885,7 @@ function runsHaveSameRPr(a, b) {
   return runRPrSignature(a) === runRPrSignature(b);
 }
 function mergeSameFontRuns(doc) {
-  // Same live-NodeList trap as restampBijoyFaces (see there): snapshot first.
+  // Same live-NodeList trap as restampFaces (see there): snapshot first.
   var paras = Array.prototype.slice.call(doc.getElementsByTagName('w:p'));
   for (var pi = 0; pi < paras.length; pi++) {
     var kids = paras[pi].childNodes;
@@ -2214,7 +2231,7 @@ function spaceFontForDocText(text) {
 function applySpaceRunFonts(doc, fontName) {
   if (!fontName) return;
   // Live NodeList + insertBefore() inside the loop = O(N^2). Snapshot first
-  // (same trap as restampBijoyFaces).
+  // (same trap as restampFaces).
   var runs = Array.prototype.slice.call(doc.getElementsByTagName('w:r'));
   for (var i = 0; i < runs.length; i++) {
     var runEl = runs[i];
@@ -2230,21 +2247,38 @@ function applySpaceRunFonts(doc, fontName) {
   }
 }
 
-function restampBijoyFaces(doc, fontName) {
-  if (!fontName || !isBijoyFontName(fontName)) return;
-  // Snapshot to a static array FIRST: getElementsByTagName returns a LIVE
-  // NodeList, so setAttribute() inside the loop re-runs the whole-document
-  // query on every iteration (O(N^2) — 70s on an 18k-font file). Iterating a
-  // snapshot keeps it O(N).
+/* True when any of the four font slots on a w:rFonts satisfies `test`. A run can
+   reference a Bangla face on w:cs only (Word's complex-script slot for bn-IN),
+   so checking just the ascii/hAnsi pair misses it. */
+function rFontsMatchesAny(el, test) {
+  var attrs = ['w:ascii', 'w:hAnsi', 'w:cs', 'w:eastAsia'];
+  for (var i = 0; i < attrs.length; i++) {
+    var v = el.getAttribute(attrs[i]);
+    if (v && test(v)) return true;
+  }
+  return false;
+}
+
+/* Restamp every run whose w:rFonts matches `test` onto `fontName`, also
+   dropping the empty <w:cs/> complex-script lock so Word actually applies the
+   new face. Used to sweep a document clean of the *source* script family after
+   conversion: a Unicode->Bijoy pass must not leave a single Vrinda/Kalpurush
+   reference behind (spaces and standalone punctuation like ".", ".*", "?" often
+   keep the old face because they hold no letters), and the mirror Bijoy->Unicode
+   pass must not leave a SutonnyMJ reference behind.
+   Snapshot to a static array FIRST: getElementsByTagName returns a LIVE
+   NodeList, so setAttribute() inside the loop re-runs the whole-document query
+   on every iteration (O(N^2) — 70s on an 18k-font file). Iterating a snapshot
+   keeps it O(N). */
+function restampFaces(doc, test, fontName) {
+  if (!doc || !test || !fontName) return;
   var live = doc.getElementsByTagName('w:rFonts');
   var rFonts = Array.prototype.slice.call(live);
   for (var i = 0; i < rFonts.length; i++) {
     var el = rFonts[i];
-    var name = el.getAttribute('w:ascii') || el.getAttribute('w:hAnsi') || el.getAttribute('w:cs') || el.getAttribute('w:eastAsia') || '';
-    if (!isBijoyFontName(name)) continue;
+    if (!rFontsMatchesAny(el, test)) continue;
     setRunFont(el, fontName);
-    var parent = el.parentNode;
-    if (parent) clearComplexScriptLock(parent);
+    clearComplexScriptLock(el.parentNode);
   }
 }
 
@@ -2266,7 +2300,18 @@ function patchDocumentXmlString(xmlString, direction, stylesDoc, counter) {
   mergeSameFontRuns(doc);
   if (direction === 'bijoy2uni') spaceFont = spaceFontForDocText(collectDocText(doc));
   applySpaceRunFonts(doc, spaceFont);
-  if (direction === 'uni2bijoy') restampBijoyFaces(doc, getSelectedBanglaFont());
+  if (direction === 'uni2bijoy') {
+    // Stray Bijoy faces -> the picked Bijoy face (so Word uses what the user
+    // chose), then any leftover Unicode Bangla face -> the picked English font.
+    // Without the second sweep the file keeps Vrinda/Kalpurush on the small
+    // runs that carry no letters, so "converted to Bijoy" still shipped Unicode.
+    restampFaces(doc, isBijoyFontName, getSelectedBanglaFont());
+    restampFaces(doc, function (n) { return isBanglaFontName(n) && !isBijoyFontName(n); }, getSelectedEnglishFont());
+  } else {
+    // Mirror: after Bijoy->Unicode no Bijoy face may remain. getSelectedBanglaFont()
+    // resolves to a Unicode face in this direction.
+    restampFaces(doc, isBijoyFontName, getSelectedBanglaFont());
+  }
   var serialized = new XMLSerializer().serializeToString(doc);
   if (serialized.indexOf('<?xml') !== 0) {
     serialized = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + serialized;
@@ -2300,7 +2345,12 @@ function patchDocumentXmlInBatches(xmlString, direction, stylesDoc, onProgress) 
     mergeSameFontRuns(doc);
     if (direction === 'bijoy2uni') spaceFont = spaceFontForDocText(collectDocText(doc));
     applySpaceRunFonts(doc, spaceFont);
-    if (direction === 'uni2bijoy') restampBijoyFaces(doc, getSelectedBanglaFont());
+    if (direction === 'uni2bijoy') {
+      restampFaces(doc, isBijoyFontName, getSelectedBanglaFont());
+      restampFaces(doc, function (n) { return isBanglaFontName(n) && !isBijoyFontName(n); }, getSelectedEnglishFont());
+    } else {
+      restampFaces(doc, isBijoyFontName, getSelectedBanglaFont());
+    }
     var serialized = new XMLSerializer().serializeToString(doc);
     if (serialized.indexOf('<?xml') !== 0) {
       serialized = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + serialized;
@@ -2458,18 +2508,32 @@ function patchDocxParts(onProgress) {
           if (pi >= partsToPatch.length) {
             var banglaFace = getSelectedBanglaFont();
             var englishFace = getSelectedEnglishFont();
-            var tableFile = freshZip.file('word/fontTable.xml');
             var finish = function () {
               if (onProgress) onProgress(100);
               return { zip: freshZip, mainXml: state.mainXml, direction: direction, extras: state.extras, converted: totalConverted };
             };
-            if (!tableFile) return finish();
-            return tableFile.async('string').then(function (ftXml) {
+            // The theme's Bengali fallback and the font table are packaged
+            // metadata: a converted file must not keep advertising the source
+            // script's face. Both are best-effort — a missing part never fails
+            // the conversion.
+            var tableFile = freshZip.file('word/fontTable.xml');
+            var patchFontTable = !tableFile ? Promise.resolve() : tableFile.async('string').then(function (ftXml) {
               var next = ensureFontInFontTable(ftXml, banglaFace);
               next = ensureFontInFontTable(next, englishFace);
               freshZip.file('word/fontTable.xml', next);
-              return finish();
-            }).catch(finish);
+            }).catch(function () { /* non-fatal */ });
+            var themeNames = Object.keys(freshZip.files).filter(function (p) {
+              return /^word\/theme\/theme\d+\.xml$/.test(p);
+            });
+            var patchThemeNext = function (ti) {
+              if (ti >= themeNames.length) return finish();
+              var tpath = themeNames[ti];
+              return freshZip.file(tpath).async('string').then(function (txml) {
+                freshZip.file(tpath, restampThemeBanglaFont(txml, banglaFace));
+                return patchThemeNext(ti + 1);
+              }).catch(function () { return patchThemeNext(ti + 1); });
+            };
+            return patchFontTable.then(function () { return patchThemeNext(0); });
           }
           var path = partsToPatch[pi++];
           var partFile = freshZip.file(path);
@@ -2650,16 +2714,49 @@ function comingSoon() {
 }
 
 /* ------------------------------------------------------------
-   Features card is always open. Header Features button scrolls
-   to it, stopping just below the fixed header.
+   Header Converter button scrolls to the tools nav,
+   stopping just below the fixed header.
 ------------------------------------------------------------ */
 function scrollToFeatures() {
-  if (!els.infoBox) return;
+  var target = els.toolsNav;
+  if (!target) return;
   var header = document.querySelector('.app-header');
   var offset = 12;
   if (header) offset += header.getBoundingClientRect().height;
-  var y = els.infoBox.getBoundingClientRect().top + window.pageYOffset - offset;
+  var y = target.getBoundingClientRect().top + window.pageYOffset - offset;
   window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+}
+function prefersReducedMotion() {
+  return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+function nudgeUploadBtn() {
+  var btn = document.getElementById('file-upload-btn');
+  if (!btn) return;
+  btn.classList.remove('is-nudging');
+  void btn.offsetWidth;
+  if (prefersReducedMotion()) {
+    btn.focus();
+    return;
+  }
+  btn.classList.add('is-nudging');
+  function onNudgeEnd(e) {
+    if (e && e.target !== btn) return;
+    btn.classList.remove('is-nudging');
+    btn.removeEventListener('animationend', onNudgeEnd);
+  }
+  btn.addEventListener('animationend', onNudgeEnd);
+  btn.focus();
+}
+function scrollToConverterInput() {
+  var target = document.getElementById('file-upload-btn') || document.querySelector('.panel--input');
+  if (!target) return;
+  var header = document.querySelector('.app-header');
+  var offset = 12;
+  if (header) offset += header.getBoundingClientRect().height;
+  var y = target.getBoundingClientRect().top + window.pageYOffset - offset;
+  var reduce = prefersReducedMotion();
+  window.scrollTo({ top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth' });
+  window.setTimeout(nudgeUploadBtn, reduce ? 0 : 380);
 }
 var TOOL_VIEW_IDS = {
   converter: 'view-converter',
@@ -2992,6 +3089,7 @@ function wireEvents() {
   if (els.unmapCloseBtn) els.unmapCloseBtn.addEventListener('click', closeUnmapModal);
   if (els.undoBtn) els.undoBtn.addEventListener('click', undo);
   if (els.redoBtn) els.redoBtn.addEventListener('click', redo);
+  if (els.wordCtaBtn) els.wordCtaBtn.addEventListener('click', scrollToConverterInput);
   if (els.featuresOpenBtn) els.featuresOpenBtn.addEventListener('click', scrollToFeatures);
   if (els.toolsNav) els.toolsNav.addEventListener('click', function (e) {
     var btn = e.target.closest ? e.target.closest('.tools-nav__btn') : null;

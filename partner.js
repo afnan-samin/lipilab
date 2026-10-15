@@ -14,8 +14,9 @@
    3. Khali ('') rakhle glass "Advertisement here" placeholder
       dekhabe — jotokkhon code na bosao.
 
-    Slots: top (header niche), bottom (converter niche),
-    mid (features card niche), railLeft / railRight (duipasher
+    Slots: top (header niche), bottom (How to Use niche),
+    afterWord (Word card niche), mid (FAQ niche),
+    afterSupport (Support niche), railLeft / railRight (duipasher
     lomba), postNote (convert chaple j choto box othe seta).
    ============================================================ */
 /* Demo ad for the 300x100 / 320x100 slot inside the download dialog.
@@ -49,6 +50,8 @@ var PARTNER = {
   top: '',
   bottom: '',
   mid: '',
+  afterWord: '',
+  afterSupport: '',
   railLeft: '',
   railRight: '',
   postNote: '',
@@ -61,6 +64,8 @@ var PARTNER_SLOT_IDS = {
   top: 'spot-top',
   bottom: 'spot-bottom',
   mid: 'spot-mid',
+  afterWord: 'spot-after-word',
+  afterSupport: 'spot-after-support',
   railLeft: 'rail-left',
   railRight: 'rail-right',
   postNote: 'post-note-body'

@@ -291,7 +291,7 @@ button{ font-family:inherit; }
   user-select:none; -webkit-user-select:none; pointer-events:none;
   width:clamp(34px, calc(29px + 0.9vw), 42px);
   height:clamp(34px, calc(29px + 0.9vw), 42px);
-  flex:0 0 auto;
+  flex:0 0 auto; object-fit:cover;
 }
 /* The two capital L in "LipiLab" carry the two brand greens. */
 .brand-l{ color:var(--primary); }
@@ -340,10 +340,18 @@ button{ font-family:inherit; }
 .icon-btn .icon--moon{ display:none; }
 [data-theme="dark"] .icon-btn .icon--sun{ display:none; }
 [data-theme="dark"] .icon-btn .icon--moon{ display:block; }
+#theme-toggle-btn{
+  width:auto; height:auto; min-width:40px; padding:5px 8px 4px;
+  flex-direction:column; gap:2px; border-radius:var(--radius-md);
+}
+.theme-toggle__label{
+  display:block; font-family:var(--font-body); font-size:9px; font-weight:500;
+  line-height:1; letter-spacing:.02em; color:inherit;
+}
 
 /* ---- Toolbar ---- */
 .app-toolbar{
-  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  display:flex; align-items:center; gap:14px; flex-wrap:nowrap;
   background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
   padding:10px 14px; box-shadow:var(--shadow-sm);
 }
@@ -904,10 +912,13 @@ body.dlg-open{ overflow:hidden; }
    Each has a 2s progress bar and a manual close (X). */
 .notif-container{
   position:fixed; top:calc(var(--app-header-h, 64px) + 12px); right:16px;
-  z-index:80; display:flex; flex-direction:column; gap:10px;
+  z-index:80; display:flex; flex-direction:column; align-items:flex-end; gap:10px;
   /* The container — not the card — carries the sizing. 360px is the desktop
    ideal; on anything narrower it shrinks with the viewport. box-sizing keeps
-   width + right offset within 100vw so the stack never overflows. */
+   width + right offset within 100vw so the stack never overflows.
+   align-items:flex-end pins each shrunk-to-content card to the RIGHT edge of
+   the stack; without it the card sat at the container's left and left a wide
+   empty gap on the right, which read as the toast drifting to the centre. */
   box-sizing:border-box; width:360px; max-width:calc(100vw - 32px);
   pointer-events:none;
 }
@@ -959,13 +970,20 @@ body.dlg-open{ overflow:hidden; }
    full-width block. It still wraps rather than overflowing on a long message. */
 @media (max-width:600px){
   .notif-container{
-    left:auto; right:10px; width:auto; max-width:calc(100vw - 20px);
-    align-items:flex-end;
+    left:auto; right:4px; width:auto; max-width:min(190px, calc(100vw - 8px));
+    align-items:flex-end; gap:2px;
   }
+  .notif{ padding:1.5px; gap:2px; }
+  .notif__icon{ width:12px; height:12px; margin-top:1px; }
+  .notif__msg{ font-size:10px; font-weight:600; line-height:1.3; padding-bottom:1px; }
+  .notif__close{ width:20px; height:20px; margin:-1.5px -1.5px 0 0; }
+  .notif__close .icon{ width:14px; height:14px; }
+  .notif__bar{ height:2px; }
 }
 
 /* ---- Responsive ---- */
 @media (max-width:860px){
+  .howto-box__steps{ grid-template-columns:1fr; }
   .app-panels{ grid-template-columns:1fr; }
   .panel-divider{ order:2; }
   .swap-btn{ transform:rotate(90deg); margin:-4px auto; }
@@ -974,33 +992,25 @@ body.dlg-open{ overflow:hidden; }
   .panel--output{ order:3; }
 }
 @media (max-width:640px){
+  .howto-box__steps{ grid-template-columns:1fr; }
+  #shortcuts-open-btn{ display:none; }
   .app-shell{ padding:76px 14px 28px; gap:14px; }
   .app-header{ top:0 !important; left:0 !important; right:0 !important; padding:8px 14px; border-top-left-radius:0 !important; border-top-right-radius:0 !important; border-bottom-left-radius:10px !important; border-bottom-right-radius:10px !important; }
   /* MOBILE ONLY.
-     The tagline takes its own full-width second row under the logo + wordmark
-     and may wrap to at most two lines, so the whole Bangla text is readable.
-     .app-header__brand stays untouched (no display:contents, which silently
-     broke the grid placement): it becomes a two-row grid itself.
-        row 1: logo | LipiLab
-        row 2: tagline spanning both columns
-     The buttons live outside this block, so they never collide with it. */
+     Logo stays on the left, vertically centered with the text stack.
+     Beside it: LipiLab on the first line, tagline under LipiLab. */
   .app-header__brand{
-    display:grid; flex:1 1 auto; min-width:0;
-    grid-template-columns:auto 1fr;
-    grid-template-areas:"logo name" "tag tag";
-    align-items:center; row-gap:3px;
-    /* Bigger type eats horizontal room; keep a guaranteed clearance so the
-       tagline never reaches the sun / dark-mode / Features buttons. */
-    column-gap:8px; padding-right:5px;
+    display:flex; flex:1 1 auto; min-width:0;
+    align-items:center; gap:8px; padding-right:5px;
   }
-  .app-logo{ grid-area:logo; }
-  .app-brand-text{ display:contents; }
-  .app-brand-name{ grid-area:name; }
+  .app-brand-text{
+    display:flex; flex-direction:column; align-items:flex-start;
+    gap:2px; min-width:0;
+  }
   .app-brand-tagline{
-    grid-area:tag; text-align:left; justify-self:start;
     white-space:normal; overflow-wrap:break-word; margin-top:0;
   }
-  .app-toolbar{ padding:10px; }
+  .app-toolbar{ padding:10px; flex-direction:column; align-items:stretch; flex-wrap:nowrap; gap:10px; }
   /* Mobile: direction row 1, font row 2, Live + Convert together on row 3.
    The font picker sits inside the toolbar wrapper, so the wrapper is a wrapping
    flex row: a full-width font picker takes one line, then Live + Convert share
@@ -1159,6 +1169,88 @@ body.dlg-open{ overflow:hidden; }
   box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .support-mail:hover{ background:var(--accent); color:var(--accent-contrast); }
+.howto-box, .word-box, .faq-box{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-md); overflow:hidden;
+}
+
+.howto-box__title, .word-box__title, .faq-box__title{
+  margin:0; padding:14px 16px; border:0;
+  background:var(--brand-tint-2);
+  font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif;
+  font-size:16px; font-weight:800; line-height:1.35; color:var(--text);
+  user-select:none; -webkit-user-select:none;
+}
+.howto-box__title{ background:var(--header-tint); }
+.howto-box__body, .word-box__body, .faq-box__body{
+  padding:12px 16px 16px;
+  font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif;
+  font-size:14.5px; line-height:1.7; font-weight:600; color:var(--text-secondary);
+}
+.howto-box__intro{ margin:0 0 12px; }
+.howto-box__steps{
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px;
+}
+@media (max-width:860px){
+  .howto-box__steps{ grid-template-columns:1fr; }
+}
+.howto-box__step{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-md); overflow:hidden; padding:0;
+}
+.howto-box__step-head{
+  display:flex; align-items:baseline; gap:8px;
+  background:var(--header-tint); padding:10px 12px;
+}
+.howto-box__num{
+  display:inline; margin:0;
+  font-family:var(--font-mono); font-size:12px; font-weight:800; color:var(--accent);
+}
+.howto-box__step-title{
+  display:inline; margin:0; font-size:13.5px; font-weight:800; line-height:1.4; color:var(--primary);
+  font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif;
+}
+.howto-box__step-body{ display:block; margin:0; padding:12px; font-size:13.5px; line-height:1.6; }
+.word-box__body p{ margin:0 0 10px; }
+.word-box__points{ margin:0 0 14px; padding-left:20px; }
+.word-box__points li{ margin:0 0 6px; }
+.word-box__points li:last-child{ margin-bottom:0; }
+.word-box__points li::marker{ color:var(--accent); }
+.word-box__cta{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:9px 16px; border:0; border-radius:var(--radius-pill);
+  background:var(--primary); color:var(--primary-contrast);
+  font-family:var(--font-body); font-size:13px; font-weight:800; cursor:pointer;
+  box-shadow:var(--shadow-sm);
+}
+.word-box__cta:hover{ transform:translateY(-1px); box-shadow:var(--shadow-md); }
+@keyframes upload-nudge{
+  0%,100%{ transform:translateY(0); }
+  35%{ transform:translateY(-7px); }
+  70%{ transform:translateY(3px); }
+}
+#file-upload-btn.is-nudging{
+  position:relative; z-index:2;
+  animation:upload-nudge .28s ease-out 3;
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.faq-box__item{
+  border-top:1px solid var(--border);
+}
+.faq-box__item:first-child{ border-top:0; }
+.faq-box__q{
+  list-style:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:10px 0; font-weight:700; color:var(--text);
+}
+.faq-box__q::-webkit-details-marker{ display:none; }
+.faq-box__q::after{
+  content:""; width:8px; height:8px; flex-shrink:0;
+  border-right:2px solid var(--accent); border-bottom:2px solid var(--accent);
+  transform:rotate(45deg); transition:transform .15s ease;
+}
+.faq-box__item[open] > .faq-box__q::after{ transform:rotate(225deg); }
+.faq-box__a{ margin:0 0 12px; }
 .panel__textarea--locked{ opacity:.6; cursor:not-allowed; }
 .icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none; }
 label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none; }
@@ -1182,7 +1274,7 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
   html, body{ background:#fff !important; }
   .bg-layer,   .app-header, .tools-nav, .app-toolbar, .app-statusbar,
   .pl-slot, .post-note, .post-note--show, .gate-veil, .ask-overlay,
-  .shortcuts-panel, .notif-container, .info-box, .support-box, .app-credit,
+  .shortcuts-panel, .notif-container, .info-box, .howto-box, .word-box, .faq-box, .support-box, .app-credit,
   .panel--input, .panel-divider, .empty-hint,
   .panel__header, .panel__footer{ display:none !important; }
   .app-shell{ display:block; max-width:none; margin:0; padding:0; min-height:0; }
@@ -1212,17 +1304,21 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
 
 /* ---- Features button ---- */
 .features-btn{
-  display:inline-flex; align-items:center; gap:6px;
-  padding:9px 16px; border:0; border-radius:var(--radius-pill);
+  display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  padding:5px 12px 4px; border:0; border-radius:var(--radius-md);
   background:var(--primary); color:var(--primary-contrast);
-  font-family:var(--font-body); font-size:13px; font-weight:800; cursor:pointer; white-space:nowrap;
-  box-shadow:var(--shadow-sm);
+  font-family:var(--font-body); font-size:10px; font-weight:400; cursor:pointer; white-space:nowrap;
+  line-height:1; box-shadow:var(--shadow-sm);
   transition:transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
 }
+.features-btn .icon{ width:16px; height:16px; }
 .features-btn:hover{ transform:translateY(-1px); box-shadow:var(--shadow-md); }
 .features-btn:active{ transform:scale(.96); }
 @media (max-width:640px){
   /* Tighter so the brand tagline next to the logo has room to breathe on a
      phone instead of being clipped by the buttons. */
-  .features-btn{ padding:7px 10px; font-size:11.5px; gap:4px; }
+  .features-btn{ padding:5px 8px 4px; font-size:9px; gap:1px; }
+  #theme-toggle-btn{
+    width:auto; height:auto; padding:5px 8px 4px; border-radius:var(--radius-md);
+  }
 }

@@ -1,10 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#0a5c40"/>
-      <stop offset="100%" stop-color="#006a4e"/>
-    </linearGradient>
-  </defs>
-  <rect width="36" height="36" rx="9" fill="url(#g)"/>
-  <text x="18" y="26" text-anchor="middle" font-family="Kalpurush, Noto Sans Bengali, sans-serif" font-size="21" font-weight="700" fill="#fff">ল</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="LipiLab"><rect width="1024" height="1024" rx="224" fill="#0a5c40"/><path fill="#fff" transform="translate(288.33 777.5) scale(0.83 -0.83)" d="M504 588V-3L446 51V371Q446 401 424.5 423.5Q403 446 373 446Q325 446 325 388Q325 375 330 353L307 344Q299 389 262 418Q226 447 178 447Q157 447 138.0 438.5Q119 430 104.5 416.0Q90 402 81.5 382.5Q73 363 73 342Q73 274 154 262Q136 289 136 309Q136 333 155.5 351.5Q175 370 199 370Q276 365 276 287Q275 254 252.0 233.0Q229 212 185 209Q149 209 119.0 220.5Q89 232 67.5 253.0Q46 274 34.0 303.5Q22 333 22 369Q22 427 54 476Q90 530 146 530Q218 530 275 456Q275 482 298 504Q321 527 344 527Q414 527 448 434V588H-10L-68 644H551L608 588Z"/></svg>
