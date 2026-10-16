@@ -61,9 +61,9 @@ const details = faq.match(/<details\b/g) || [];
 check('seven FAQ details', details.length === 7, 'count=' + details.length);
 check('details start closed (no open attr)', !/<details[^>]*\sopen\b/.test(faq));
 check('faq account question', faq.includes('LipiLab ব্যবহার করতে কি অ্যাকাউন্ট খুলতে হবে?'));
-check('faq privacy answer is browser-side', faq.includes('আপনার ব্রাউজারেই প্রসেস হয়'));
+check('faq privacy answer is browser-side', faq.includes('আপনার ব্রাউজারেই সম্পন্ন হয়'));
 check('faq mixed word', faq.includes('একই Word ফাইলে বাংলা ও ইংরেজি'));
-check('faq spell/mcq coming soon', faq.includes('Coming Soon'));
+check('faq spell/related coming', faq.includes('Spell Check ও Related ফিচারগুলো কোথায় পাব?'));
 
 check('features copy untouched', html.includes('LipiLab দিয়ে কী কী করা যায়?'));
 check('support copy untouched', html.includes('unknownacone@gmail.com'));

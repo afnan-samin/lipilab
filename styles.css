@@ -1322,3 +1322,17 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
     width:auto; height:auto; padding:5px 8px 4px; border-radius:var(--radius-md);
   }
 }
+
+/* ---- Preview: justify body text inside info/help cards (not the textareas) ---- */
+.info-box__features li,
+.info-box__foot,
+.howto-box__intro,
+.howto-box__step-body,
+.word-box__body p,
+.word-box__points li,
+.faq-box__a,
+.support-box__body p{
+  text-align:justify;
+  text-justify:inter-word;
+  text-align-last:left;
+}
