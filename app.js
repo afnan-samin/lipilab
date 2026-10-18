@@ -2714,17 +2714,167 @@ function comingSoon() {
 }
 
 /* ------------------------------------------------------------
-   Header Converter button scrolls to the tools nav,
-   stopping just below the fixed header.
+   Header section navigator.
+
+   The header button always points at the NEXT content card, not
+   at the card currently in view: at the top it reads "Features"
+   (next card down), on the features card it reads "How to use",
+   and from the last card it loops back to the converter. The
+   label and the button width animate together, and because the
+   action cluster is pinned to the right edge the button grows
+   leftwards. Chevron flips up for the loop-back case.
 ------------------------------------------------------------ */
-function scrollToFeatures() {
-  var target = els.toolsNav;
-  if (!target) return;
+var NAV_SECTIONS = [
+  { id: 'view-converter', label: 'Converter', short: 'Converter' },
+  { id: 'info-box', label: 'Features', short: 'Features' },
+  { id: 'howto-box', label: 'How to use', short: 'How to' },
+  { id: 'word-box', label: 'Word file', short: 'Word' },
+  { id: 'faq-box', label: 'FAQ', short: 'FAQ' },
+  { id: 'support-box', label: 'Support', short: 'Support' }
+];
+var navTargetIndex = 0;
+var navRenderedLabel = '';
+var navLockUntil = 0;
+var navMeasureEl = null;
+var navScrollTick = false;
+var toTopBtn = null;
+
+function navIsCompact() {
+  return !!(window.matchMedia && window.matchMedia('(max-width:480px)').matches);
+}
+function navLabelAt(index) {
+  var section = NAV_SECTIONS[index];
+  if (!section) return '';
+  return navIsCompact() ? section.short : section.label;
+}
+function navHeaderOffset() {
   var header = document.querySelector('.app-header');
-  var offset = 12;
-  if (header) offset += header.getBoundingClientRect().height;
-  var y = target.getBoundingClientRect().top + window.pageYOffset - offset;
-  window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+  return (header ? header.getBoundingClientRect().height : 64) + 28;
+}
+function navCurrentIndex() {
+  var offset = navHeaderOffset();
+  var index = 0;
+  for (var i = 0; i < NAV_SECTIONS.length; i++) {
+    var el = document.getElementById(NAV_SECTIONS[i].id);
+    if (!el) continue;
+    if (el.getBoundingClientRect().top <= offset) index = i;
+    else break;
+  }
+  return index;
+}
+/* Measure the button at its natural width for a given label. Cloning the real
+   node means padding, icon size, gap and the active font are all included, so
+   the width transition never lands a pixel short. */
+function measureNavWidth(label) {
+  var btn = els.featuresOpenBtn;
+  if (!btn || !document.body) return 0;
+  if (!navMeasureEl) {
+    navMeasureEl = document.createElement('div');
+    navMeasureEl.className = 'nav-measure';
+    navMeasureEl.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(navMeasureEl);
+  }
+  var clone = btn.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.style.width = 'auto';
+  var labelEl = clone.querySelector('.features-btn__label');
+  if (labelEl) labelEl.textContent = label;
+  navMeasureEl.appendChild(clone);
+  var width = clone.getBoundingClientRect().width;
+  navMeasureEl.removeChild(clone);
+  return Math.ceil(width);
+}
+function setNavTarget(index, animate) {
+  var btn = els.featuresOpenBtn;
+  if (!btn) return;
+  var count = NAV_SECTIONS.length;
+  index = ((index % count) + count) % count;
+  navTargetIndex = index;
+  var section = NAV_SECTIONS[index];
+  var label = navLabelAt(index);
+  btn.setAttribute('aria-controls', section.id);
+  btn.setAttribute('title', 'Go to ' + section.label);
+  btn.setAttribute('aria-label', 'Go to the ' + section.label + ' section');
+  btn.classList.toggle('is-up', index === 0);
+  if (label === navRenderedLabel) return;
+  navRenderedLabel = label;
+  var labelEl = document.getElementById('features-btn-label');
+  if (!labelEl) return;
+  var reduce = prefersReducedMotion();
+  if (!animate || reduce) {
+    btn.style.width = '';
+    labelEl.textContent = label;
+    return;
+  }
+  var from = btn.getBoundingClientRect().width;
+  var to = measureNavWidth(label);
+  if (!to) {
+    btn.style.width = '';
+    labelEl.textContent = label;
+    return;
+  }
+  btn.style.width = from + 'px';
+  void btn.offsetWidth;
+  btn.classList.add('is-swapping');
+  btn.style.width = to + 'px';
+  window.setTimeout(function () {
+    labelEl.textContent = label;
+    btn.classList.remove('is-swapping');
+  }, 130);
+  window.setTimeout(function () {
+    btn.style.width = '';
+  }, 300);
+}
+function syncNavFromScroll(force) {
+  if (!els.featuresOpenBtn) return;
+  if (!force && Date.now() < navLockUntil) return;
+  setNavTarget((navCurrentIndex() + 1) % NAV_SECTIONS.length, true);
+}
+function scrollToSection(id) {
+  var target = document.getElementById(id);
+  if (!target) return;
+  var y = target.getBoundingClientRect().top + window.pageYOffset - navHeaderOffset() + 16;
+  window.scrollTo({ top: Math.max(0, y), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+}
+function goToNextSection() {
+  var next = (navCurrentIndex() + 1) % NAV_SECTIONS.length;
+  // Lock the spy while the smooth scroll runs, otherwise the label races
+  // through every card it passes on the way down (and all of them on a loop).
+  navLockUntil = Date.now() + 800;
+  setNavTarget((next + 1) % NAV_SECTIONS.length, true);
+  scrollToSection(NAV_SECTIONS[next].id);
+}
+function updateToTopButton() {
+  if (!toTopBtn) return;
+  var show = window.pageYOffset > 600;
+  toTopBtn.classList.toggle('is-visible', show);
+  toTopBtn.setAttribute('aria-hidden', show ? 'false' : 'true');
+  toTopBtn.tabIndex = show ? 0 : -1;
+}
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+}
+function onNavScroll() {
+  if (navScrollTick) return;
+  navScrollTick = true;
+  requestAnimationFrame(function () {
+    navScrollTick = false;
+    syncNavFromScroll(false);
+    updateToTopButton();
+  });
+}
+function initSectionNav() {
+  if (!els.featuresOpenBtn) return;
+  toTopBtn = document.getElementById('to-top-btn');
+  setNavTarget((navCurrentIndex() + 1) % NAV_SECTIONS.length, false);
+  updateToTopButton();
+  window.addEventListener('scroll', onNavScroll, { passive: true });
+  window.addEventListener('resize', function () {
+    // Compact labels kick in under 480px; re-measure without animating.
+    setNavTarget(navTargetIndex, false);
+    updateToTopButton();
+  });
+  if (toTopBtn) toTopBtn.addEventListener('click', scrollToTop);
 }
 function prefersReducedMotion() {
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2873,6 +3023,7 @@ function init() {
   safeInitStep(updateConvertBtnState, 'convert-btn-state');
   safeInitStep(wireEvents, 'wire-events');
   safeInitStep(wireKeyboardShortcuts, 'wire-keyboard-shortcuts');
+  safeInitStep(initSectionNav, 'section-nav');
   safeInitStep(updateOfflineIndicator, 'offline-indicator');
   safeInitStep(initAskChoice, 'choice-prompt');
   safeInitStep(initRefreshGuard, 'refresh-guard');
@@ -3090,7 +3241,7 @@ function wireEvents() {
   if (els.undoBtn) els.undoBtn.addEventListener('click', undo);
   if (els.redoBtn) els.redoBtn.addEventListener('click', redo);
   if (els.wordCtaBtn) els.wordCtaBtn.addEventListener('click', scrollToConverterInput);
-  if (els.featuresOpenBtn) els.featuresOpenBtn.addEventListener('click', scrollToFeatures);
+  if (els.featuresOpenBtn) els.featuresOpenBtn.addEventListener('click', goToNextSection);
   if (els.toolsNav) els.toolsNav.addEventListener('click', function (e) {
     var btn = e.target.closest ? e.target.closest('.tools-nav__btn') : null;
     if (!btn || btn.hidden) return;

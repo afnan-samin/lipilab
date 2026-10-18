@@ -20,7 +20,7 @@ check('nudge adds is-nudging', /classList\.add\('is-nudging'\)/.test(js));
 check('nudge respects reduced motion', /prefers-reduced-motion/.test(js));
 check('wordCtaBtn wired', /wordCtaBtn/.test(js) && /scrollToConverterInput/.test(js));
 check('upload btn id in html', /id="file-upload-btn"/.test(html));
-check('html cache-bust app.js v=48', /app\.js\?v=48/.test(html));
+check('html cache-bust app.js v=50', /app\.js\?v=50/.test(html));
 check('engine.js still v=1', /engine\.js\?v=1/.test(html));
 check('nudge keyframes 3 times', /animation:\s*upload-nudge\s*\.28s\s*ease-out\s*3/.test(css));
 check('nudge uses translateY', /@keyframes upload-nudge[\s\S]{0,180}translateY/.test(css));

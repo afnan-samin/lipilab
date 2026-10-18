@@ -68,14 +68,15 @@ check(
   !/grid-template-areas:"logo name" "tag tag"/.test(mobile)
 );
 check(
-  'mobile theme toggle matches converter button height',
-  /#theme-toggle-btn\{[^}]*(?:padding:\s*5px 8px 4px|height:\s*auto)/.test(mobile)
+  'mobile header actions share the 34px row height',
+  /\.app-header__actions #theme-toggle-btn\{[^}]*height:34px/.test(mobile)
+    && /\.features-btn\{[^}]*height:34px/.test(mobile)
 );
 check(
-  'header convert button is not extra-bold',
-  /\.features-btn\{[^}]*font-weight:\s*(?:400|normal)/.test(css)
+  'header features button label is semibold, not extra-bold',
+  /\.features-btn\{[^}]*font-weight:\s*600/.test(css)
 );
-check('header convert button has svg icon', /<svg/.test((html.match(/<button class="features-btn"[\s\S]*?<\/button>/) || [''])[0]));
+check('header features button has svg icon', /<svg/.test((html.match(/<button class="features-btn"[\s\S]*?<\/button>/) || [''])[0]));
 check('theme toggle has Light/Dark caption', /theme-toggle__label/.test(html) && />(Light|Dark)</.test(html));
 check('paste icon is clipboard-with-arrow not lined clipboard', /id="paste-btn"[\s\S]{0,900}M12 11v6/.test(html) && /id="paste-btn"[\s\S]{0,900}polyline points="9 14 12 17 15 14"/.test(html));
 check(

@@ -29,15 +29,15 @@ function check(name, cond, detail) {
 }
 
 const order = [
-  'spot-top', 'info-box', 'view-converter', 'howto-box', 'spot-bottom',
+  'spot-top', 'view-converter', 'info-box', 'howto-box', 'spot-bottom',
   'word-box', 'spot-after-word', 'faq-box', 'spot-mid', 'support-box', 'spot-after-support'
 ];
 for (let i = 1; i < order.length; i++) {
   check('order ' + order[i - 1] + ' before ' + order[i], idx(order[i - 1]) < idx(order[i]));
 }
 
-check('features before converter', idx('info-box') < idx('view-converter'));
-check('howto after converter', idx('view-converter') < idx('howto-box'));
+check('converter before features', idx('view-converter') < idx('info-box'));
+check('howto after features', idx('info-box') < idx('howto-box'));
 
 const howto = sliceBetween('howto-box', 'spot-bottom');
 check('howto title', howto.includes('কীভাবে ব্যবহার করবেন'));

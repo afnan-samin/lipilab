@@ -49,6 +49,23 @@
   src: url('fonts/kalpurush.woff2') format('woff2');
   unicode-range: U+0964-0965, U+0980-09FE, U+1CD0-1CE4, U+1CF2, U+1CF5-1CF7, U+200C-200D, U+20B9, U+25CC;
 }
+/* PREVIEW: SolaimanLipi (SIL OFL) — regular + bold, self-hosted TTF. */
+@font-face {
+  font-family: 'SolaimanLipi';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('fonts/solaimanlipi-normal-v1.0.ttf') format('truetype');
+  unicode-range: U+0964-0965, U+0980-09FE, U+1CD0-1CF9, U+200C-200D, U+20B9, U+25CC, U+A8F1;
+}
+@font-face {
+  font-family: 'SolaimanLipi';
+  font-style: normal;
+  font-weight: 700 900;
+  font-display: swap;
+  src: url('fonts/solaimanlipi-bold-v1.0.ttf') format('truetype');
+  unicode-range: U+0964-0965, U+0980-09FE, U+1CD0-1CF9, U+200C-200D, U+20B9, U+25CC, U+A8F1;
+}
 /* ==========================================================================
    LipiLab - Design Tokens
 
@@ -180,12 +197,12 @@
      renders a mixed Bangla/English line correctly in both halves. */
   --font-display:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
   --font-body:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-  --font-bangla:'Kalpurush','Noto Sans Bengali','Hind Siliguri',system-ui,sans-serif;
+  --font-bangla:'SolaimanLipi','Kalpurush','Noto Sans Bengali','Hind Siliguri',system-ui,sans-serif;
   /* mixed Bangla/English: system face leads for Latin, Kalpurush takes over
      for the Bengali characters it has no glyph for */
-  --font-mixed:var(--font-body),'Kalpurush','Noto Sans Bengali',sans-serif;
+  --font-mixed:var(--font-body),'SolaimanLipi','Kalpurush','Noto Sans Bengali',sans-serif;
   /* the header tagline only */
-  --font-kalpurush:'Kalpurush','Noto Sans Bengali',system-ui,sans-serif;
+  --font-kalpurush:'SolaimanLipi','Kalpurush','Noto Sans Bengali',system-ui,sans-serif;
   --font-mono:ui-monospace,'SF Mono','Cascadia Code',Consolas,monospace;
   --font-bijoy:'SutonnyMJ','Noto Sans Bengali',serif;
 
@@ -321,7 +338,21 @@ button{ font-family:inherit; }
   /* wordmark clamp(18px, 14px + 0.9vw, 26px) minus 5px */
   font-size:clamp(13px, calc(9px + 0.9vw), 21px);
 }
-.app-header__actions{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+.app-header__actions{ display:flex; align-items:center; gap:6px; flex:0 0 auto; }
+
+/* Header action cluster — theme, shortcuts and Features share ONE visual
+   system: a 38px row, 10px radius, 12.5px labels. Ghost buttons for utility
+   actions, one solid primary button for the single real CTA. */
+.app-header__actions .icon-btn{
+  width:38px; height:38px; border-radius:10px;
+  background:transparent; border:1px solid transparent;
+  color:var(--text-secondary); box-shadow:none;
+}
+.app-header__actions .icon-btn:hover{
+  background:var(--surface); border-color:var(--border);
+  color:var(--accent); transform:none;
+}
+.app-header__actions .icon-btn:active{ transform:scale(.96); }
 
 .icon-btn{
   display:inline-flex; align-items:center; justify-content:center;
@@ -340,13 +371,21 @@ button{ font-family:inherit; }
 .icon-btn .icon--moon{ display:none; }
 [data-theme="dark"] .icon-btn .icon--sun{ display:none; }
 [data-theme="dark"] .icon-btn .icon--moon{ display:block; }
-#theme-toggle-btn{
-  width:auto; height:auto; min-width:40px; padding:5px 8px 4px;
-  flex-direction:column; gap:2px; border-radius:var(--radius-md);
+
+/* Theme toggle: icon + current mode side by side, matching the row height. */
+.app-header__actions #theme-toggle-btn{
+  width:auto; height:38px; min-width:0; padding:0 11px;
+  flex-direction:row; gap:7px; border-radius:10px;
+  background:var(--surface); border:1px solid var(--border);
+  color:var(--text-secondary); box-shadow:none;
+}
+.app-header__actions #theme-toggle-btn:hover{
+  background:var(--accent-soft); color:var(--accent);
+  border-color:var(--accent); transform:none;
 }
 .theme-toggle__label{
-  display:block; font-family:var(--font-body); font-size:9px; font-weight:500;
-  line-height:1; letter-spacing:.02em; color:inherit;
+  display:block; font-family:var(--font-body); font-size:12px; font-weight:600;
+  line-height:1; letter-spacing:0; color:inherit;
 }
 
 /* ---- Toolbar ---- */
@@ -928,7 +967,7 @@ body.dlg-open{ overflow:hidden; }
      their content and the card caps at the container width. A short message
      stays a short card instead of stretching across the whole screen. */
   width:max-content; max-width:100%;
-  padding:11px 12px 14px; border-radius:var(--radius-md);
+  padding:11px 12px 14px; border-radius:2px;
   background:var(--surface); border:1px solid var(--border);
   box-shadow:var(--shadow-lg); overflow:hidden; pointer-events:auto;
   animation:notifIn var(--dur-med) var(--ease);
@@ -1056,6 +1095,7 @@ body.dlg-open{ overflow:hidden; }
 @media (max-width:380px){
   .app-shell{ padding:76px 10px 22px; gap:10px; }
   /* brand font sizes are fluid via clamp, nothing to override here */
+  .features-btn{ padding:0 9px; font-size:10.5px; gap:4px; }
   .direction-selector__label{ padding:7px 8px; font-size:11.5px; }
   .live-toggle__text{ font-size:12px; }
   .btn--convert{ font-size:13px; padding:9px 10px; }
@@ -1131,30 +1171,30 @@ body.dlg-open{ overflow:hidden; }
 .info-box__title{
   margin:0; padding:14px 16px; border:0;
   background:var(--brand-tint-2);
-  font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif;
+  font-family:'Manrope',system-ui,'SolaimanLipi','Kalpurush','Noto Sans Bengali',sans-serif;
   font-size:16px; font-weight:700; line-height:1.35; color:var(--text);
 }
 .info-box__title{ user-select:none; -webkit-user-select:none; }
-.info-box__body{ padding:12px 16px 14px; font-weight:600; user-select:text; -webkit-user-select:text; }
-.info-box__title, .info-box__features, .info-box__foot{ font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif; }
-.info-box__features{ margin:0 0 10px; padding-left:20px; font-size:14.5px; line-height:1.65; font-weight:600; color:var(--text-secondary); }
-.info-box__features li{ margin:0 0 8px; font-weight:600; }
+.info-box__body{ padding:12px 16px 14px; font-weight:500; user-select:text; -webkit-user-select:text; }
+.info-box__title, .info-box__features, .info-box__foot{ font-family:'Manrope',system-ui,'SolaimanLipi','Kalpurush','Noto Sans Bengali',sans-serif; }
+.info-box__features{ margin:0 0 10px; padding-left:20px; font-size:14.5px; line-height:1.65; font-weight:500; color:var(--text-secondary); }
+.info-box__features li{ margin:0 0 8px; font-weight:500; }
 .info-box__features li:last-child{ margin-bottom:0; }
 .info-box__features li::marker{ color:var(--accent); }
 .info-box__features strong, .info-box__foot strong{ font-weight:700; color:var(--text); }
-.info-box__foot{ margin:0; padding-top:10px; border-top:1px dashed var(--border-strong); font-size:13.5px; font-weight:600; color:var(--text-faint); }
+.info-box__foot{ margin:0; padding-top:10px; border-top:1px dashed var(--border-strong); font-size:13.5px; font-weight:500; color:var(--text-faint); }
 .support-box{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; }
 .support-box__title{
   margin:0; padding:14px 16px; border:0;
   background:var(--brand-tint-2);
-  font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif;
+  font-family:'Manrope',system-ui,'SolaimanLipi','Kalpurush','Noto Sans Bengali',sans-serif;
   font-size:16px; font-weight:700; line-height:1.35; color:var(--text);
   user-select:none; -webkit-user-select:none;
 }
 .support-box__body{
   padding:14px 16px 16px;
-  font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif;
-  font-size:14.5px; line-height:1.7; font-weight:600; color:var(--text-secondary);
+  font-family:'Manrope',system-ui,'SolaimanLipi','Kalpurush','Noto Sans Bengali',sans-serif;
+  font-size:14.5px; line-height:1.7; font-weight:500; color:var(--text-secondary);
   user-select:text; -webkit-user-select:text;
 }
 .support-box__body p{ margin:0 0 10px; }
@@ -1177,15 +1217,15 @@ body.dlg-open{ overflow:hidden; }
 .howto-box__title, .word-box__title, .faq-box__title{
   margin:0; padding:14px 16px; border:0;
   background:var(--brand-tint-2);
-  font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif;
+  font-family:'Manrope',system-ui,'SolaimanLipi','Kalpurush','Noto Sans Bengali',sans-serif;
   font-size:16px; font-weight:800; line-height:1.35; color:var(--text);
   user-select:none; -webkit-user-select:none;
 }
 .howto-box__title{ background:var(--header-tint); }
 .howto-box__body, .word-box__body, .faq-box__body{
   padding:12px 16px 16px;
-  font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif;
-  font-size:14.5px; line-height:1.7; font-weight:600; color:var(--text-secondary);
+  font-family:'Manrope',system-ui,'SolaimanLipi','Kalpurush','Noto Sans Bengali',sans-serif;
+  font-size:14.5px; line-height:1.7; font-weight:500; color:var(--text-secondary);
 }
 .howto-box__intro{ margin:0 0 12px; }
 .howto-box__steps{
@@ -1208,7 +1248,7 @@ body.dlg-open{ overflow:hidden; }
 }
 .howto-box__step-title{
   display:inline; margin:0; font-size:13.5px; font-weight:800; line-height:1.4; color:var(--primary);
-  font-family:'Manrope',system-ui,'Kalpurush','Noto Sans Bengali',sans-serif;
+  font-family:'Manrope',system-ui,'SolaimanLipi','Kalpurush','Noto Sans Bengali',sans-serif;
 }
 .howto-box__step-body{ display:block; margin:0; padding:12px; font-size:13.5px; line-height:1.6; }
 .word-box__body p{ margin:0 0 10px; }
@@ -1250,7 +1290,13 @@ body.dlg-open{ overflow:hidden; }
   transform:rotate(45deg); transition:transform .15s ease;
 }
 .faq-box__item[open] > .faq-box__q::after{ transform:rotate(225deg); }
-.faq-box__a{ margin:0 0 12px; }
+.faq-box__a{
+  margin:0 0 12px; padding:10px 12px;
+  border-radius:var(--radius-sm);
+  background:var(--tertiary-soft);
+  border-left:3px solid var(--accent);
+  color:var(--text);
+}
 .panel__textarea--locked{ opacity:.6; cursor:not-allowed; }
 .icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none; }
 label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none; }
@@ -1274,7 +1320,7 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
   html, body{ background:#fff !important; }
   .bg-layer,   .app-header, .tools-nav, .app-toolbar, .app-statusbar,
   .pl-slot, .post-note, .post-note--show, .gate-veil, .ask-overlay,
-  .shortcuts-panel, .notif-container, .info-box, .howto-box, .word-box, .faq-box, .support-box, .app-credit,
+  .shortcuts-panel, .notif-container, .info-box, .howto-box, .word-box, .faq-box, .support-box, .app-credit, .to-top,
   .panel--input, .panel-divider, .empty-hint,
   .panel__header, .panel__footer{ display:none !important; }
   .app-shell{ display:block; max-width:none; margin:0; padding:0; min-height:0; }
@@ -1302,25 +1348,67 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
 .tools-nav{ border:1px solid var(--border); }
 .panel{ border:1px solid var(--border); }
 
-/* ---- Features button ---- */
+/* ---- Features button (header section navigator) ---- */
 .features-btn{
-  display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
-  padding:5px 12px 4px; border:0; border-radius:var(--radius-md);
+  display:inline-flex; flex-direction:row; align-items:center; justify-content:center; gap:7px;
+  height:38px; padding:0 14px; flex:0 0 auto; overflow:hidden;
+  border:1px solid var(--primary); border-radius:10px;
   background:var(--primary); color:var(--primary-contrast);
-  font-family:var(--font-body); font-size:10px; font-weight:400; cursor:pointer; white-space:nowrap;
-  line-height:1; box-shadow:var(--shadow-sm);
-  transition:transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+  font-family:var(--font-body); font-size:12.5px; font-weight:600;
+  letter-spacing:.01em; line-height:1; cursor:pointer; white-space:nowrap;
+  box-shadow:var(--shadow-sm);
+  transition:background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease),
+             transform var(--dur-fast) var(--ease), width .22s cubic-bezier(.2,.7,.3,1);
 }
-.features-btn .icon{ width:16px; height:16px; }
-.features-btn:hover{ transform:translateY(-1px); box-shadow:var(--shadow-md); }
-.features-btn:active{ transform:scale(.96); }
+.features-btn .icon{ width:15px; height:15px; }
+.features-btn:hover{ background:var(--primary-hover); border-color:var(--primary-hover); box-shadow:var(--shadow-md); }
+.features-btn:active{ transform:scale(.98); }
+.features-btn__label{
+  display:inline-block; overflow:hidden; text-overflow:ellipsis;
+  transition:opacity .12s ease, transform .12s ease;
+}
+.features-btn.is-swapping .features-btn__label{ opacity:0; transform:translateY(-3px); }
+.features-btn__chevron{ flex:0 0 auto; opacity:.9; transition:transform .18s ease; }
+.features-btn.is-up .features-btn__chevron{ transform:rotate(180deg); }
+/* Off-screen twin used only to measure the next label's natural width. */
+.nav-measure{
+  position:absolute; left:-9999px; top:0; width:auto; height:0;
+  overflow:hidden; visibility:hidden; pointer-events:none;
+}
 @media (max-width:640px){
-  /* Tighter so the brand tagline next to the logo has room to breathe on a
-     phone instead of being clipped by the buttons. */
-  .features-btn{ padding:5px 8px 4px; font-size:9px; gap:1px; }
-  #theme-toggle-btn{
-    width:auto; height:auto; padding:5px 8px 4px; border-radius:var(--radius-md);
+  /* 34px row on phones: same geometry, tighter type, so the brand tagline
+     still has room beside the buttons. The theme caption is desktop-only. */
+  .app-header__actions{ gap:5px; }
+  .app-header__actions .icon-btn{ width:34px; height:34px; border-radius:9px; }
+  .app-header__actions #theme-toggle-btn{
+    width:34px; height:34px; padding:0; gap:0;
+    justify-content:center; border-radius:9px;
   }
+  .theme-toggle__label{ display:none; }
+  .features-btn{ height:34px; padding:0 11px; gap:5px; font-size:11px; border-radius:9px; }
+  .features-btn .icon{ width:14px; height:14px; }
+}
+
+/* ---- Back-to-top ---- */
+.to-top{
+  position:fixed; right:16px; bottom:20px; z-index:75;
+  width:44px; height:44px; display:grid; place-items:center;
+  border:1px solid var(--border); border-radius:999px;
+  background:var(--surface); color:var(--accent);
+  box-shadow:var(--shadow-md); cursor:pointer; padding:0;
+  opacity:0; visibility:hidden; transform:translateY(8px) scale(.94);
+  transition:opacity .18s var(--ease), transform .18s var(--ease), visibility .18s,
+             background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
+             border-color var(--dur-fast) var(--ease);
+}
+.to-top.is-visible{ opacity:1; visibility:visible; transform:none; }
+.to-top:hover{ background:var(--accent); color:var(--accent-contrast); border-color:var(--accent); }
+.to-top:active{ transform:scale(.94); }
+@media (max-width:640px){
+  .to-top{ right:12px; bottom:14px; width:40px; height:40px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .features-btn, .features-btn__label, .features-btn__chevron, .to-top{ transition:none; }
 }
 
 /* ---- Preview: justify body text inside info/help cards (not the textareas) ---- */

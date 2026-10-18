@@ -32,21 +32,28 @@ check('mobile 640 hides shortcuts-open-btn', hideShortcuts);
 
 const btn = html.match(/<button class="features-btn"[\s\S]*?<\/button>/);
 const btnHtml = btn ? btn[0] : '';
-check('header button label is Convert', />\s*Convert\s*</.test(btnHtml) && !/>\s*Converter\s*</.test(btnHtml), btnHtml.slice(0, 220));
-check('header convert button has an icon above the label', /<svg[\s\S]*Convert/.test(btnHtml));
-check('header button does not say Features', !/>\s*Features\s*</.test(btnHtml));
-check('header button points at tools-nav', /aria-controls="tools-nav"/.test(btnHtml));
-check('tools-nav id exists', /id="tools-nav"/.test(html));
+check('header button starts on Features label', /id="features-btn-label">Features</.test(btnHtml), btnHtml.slice(0, 260));
+check('header button has chevron icon', /features-btn__chevron[\s\S]*<svg/.test(btnHtml) || /<svg[^>]*features-btn__chevron/.test(btnHtml));
+check('header button points at info-box', /aria-controls="info-box"/.test(btnHtml));
+check('info-box id exists', /id="info-box"/.test(html));
 
-const scrollFn = js.match(/function scrollToFeatures\s*\([^)]*\)\s*\{[\s\S]*?\n\}/);
-const body = scrollFn ? scrollFn[0] : '';
+const navSections = js.match(/var NAV_SECTIONS = \[[\s\S]*?\n\];/);
+const navBody = navSections ? navSections[0] : '';
 check(
-  'header click scrolls to tools-nav',
-  /toolsNav/.test(body) || /tools-nav/.test(body),
-  body.slice(0, 220)
+  'section chain runs converter to support',
+  ['view-converter', 'info-box', 'howto-box', 'word-box', 'faq-box', 'support-box']
+    .every(function (id) { return navBody.indexOf("id: '" + id + "'") !== -1; }),
+  navBody.slice(0, 220)
 );
-check('header click no longer scrolls to info-box', body && !/infoBox/.test(body) && !/info-box/.test(body));
-check('header click no longer scrolls to view-converter', body && !/converterView/.test(body) && !/view-converter/.test(body));
+check('header click advances to the next section', /featuresOpenBtn\.addEventListener\('click', goToNextSection\)/.test(js));
+check(
+  'scroll spy picks the next card after the current one',
+  /function syncNavFromScroll[\s\S]*?navCurrentIndex\(\) \+ 1/.test(js)
+);
+check('width transition is declared', /\.features-btn\{[^}]*transition:[^}]*width/.test(css));
+check('measurement twin is off-screen', /\.nav-measure\{[^}]*left:-9999px/.test(css));
+check('back-to-top button exists', /id="to-top-btn"/.test(html));
+check('back-to-top shows after scroll', /function updateToTopButton[\s\S]*?pageYOffset > 600/.test(js));
 
 if (failed) {
   console.log(failed + ' failed');
