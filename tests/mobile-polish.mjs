@@ -76,13 +76,13 @@ check(
   'header features button label is semibold, not extra-bold',
   /\.features-btn\{[^}]*font-weight:\s*600/.test(css)
 );
-check('header features button has svg icon', /<svg/.test((html.match(/<button class="features-btn"[\s\S]*?<\/button>/) || [''])[0]));
+check('header features button is text-only, no icon', !/<svg/.test((html.match(/<button class="features-btn"[\s\S]*?<\/button>/) || [''])[0]));
 check('theme toggle has Light/Dark caption', /theme-toggle__label/.test(html) && />(Light|Dark)</.test(html));
 check('paste icon is clipboard-with-arrow not lined clipboard', /id="paste-btn"[\s\S]{0,900}M12 11v6/.test(html) && /id="paste-btn"[\s\S]{0,900}polyline points="9 14 12 17 15 14"/.test(html));
 check(
   'mobile toast is compact (font 10px, 1.5px padding)',
-  /@media \(max-width:600px\)[\s\S]{0,500}max-width:min\(190px/.test(css)
-    && /@media \(max-width:600px\)[\s\S]{0,700}notif__msg\{\s*font-size:10px/.test(css)
+  /@media \(max-width:600px\)[\s\S]{0,500}max-width:min\(220px/.test(css)
+    && /@media \(max-width:600px\)[\s\S]{0,700}notif__msg\{\s*font-size:12\.5px/.test(css)
     && /@media \(max-width:600px\)[\s\S]{0,700}\.notif\{\s*padding:1\.5px/.test(css)
 );
 check(

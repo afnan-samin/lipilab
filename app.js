@@ -2722,15 +2722,16 @@ function comingSoon() {
    and from the last card it loops back to the converter. The
    label and the button width animate together, and because the
    action cluster is pinned to the right edge the button grows
-   leftwards. Chevron flips up for the loop-back case.
+   leftwards. Full section names are always shown — no abbreviations,
+   so the label reads "Word file upload" even on a phone.
 ------------------------------------------------------------ */
 var NAV_SECTIONS = [
-  { id: 'view-converter', label: 'Converter', short: 'Converter' },
-  { id: 'info-box', label: 'Features', short: 'Features' },
-  { id: 'howto-box', label: 'How to use', short: 'How to' },
-  { id: 'word-box', label: 'Word file', short: 'Word' },
-  { id: 'faq-box', label: 'FAQ', short: 'FAQ' },
-  { id: 'support-box', label: 'Support', short: 'Support' }
+  { id: 'view-converter', label: 'Converter' },
+  { id: 'info-box', label: 'Features' },
+  { id: 'howto-box', label: 'How to use' },
+  { id: 'word-box', label: 'Word file upload' },
+  { id: 'faq-box', label: 'FAQ' },
+  { id: 'support-box', label: 'Support' }
 ];
 var navTargetIndex = 0;
 var navRenderedLabel = '';
@@ -2739,19 +2740,25 @@ var navMeasureEl = null;
 var navScrollTick = false;
 var toTopBtn = null;
 
-function navIsCompact() {
-  return !!(window.matchMedia && window.matchMedia('(max-width:480px)').matches);
-}
 function navLabelAt(index) {
   var section = NAV_SECTIONS[index];
-  if (!section) return '';
-  return navIsCompact() ? section.short : section.label;
+  return section ? section.label : '';
 }
 function navHeaderOffset() {
   var header = document.querySelector('.app-header');
   return (header ? header.getBoundingClientRect().height : 64) + 28;
 }
+function navAtPageEnd() {
+  var doc = document.documentElement;
+  var scrollable = Math.max(doc.scrollHeight, document.body ? document.body.scrollHeight : 0);
+  return window.pageYOffset + window.innerHeight >= scrollable - 4;
+}
 function navCurrentIndex() {
+  // The last card often can never reach the top of the viewport (the page
+  // simply ends), so treat "scrolled to the bottom" as being on the last
+  // section. Without this the cycle stalls on Support and never offers
+  // Converter again.
+  if (navAtPageEnd()) return NAV_SECTIONS.length - 1;
   var offset = navHeaderOffset();
   var index = 0;
   for (var i = 0; i < NAV_SECTIONS.length; i++) {
@@ -2795,7 +2802,6 @@ function setNavTarget(index, animate) {
   btn.setAttribute('aria-controls', section.id);
   btn.setAttribute('title', 'Go to ' + section.label);
   btn.setAttribute('aria-label', 'Go to the ' + section.label + ' section');
-  btn.classList.toggle('is-up', index === 0);
   if (label === navRenderedLabel) return;
   navRenderedLabel = label;
   var labelEl = document.getElementById('features-btn-label');
@@ -2837,12 +2843,14 @@ function scrollToSection(id) {
   window.scrollTo({ top: Math.max(0, y), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 }
 function goToNextSection() {
-  var next = (navCurrentIndex() + 1) % NAV_SECTIONS.length;
-  // Lock the spy while the smooth scroll runs, otherwise the label races
-  // through every card it passes on the way down (and all of them on a loop).
-  navLockUntil = Date.now() + 800;
-  setNavTarget((next + 1) % NAV_SECTIONS.length, true);
-  scrollToSection(NAV_SECTIONS[next].id);
+  // The label the user is looking at IS the destination. Deriving the target
+  // from the scroll position instead made the loop-back unreliable: at the
+  // bottom Support never crosses the header line, so "Converter" was shown
+  // but the click recomputed Support and the page did not move.
+  var destination = navTargetIndex;
+  navLockUntil = Date.now() + 900;
+  setNavTarget((destination + 1) % NAV_SECTIONS.length, true);
+  scrollToSection(NAV_SECTIONS[destination].id);
 }
 function updateToTopButton() {
   if (!toTopBtn) return;

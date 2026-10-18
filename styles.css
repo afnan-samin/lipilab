@@ -967,7 +967,7 @@ body.dlg-open{ overflow:hidden; }
      their content and the card caps at the container width. A short message
      stays a short card instead of stretching across the whole screen. */
   width:max-content; max-width:100%;
-  padding:11px 12px 14px; border-radius:2px;
+  padding:11px 12px 14px; border-radius:5px;
   background:var(--surface); border:1px solid var(--border);
   box-shadow:var(--shadow-lg); overflow:hidden; pointer-events:auto;
   animation:notifIn var(--dur-med) var(--ease);
@@ -977,7 +977,7 @@ body.dlg-open{ overflow:hidden; }
 .notif--success .notif__icon{ color:var(--accent); }
 .notif--error .notif__icon{ color:var(--danger); }
 .notif--info .notif__icon{ color:var(--accent); }
-.notif__msg{ flex:1 1 auto; font-size:13.5px; font-weight:600; line-height:1.45; color:var(--text); margin:0; word-break:break-word; }
+.notif__msg{ flex:1 1 auto; font-size:17px; font-weight:600; line-height:1.45; color:var(--text); margin:0; word-break:break-word; }
 .notif__close{
   flex:0 0 auto; width:22px; height:22px; display:grid; place-items:center;
   border:0; border-radius:var(--radius-sm); background:transparent; cursor:pointer;
@@ -1009,12 +1009,12 @@ body.dlg-open{ overflow:hidden; }
    full-width block. It still wraps rather than overflowing on a long message. */
 @media (max-width:600px){
   .notif-container{
-    left:auto; right:4px; width:auto; max-width:min(190px, calc(100vw - 8px));
+    left:auto; right:4px; width:auto; max-width:min(220px, calc(100vw - 8px));
     align-items:flex-end; gap:2px;
   }
   .notif{ padding:1.5px; gap:2px; }
   .notif__icon{ width:12px; height:12px; margin-top:1px; }
-  .notif__msg{ font-size:10px; font-weight:600; line-height:1.3; padding-bottom:1px; }
+  .notif__msg{ font-size:12.5px; font-weight:600; line-height:1.3; padding-bottom:1px; }
   .notif__close{ width:20px; height:20px; margin:-1.5px -1.5px 0 0; }
   .notif__close .icon{ width:14px; height:14px; }
   .notif__bar{ height:2px; }
@@ -1095,7 +1095,7 @@ body.dlg-open{ overflow:hidden; }
 @media (max-width:380px){
   .app-shell{ padding:76px 10px 22px; gap:10px; }
   /* brand font sizes are fluid via clamp, nothing to override here */
-  .features-btn{ padding:0 9px; font-size:10.5px; gap:4px; }
+  .features-btn{ padding:0 8px; font-size:10px; }
   .direction-selector__label{ padding:7px 8px; font-size:11.5px; }
   .live-toggle__text{ font-size:12px; }
   .btn--convert{ font-size:13px; padding:9px 10px; }
@@ -1360,7 +1360,6 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
   transition:background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease),
              transform var(--dur-fast) var(--ease), width .22s cubic-bezier(.2,.7,.3,1);
 }
-.features-btn .icon{ width:15px; height:15px; }
 .features-btn:hover{ background:var(--primary-hover); border-color:var(--primary-hover); box-shadow:var(--shadow-md); }
 .features-btn:active{ transform:scale(.98); }
 .features-btn__label{
@@ -1368,8 +1367,6 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
   transition:opacity .12s ease, transform .12s ease;
 }
 .features-btn.is-swapping .features-btn__label{ opacity:0; transform:translateY(-3px); }
-.features-btn__chevron{ flex:0 0 auto; opacity:.9; transition:transform .18s ease; }
-.features-btn.is-up .features-btn__chevron{ transform:rotate(180deg); }
 /* Off-screen twin used only to measure the next label's natural width. */
 .nav-measure{
   position:absolute; left:-9999px; top:0; width:auto; height:0;
@@ -1385,14 +1382,13 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
     justify-content:center; border-radius:9px;
   }
   .theme-toggle__label{ display:none; }
-  .features-btn{ height:34px; padding:0 11px; gap:5px; font-size:11px; border-radius:9px; }
-  .features-btn .icon{ width:14px; height:14px; }
+  .features-btn{ height:34px; padding:0 10px; font-size:10.5px; border-radius:9px; }
 }
 
 /* ---- Back-to-top ---- */
 .to-top{
-  position:fixed; right:16px; bottom:20px; z-index:75;
-  width:44px; height:44px; display:grid; place-items:center;
+  position:fixed; right:18px; bottom:22px; z-index:75;
+  width:54px; height:54px; display:grid; place-items:center;
   border:1px solid var(--border); border-radius:999px;
   background:var(--surface); color:var(--accent);
   box-shadow:var(--shadow-md); cursor:pointer; padding:0;
@@ -1402,13 +1398,13 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
              border-color var(--dur-fast) var(--ease);
 }
 .to-top.is-visible{ opacity:1; visibility:visible; transform:none; }
-.to-top:hover{ background:var(--accent); color:var(--accent-contrast); border-color:var(--accent); }
+.to-top:hover{ background:var(--primary); color:var(--primary-contrast); border-color:var(--primary); }
 .to-top:active{ transform:scale(.94); }
 @media (max-width:640px){
-  .to-top{ right:12px; bottom:14px; width:40px; height:40px; }
+  .to-top{ right:12px; bottom:14px; width:48px; height:48px; }
 }
 @media (prefers-reduced-motion: reduce){
-  .features-btn, .features-btn__label, .features-btn__chevron, .to-top{ transition:none; }
+  .features-btn, .features-btn__label, .to-top{ transition:none; }
 }
 
 /* ---- Preview: justify body text inside info/help cards (not the textareas) ---- */
