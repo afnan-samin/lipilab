@@ -81,19 +81,24 @@ check('theme toggle has Light/Dark caption', /theme-toggle__label/.test(html) &&
 check('paste icon is clipboard-with-arrow not lined clipboard', /id="paste-btn"[\s\S]{0,900}M12 11v6/.test(html) && /id="paste-btn"[\s\S]{0,900}polyline points="9 14 12 17 15 14"/.test(html));
 check(
   'mobile toast is compact (font 10px, 1.5px padding)',
-  /@media \(max-width:600px\)[\s\S]{0,500}max-width:min\(220px/.test(css)
-    && /@media \(max-width:600px\)[\s\S]{0,700}notif__msg\{\s*font-size:12\.5px/.test(css)
-    && /@media \(max-width:600px\)[\s\S]{0,700}\.notif\{\s*padding:1\.5px/.test(css)
+  /@media \(max-width:600px\)[\s\S]{0,500}max-width:min\(250px/.test(css)
+    && /@media \(max-width:600px\)[\s\S]{0,700}notif__msg\{\s*font-size:14px/.test(css)
+    && /@media \(max-width:600px\)[\s\S]{0,700}\.notif\{\s*padding:2px/.test(css)
 );
 check(
   'mobile toast hugs the right edge',
-  /@media \(max-width:600px\)[\s\S]{0,500}right:4px/.test(css)
+  /@media \(max-width:600px\)[\s\S]{0,500}right:5px/.test(css)
     && /\.notif-container\{[^}]*align-items:flex-end/.test(css)
 );
 check(
   'mobile toast close button has a large tap target',
-  /@media \(max-width:600px\)[\s\S]{0,900}notif__close\{\s*width:20px;\s*height:20px/.test(css)
-    && /@media \(max-width:600px\)[\s\S]{0,900}notif__close \.icon\{\s*width:14px/.test(css)
+  /@media \(max-width:600px\)[\s\S]{0,900}notif__close\{\s*width:22px;\s*height:22px/.test(css)
+    && /@media \(max-width:600px\)[\s\S]{0,900}notif__close \.icon\{\s*width:15px/.test(css)
+);
+check(
+  'shortcuts button is a visible surface on desktop',
+  /\.app-header__actions #shortcuts-open-btn\{[^}]*background:var\(--surface\)[^}]*border:1px solid var\(--border\)/.test(css)
+    && /\.app-header__actions #shortcuts-open-btn\{[^}]*display:inline-flex/.test(css)
 );
 
 check(
