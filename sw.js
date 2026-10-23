@@ -1,9 +1,9 @@
-var CACHE = 'lipilab-v52';
+var CACHE = 'lipilab-v56';
 var PRECACHE = [
   './',
   'index.html',
-  'styles.css?v=102',
-  'app.js?v=52',
+  'styles.css?v=106',
+  'app.js?v=54',
   'engine.js?v=1',
   'partner.js?v=14',
   'vendor/jszip.min.js',
@@ -13,6 +13,7 @@ var PRECACHE = [
   'favicon-32.png?v=2',
   'favicon-180.png?v=2',
   'favicon-512.png?v=2',
+  'og-cover.png',
   'fonts/solaimanlipi-normal-v1.0.ttf',
   'fonts/solaimanlipi-bold-v1.0.ttf',
   'fonts/kalpurush.woff2',

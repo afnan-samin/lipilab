@@ -645,6 +645,11 @@ button{ font-family:inherit; }
 }
 .app-credit__link:hover{ text-decoration:underline; }
 .app-credit__fb-icon{ flex-shrink:0; }
+.app-credit__privacy{
+  flex:1 0 100%; margin:2px 0 0; text-align:center;
+  font-family:var(--font-kalpurush); font-size:13px; font-weight:500; line-height:1.45;
+  color:var(--text-secondary);
+}
 
 /* ---- Slots (paste partner embed code inside the divs) ---- */
 .pl-slot{
@@ -961,7 +966,7 @@ body.dlg-open{ overflow:hidden; }
    Each has a 2s progress bar and a manual close (X). */
 .notif-container{
   position:fixed; top:calc(var(--app-header-h, 64px) + 12px); right:16px;
-  z-index:80; display:flex; flex-direction:column; align-items:flex-end; gap:10px;
+  z-index:80; display:flex; flex-direction:column; align-items:flex-end; gap:5px;
   /* The container — not the card — carries the sizing. 360px is the desktop
    ideal; on anything narrower it shrinks with the viewport. box-sizing keeps
    width + right offset within 100vw so the stack never overflows.
@@ -972,22 +977,22 @@ body.dlg-open{ overflow:hidden; }
   pointer-events:none;
 }
 .notif{
-  position:relative; display:flex; align-items:flex-start; gap:10px;
+  position:relative; display:flex; align-items:flex-start; gap:8px;
   /* Size to the message, never wider than needed: the column items shrink to
      their content and the card caps at the container width. A short message
      stays a short card instead of stretching across the whole screen. */
   width:max-content; max-width:100%;
-  padding:11px 12px 14px; border-radius:5px;
+  padding:8px 10px 11px; border-radius:5px;
   background:var(--surface); border:1px solid var(--border);
   box-shadow:var(--shadow-lg); overflow:hidden; pointer-events:auto;
   animation:notifIn var(--dur-med) var(--ease);
 }
 .notif--out{ animation:notifOut var(--dur-fast) var(--ease) forwards; }
-.notif__icon{ flex:0 0 auto; width:20px; height:20px; display:block; margin-top:1px; }
+.notif__icon{ flex:0 0 auto; width:16px; height:16px; display:block; margin-top:1px; }
 .notif--success .notif__icon{ color:var(--accent); }
 .notif--error .notif__icon{ color:var(--danger); }
 .notif--info .notif__icon{ color:var(--accent); }
-.notif__msg{ flex:1 1 auto; font-size:17px; font-weight:600; line-height:1.45; color:var(--text); margin:0; word-break:break-word; }
+.notif__msg{ flex:1 1 auto; font-size:13.5px; font-weight:600; line-height:1.4; color:var(--text); margin:0; word-break:break-word; }
 .notif__close{
   flex:0 0 auto; width:22px; height:22px; display:grid; place-items:center;
   border:0; border-radius:var(--radius-sm); background:transparent; cursor:pointer;
@@ -1020,7 +1025,7 @@ body.dlg-open{ overflow:hidden; }
 @media (max-width:600px){
   .notif-container{
     left:auto; right:5px; width:auto; max-width:min(250px, calc(100vw - 10px));
-    align-items:flex-end; gap:3px;
+    align-items:flex-end; gap:1.5px;
   }
   .notif{ padding:2px; gap:3px; }
   .notif__icon{ width:14px; height:14px; margin-top:1px; }
@@ -1105,7 +1110,7 @@ body.dlg-open{ overflow:hidden; }
 @media (max-width:380px){
   .app-shell{ padding:76px 10px 22px; gap:10px; }
   /* brand font sizes are fluid via clamp, nothing to override here */
-  .features-btn{ padding:0 8px; font-size:10px; }
+  .features-btn{ padding:5px 8px; font-size:12px; }
   .direction-selector__label{ padding:7px 8px; font-size:11.5px; }
   .live-toggle__text{ font-size:12px; }
   .btn--convert{ font-size:13px; padding:9px 10px; }
@@ -1371,11 +1376,11 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
 /* ---- Features button (header section navigator) ---- */
 .features-btn{
   display:inline-flex; flex-direction:row; align-items:center; justify-content:center; gap:7px;
-  height:38px; padding:0 14px; flex:0 0 auto; overflow:hidden;
+  height:auto; min-height:38px; padding:7px 14px; flex:0 0 auto; overflow:visible;
   border:1px solid var(--primary); border-radius:10px;
   background:var(--primary); color:var(--primary-contrast);
-  font-family:var(--font-body); font-size:12.5px; font-weight:600;
-  letter-spacing:.01em; line-height:1; cursor:pointer; white-space:nowrap;
+  font-family:var(--font-kalpurush); font-size:13.5px; font-weight:600;
+  letter-spacing:0; line-height:1.3; cursor:pointer; white-space:nowrap;
   box-shadow:var(--shadow-sm);
   transition:background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease),
              transform var(--dur-fast) var(--ease), width .22s cubic-bezier(.2,.7,.3,1);
@@ -1383,14 +1388,14 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
 .features-btn:hover{ background:var(--primary-hover); border-color:var(--primary-hover); box-shadow:var(--shadow-md); }
 .features-btn:active{ transform:scale(.98); }
 .features-btn__label{
-  display:inline-block; overflow:hidden; text-overflow:ellipsis;
+  display:inline-block; overflow:visible;
   transition:opacity .12s ease, transform .12s ease;
 }
 .features-btn.is-swapping .features-btn__label{ opacity:0; transform:translateY(-3px); }
 /* Off-screen twin used only to measure the next label's natural width. */
 .nav-measure{
-  position:absolute; left:-9999px; top:0; width:auto; height:0;
-  overflow:hidden; visibility:hidden; pointer-events:none;
+  position:absolute; left:-9999px; top:0; width:auto; height:auto;
+  overflow:visible; visibility:hidden; pointer-events:none;
 }
 @media (max-width:640px){
   /* 34px row on phones: same geometry, tighter type, so the brand tagline
@@ -1402,7 +1407,7 @@ label.icon-btn.is-disabled{ opacity:.45; cursor:not-allowed; pointer-events:none
     justify-content:center; border-radius:9px;
   }
   .theme-toggle__label{ display:none; }
-  .features-btn{ height:34px; padding:0 10px; font-size:10.5px; border-radius:9px; }
+  .features-btn{ min-height:34px; height:auto; padding:5px 10px; font-size:12.5px; border-radius:9px; }
 }
 
 /* ---- Back-to-top ---- */

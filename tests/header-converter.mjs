@@ -32,7 +32,7 @@ check('mobile 640 hides shortcuts-open-btn', hideShortcuts);
 
 const btn = html.match(/<button class="features-btn"[\s\S]*?<\/button>/);
 const btnHtml = btn ? btn[0] : '';
-check('header button starts on Features label', /id="features-btn-label">Features</.test(btnHtml), btnHtml.slice(0, 260));
+check('header button starts on Features label', /id="features-btn-label">ফিচার সমূহ!</.test(btnHtml), btnHtml.slice(0, 260));
 check('header button has no icon, text only', !/<svg/.test(btnHtml));
 check('header button points at info-box', /aria-controls="info-box"/.test(btnHtml));
 check('info-box id exists', /id="info-box"/.test(html));
@@ -46,7 +46,8 @@ check(
   navBody.slice(0, 220)
 );
 check('header click advances to the next section', /featuresOpenBtn\.addEventListener\('click', goToNextSection\)/.test(js));
-check('full section names, no abbreviations', /label: 'Word file upload'/.test(js) && !/short:/.test(js));
+check('full section names, no abbreviations', /label: 'ফাইল আপলোড নিয়মাবলী'/.test(js) && !/short:/.test(js));
+check('header labels are Bangla', /label: 'ফিচার সমূহ!'/.test(js) && /label: 'কীভাবে ব্যবহার করবেন\?'/.test(js) && /label: 'সাধারণ প্রশ্ন'/.test(js));
 check('click targets the label the user sees', /var destination = navTargetIndex;/.test(js));
 check(
   'scroll spy picks the next card after the current one',
@@ -58,7 +59,9 @@ check('back-to-top button exists', /id="to-top-btn"/.test(html));
 check('back-to-top shows after scroll', /function updateToTopButton[\s\S]*?pageYOffset > 600/.test(js));
 check('page end counts as the last section', /function navAtPageEnd[\s\S]*?navAtPageEnd\(\)\) return NAV_SECTIONS.length - 1/.test(js));
 check('to-top grows and uses primary on hover', /\.to-top\{[^}]*width:54px/.test(css) && /\.to-top:hover\{[^}]*background:var\(--primary\)/.test(css));
-check('toast radius is 5px and text 25% larger', /\.notif\{[^}]*border-radius:5px/.test(css) && /\.notif__msg\{[^}]*font-size:17px/.test(css));
+check('toast radius is 5px and desktop text is compact', /\.notif\{[^}]*border-radius:5px/.test(css) && /\.notif__msg\{[^}]*font-size:13\.5px/.test(css));
+check('header nav button uses Bangla face', /\.features-btn\{[^}]*font-family:var\(--font-kalpurush\)/.test(css));
+check('header nav button does not clip glyphs', /\.features-btn\{[^}]*overflow:visible/.test(css) && /\.features-btn__label\{[^}]*overflow:visible/.test(css));
 
 if (failed) {
   console.log(failed + ' failed');

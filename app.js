@@ -2783,16 +2783,15 @@ function comingSoon() {
    and from the last card it loops back to the converter. The
    label and the button width animate together, and because the
    action cluster is pinned to the right edge the button grows
-   leftwards. Full section names are always shown — no abbreviations,
-   so the label reads "Word file upload" even on a phone.
+   leftwards. Labels are Bangla so they match the rest of the page.
 ------------------------------------------------------------ */
 var NAV_SECTIONS = [
-  { id: 'view-converter', label: 'Converter' },
-  { id: 'info-box', label: 'Features' },
-  { id: 'howto-box', label: 'How to use' },
-  { id: 'word-box', label: 'Word file upload' },
-  { id: 'faq-box', label: 'FAQ' },
-  { id: 'support-box', label: 'Support' }
+  { id: 'view-converter', label: 'কনভার্টার' },
+  { id: 'info-box', label: 'ফিচার সমূহ!' },
+  { id: 'howto-box', label: 'কীভাবে ব্যবহার করবেন?' },
+  { id: 'word-box', label: 'ফাইল আপলোড নিয়মাবলী' },
+  { id: 'faq-box', label: 'সাধারণ প্রশ্ন' },
+  { id: 'support-box', label: 'সাপোর্ট' }
 ];
 var navTargetIndex = 0;
 var navRenderedLabel = '';
@@ -2850,7 +2849,7 @@ function measureNavWidth(label) {
   navMeasureEl.appendChild(clone);
   var width = clone.getBoundingClientRect().width;
   navMeasureEl.removeChild(clone);
-  return Math.ceil(width);
+  return Math.ceil(width) + 2;
 }
 function setNavTarget(index, animate) {
   var btn = els.featuresOpenBtn;

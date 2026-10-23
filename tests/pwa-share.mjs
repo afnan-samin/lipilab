@@ -23,6 +23,7 @@ check('manifest short_name is LipiLab', manifest.short_name === 'LipiLab');
 check('manifest display standalone', manifest.display === 'standalone');
 check('manifest has 512 icon', (manifest.icons || []).some(function (i) { return i.sizes === '512x512'; }));
 check('sw precaches index and engine', /index\.html/.test(sw) && /engine\.js\?v=1/.test(sw));
+check('sw cache version is v56', /lipilab-v56/.test(sw));
 check('sw skips waiting on install', /skipWaiting/.test(sw));
 check('app registers sw.js', /serviceWorker\.register\('sw\.js'\)/.test(js));
 check('share button in output header', /id="share-btn"/.test(html));

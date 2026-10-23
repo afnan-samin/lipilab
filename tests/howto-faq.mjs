@@ -68,6 +68,10 @@ check('faq spell/related coming', faq.includes('Spell Check ও Related ফি�
 
 check('features copy untouched', html.includes('LipiLab দিয়ে কী কী করা যায়?'));
 check('support copy untouched', html.includes('unknownacone@gmail.com'));
+check('html lang is bn', /<html lang="bn"/.test(html));
+check('og locale is bn_BD', /og:locale" content="bn_BD"/.test(html));
+check('og image is og-cover.png', /og:image" content="https:\/\/lipilab\.pro\.bd\/og-cover\.png"/.test(html));
+check('privacy footer line', html.includes('আপনার লেখা ব্রাউজারেই থাকে, কোথাও আপলোড হয় না।'));
 check('support copy email button', /id="support-copy-btn"/.test(html));
 check('faq accordion closes siblings', /function initFaqAccordion[\s\S]*other\.open = false/.test(js));
 check('css has howto-box', css.includes('.howto-box'));
