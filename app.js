@@ -322,6 +322,8 @@ var els = {
   swapBtn: document.getElementById('swap-btn'),
   outputPanel: document.querySelector('.panel--output'),
   copyBtn: document.getElementById('copy-btn'),
+  shareBtn: document.getElementById('share-btn'),
+  supportCopyBtn: document.getElementById('support-copy-btn'),
   downloadOpenBtn: document.getElementById('download-open-btn'),
   downloadModal: document.getElementById('download-modal'),
   downloadCloseBtn: document.getElementById('download-close-btn'),
@@ -580,6 +582,65 @@ function contactEmail() {
   mail = mail.replace(/^mailto:/i, '').split('?')[0].trim();
   if (!mail && link) mail = String(link.textContent || '').trim();
   return mail || CONTACT_EMAIL_FALLBACK;
+}
+
+function copyText(text, okMsg) {
+  if (!text) { showToast('Nothing to copy'); return; }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function () {
+      showToast(okMsg || 'Copied!');
+    }).catch(function () {
+      copyTextFallback(text, okMsg);
+    });
+  } else {
+    copyTextFallback(text, okMsg);
+  }
+}
+function copyTextFallback(text, okMsg) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  document.body.removeChild(ta);
+  showToast(ok ? (okMsg || 'Copied!') : 'Copy failed — try again');
+}
+function copySupportEmail() {
+  copyText(contactEmail(), 'Email copied');
+}
+
+function shareOutput() {
+  var text = els.outputTextarea ? els.outputTextarea.value : '';
+  if (!text || !text.trim()) { showToast('Nothing to share'); return; }
+  var payload = { title: 'LipiLab', text: text, url: 'https://lipilab.pro.bd' };
+  if (navigator.share) {
+    navigator.share(payload).catch(function () {});
+    return;
+  }
+  var wa = 'https://wa.me/?text=' + encodeURIComponent(text);
+  window.open(wa, '_blank', 'noopener');
+}
+
+function initFaqAccordion() {
+  var items = document.querySelectorAll('.faq-box__item');
+  if (!items.length) return;
+  items.forEach(function (item) {
+    item.addEventListener('toggle', function () {
+      if (!item.open) return;
+      items.forEach(function (other) {
+        if (other !== item && other.open) other.open = false;
+      });
+    });
+  });
+}
+
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('sw.js').catch(function () {});
 }
 
 function codePointHex(ch) {
@@ -3032,6 +3093,8 @@ function init() {
   safeInitStep(wireEvents, 'wire-events');
   safeInitStep(wireKeyboardShortcuts, 'wire-keyboard-shortcuts');
   safeInitStep(initSectionNav, 'section-nav');
+  safeInitStep(initFaqAccordion, 'faq-accordion');
+  safeInitStep(registerServiceWorker, 'service-worker');
   safeInitStep(updateOfflineIndicator, 'offline-indicator');
   safeInitStep(initAskChoice, 'choice-prompt');
   safeInitStep(initRefreshGuard, 'refresh-guard');
@@ -3187,14 +3250,10 @@ function wireEvents() {
   els.copyBtn.addEventListener('click', function () {
     var text = els.outputTextarea.value;
     if (!text.trim()) { showToast('Nothing to copy'); return; }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () { showToast('Copied to clipboard!'); });
-    } else {
-      els.outputTextarea.select();
-      document.execCommand('copy');
-      showToast('Copied!');
-    }
+    copyText(text, 'Copied to clipboard!');
   });
+  if (els.shareBtn) els.shareBtn.addEventListener('click', shareOutput);
+  if (els.supportCopyBtn) els.supportCopyBtn.addEventListener('click', copySupportEmail);
 
   function downloadAsTxt() {
     var text = els.outputTextarea.value;

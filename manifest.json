@@ -1,0 +1,26 @@
+{
+  "name": "LipiLab — Bangla Unicode ↔ Bijoy Converter",
+  "short_name": "LipiLab",
+  "description": "Convert Bangla Unicode and Bijoy text and Word files. Free, private, works offline.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#0a5c40",
+  "lang": "bn",
+  "icons": [
+    {
+      "src": "favicon-180.png?v=2",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "favicon-512.png?v=2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

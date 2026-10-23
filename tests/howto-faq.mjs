@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'styles.css'), 'utf8');
+const js = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 
 function idx(id) {
   const i = html.indexOf('id="' + id + '"');
@@ -67,6 +68,8 @@ check('faq spell/related coming', faq.includes('Spell Check ও Related ফি�
 
 check('features copy untouched', html.includes('LipiLab দিয়ে কী কী করা যায়?'));
 check('support copy untouched', html.includes('unknownacone@gmail.com'));
+check('support copy email button', /id="support-copy-btn"/.test(html));
+check('faq accordion closes siblings', /function initFaqAccordion[\s\S]*other\.open = false/.test(js));
 check('css has howto-box', css.includes('.howto-box'));
 check('css has faq summary', css.includes('.faq-box__item'));
 check('css 640px stacks howto steps', /@media \(max-width:640px\)[\s\S]*howto-box__steps\{ grid-template-columns:1fr; \}/.test(css));

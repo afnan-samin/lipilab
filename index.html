@@ -19,6 +19,10 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2" />
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=2" />
 <link rel="apple-touch-icon" href="favicon-180.png?v=2" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="LipiLab" />
+<meta name="mobile-web-app-capable" content="yes" />
 
 <!-- JSZip: needed for both blank-DOCX generation and DOCX template round-trip patching.
      Self-hosted so DOCX upload/download keeps working with the network off. -->
@@ -27,7 +31,7 @@
 <!-- UI + Bangla web fonts are self-hosted in /fonts and declared at the top of
      styles.css — no Google Fonts, no maateen.me, no network request at all. -->
 
-<link rel="stylesheet" href="styles.css?v=101">
+<link rel="stylesheet" href="styles.css?v=102">
 </head>
 <body>
 
@@ -320,6 +324,9 @@
           <button class="icon-btn icon-btn--sm" id="copy-btn" type="button" aria-label="Copy output" title="Copy">
             <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect class="bn-icon-tint" x="9" y="9" width="13" height="13" rx="2" fill-opacity=".2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           </button>
+          <button class="icon-btn icon-btn--sm" id="share-btn" type="button" aria-label="Share converted text" title="Share">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+          </button>
           <div class="download-group" role="group" aria-label="Download output">
             <button class="icon-btn icon-btn--sm file-btn" id="download-open-btn" type="button" aria-label="Download output file" title="Download (Ctrl+S)">
               <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7.5 10.5L12 15l4.5-4.5"/><path d="M4 20h16"/></svg>
@@ -595,7 +602,11 @@
     <div class="support-box__body">
       <p>আপনি যদি কোনো ফাইল বিজয় থেকে ইউনিকোডে বা ইউনিকোড থেকে বিজয়ে কনভার্ট করার পর কাঙ্ক্ষিত ফলাফল না পান, তাহলে আপনার ফাইলের স্ক্রিনশট এবং কনভার্ট করার পর ডাউনলোড করে যে ফাইলে সমস্যা পেয়েছেন সেই সমস্যার স্ক্রিনশট শেয়ার করুন দয়া করে। আমরা সংশোধন করার চেষ্টা করব।</p>
       <p>তাছাড়া কোনো ফিচার-সংক্রান্ত পরামর্শ বা অভিজ্ঞতা শেয়ারিংয়ের জন্যও আমাদের নির্দ্বিধায় মেইল করতে পারেন।</p>
-      <p class="support-box__contact">Contact: <a class="support-mail" href="mailto:unknownacone@gmail.com">unknownacone@gmail.com</a></p>
+      <p class="support-box__contact">Contact: <a class="support-mail" id="support-mail" href="mailto:unknownacone@gmail.com">unknownacone@gmail.com</a>
+      <button type="button" class="support-copy" id="support-copy-btn" aria-label="Copy email address" title="Copy email">
+        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy
+      </button></p>
     </div>
   </div>
 
@@ -788,6 +799,6 @@
 
 <script src="partner.js?v=14"></script>
 <script src="engine.js?v=1"></script>
-<script src="app.js?v=51"></script>
+<script src="app.js?v=52"></script>
 </body>
 </html>
