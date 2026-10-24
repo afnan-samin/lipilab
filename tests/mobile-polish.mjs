@@ -60,12 +60,20 @@ check(
   !/app-brand-name\{[^}]*font-size:\s*clamp\(34px/.test(mobile)
 );
 check(
-  'mobile LipiLab above tagline beside logo',
-  /app-brand-text\{[^}]*flex-direction:\s*column/.test(mobile)
+  'LipiLab wordmark is near logo size',
+  /\.app-brand-name\{[^}]*font-size:clamp\(27px/.test(css)
 );
 check(
-  'mobile tagline does not sit under the logo',
-  !/grid-template-areas:"logo name" "tag tag"/.test(mobile)
+  'Bangla tagline is bold',
+  /\.app-brand-tagline\{[^}]*font-weight:700/.test(css)
+);
+check(
+  'mobile LipiLab beside logo, tagline under both',
+  /grid-template-areas:"logo name" "tag tag"/.test(mobile)
+);
+check(
+  'mobile brand uses display contents so tagline spans full width',
+  /app-brand-text\{\s*display:contents/.test(mobile)
 );
 check(
   'mobile header actions share the 34px row height',
@@ -73,8 +81,8 @@ check(
     && /\.features-btn\{[^}]*height:34px/.test(mobile)
 );
 check(
-  'header features button label is semibold, not extra-bold',
-  /\.features-btn\{[^}]*font-weight:\s*600/.test(css)
+  'header features button label is bold',
+  /\.features-btn\{[^}]*font-weight:\s*700/.test(css)
 );
 check('header features button is text-only, no icon', !/<svg/.test((html.match(/<button class="features-btn"[\s\S]*?<\/button>/) || [''])[0]));
 check('theme toggle has Light/Dark caption', /theme-toggle__label/.test(html) && />(Light|Dark)</.test(html));
@@ -83,7 +91,7 @@ check(
   'mobile toast is compact (font 10px, 1.5px padding)',
   /@media \(max-width:600px\)[\s\S]{0,500}max-width:min\(250px/.test(css)
     && /@media \(max-width:600px\)[\s\S]{0,700}notif__msg\{\s*font-size:14px/.test(css)
-    && /@media \(max-width:600px\)[\s\S]{0,700}\.notif\{\s*padding:2px/.test(css)
+    && /@media \(max-width:600px\)[\s\S]{0,700}\.notif\{\s*padding:4px 6px 5px/.test(css)
 );
 check(
   'mobile toast hugs the right edge',

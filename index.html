@@ -35,7 +35,7 @@
 <!-- UI + Bangla web fonts are self-hosted in /fonts and declared at the top of
      styles.css — no Google Fonts, no maateen.me, no network request at all. -->
 
-<link rel="stylesheet" href="styles.css?v=106">
+<link rel="stylesheet" href="styles.css?v=122">
 </head>
 <body>
 
@@ -110,7 +110,7 @@
   <!-- PARTNER MEDIA CODE GOES HERE (tall media unit, ~160x600). Real code in PARTNER.railRight replaces this demo. -->
 </div>
 
-<header class="app-header" role="banner" style="top:0;left:0;right:0;margin:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;">
+<header class="app-header" role="banner" style="top:0;left:0;right:0;margin:0;border-top-left-radius:0;border-top-right-radius:0;border-bottom-left-radius:var(--radius);border-bottom-right-radius:var(--radius);">
     <div class="app-header__brand">
       <img class="app-logo" src="logo-full.svg?v=2" width="36" height="36" alt="" />
       <div class="app-brand-text">
@@ -139,8 +139,8 @@
           <path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M7.5 16.5h9"/>
         </svg>
       </button>
-      <button class="features-btn" id="features-open-btn" type="button" aria-controls="info-box" title="ফিচার সমূহ!">
-        <span class="features-btn__label" id="features-btn-label">ফিচার সমূহ!</span>
+      <button class="features-btn" id="features-open-btn" type="button" aria-controls="info-box" title="ফিচার সমূহ">
+        <span class="features-btn__label" id="features-btn-label">ফিচার সমূহ</span>
       </button>
     </nav>
   </header>
@@ -148,7 +148,7 @@
 <div class="app-shell">
 
   <div class="pl-slot pl-slot--wide" id="spot-top" aria-label="Notice">
-    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab top banner">
+    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:var(--radius)" role="img" aria-label="LipiLab top banner">
       <defs>
         </defs>
       <rect width="728" height="90" class="bn-bg"/>
@@ -486,7 +486,7 @@
   </div>
 
   <div class="pl-slot pl-slot--wide" id="spot-bottom" aria-label="Notice">
-    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab bottom banner">
+    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:var(--radius)" role="img" aria-label="LipiLab bottom banner">
       <defs>
         </defs>
       <rect width="728" height="90" class="bn-bg"/>
@@ -522,7 +522,7 @@
   </div>
 
   <div class="pl-slot pl-slot--wide" id="spot-after-word" aria-label="Notice">
-    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab Word banner">
+    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:var(--radius)" role="img" aria-label="LipiLab Word banner">
       <defs>
         </defs>
       <rect width="728" height="90" class="bn-bg"/>
@@ -582,7 +582,7 @@
   </div>
 
   <div class="pl-slot pl-slot--wide" id="spot-mid" aria-label="Notice">
-    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab mid banner">
+    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:var(--radius)" role="img" aria-label="LipiLab mid banner">
       <defs>
         </defs>
       <rect width="728" height="90" class="bn-bg"/>
@@ -615,7 +615,7 @@
   </div>
 
   <div class="pl-slot pl-slot--wide" id="spot-after-support" aria-label="Notice">
-    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab support banner">
+    <svg viewBox="0 0 728 90" width="100%" style="display:block;height:auto;border-radius:var(--radius)" role="img" aria-label="LipiLab support banner">
       <defs>
         </defs>
       <rect width="728" height="90" class="bn-bg"/>
@@ -771,7 +771,7 @@
     <span class="post-note__timer" id="post-note-timer">10s</span>
   </div>
   <div class="post-note__body" id="post-note-body">
-    <svg viewBox="0 0 300 100" width="100%" style="display:block;height:auto;border-radius:6px" role="img" aria-label="LipiLab small banner">
+    <svg viewBox="0 0 300 100" width="100%" style="display:block;height:auto;border-radius:var(--radius)" role="img" aria-label="LipiLab small banner">
       <defs>
         </defs>
       <rect width="300" height="100" class="bn-bg"/>
@@ -804,6 +804,6 @@
 
 <script src="partner.js?v=14"></script>
 <script src="engine.js?v=1"></script>
-<script src="app.js?v=54"></script>
+<script src="app.js?v=57"></script>
 </body>
 </html>

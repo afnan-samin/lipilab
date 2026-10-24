@@ -397,7 +397,7 @@ var MODE_LABELS = {
    Replaces the old bottom-centre toast: cards now drop in from the top-right,
    directly under the fixed app header, each with a 2s progress bar and a
    manual close (X). Hovering pauses the countdown so a message can be read.
-   `kind` is one of success | error | info and only changes the icon/colour. */
+    `kind` is one of success | error | info and only changes the icon/colour. */
 var NOTIF_MS = 2000;
 var NOTIF_MAX = 3;
 var NOTIF_ICONS = {
@@ -1327,7 +1327,7 @@ function convertPlainTextChunked(text) {
 ------------------------------------------------------------ */
 var ASK_KEY = 'lipilab:ask-choice'; // 'yes' | 'no' | absent (not yet asked)
 var ASK_AT_KEY = 'lipilab:ask-choice-at'; // timestamp (ms) of the last answer
-var ASK_REASK_MS = 2 * 60 * 60 * 1000; // re-ask every 2 hours
+var ASK_REASK_MS = 12 * 60 * 60 * 1000; // re-ask every 12 hours
 
 var spotEls = {
   consentOverlay: document.getElementById('ask-overlay'),
@@ -1356,7 +1356,7 @@ function setAskChoice(value) {
 }
 
 function initAskChoice() {
-  // Ask on first visit, then re-ask every 2 hours so the choice stays fresh.
+  // Ask on first visit, then re-ask every 12 hours so the choice stays fresh.
   if (getAskChoice() === null || (Date.now() - getAskChoiceAt() > ASK_REASK_MS)) {
     spotEls.consentOverlay.classList.add('ask-overlay--show');
   }
@@ -2787,8 +2787,8 @@ function comingSoon() {
 ------------------------------------------------------------ */
 var NAV_SECTIONS = [
   { id: 'view-converter', label: 'কনভার্টার' },
-  { id: 'info-box', label: 'ফিচার সমূহ!' },
-  { id: 'howto-box', label: 'কীভাবে ব্যবহার করবেন?' },
+  { id: 'info-box', label: 'ফিচার সমূহ' },
+  { id: 'howto-box', label: 'কীভাবে ব্যবহার করবেন' },
   { id: 'word-box', label: 'ফাইল আপলোড নিয়মাবলী' },
   { id: 'faq-box', label: 'সাধারণ প্রশ্ন' },
   { id: 'support-box', label: 'সাপোর্ট' }
