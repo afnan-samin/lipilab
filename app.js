@@ -3121,6 +3121,7 @@ function wireEvents() {
   els.convertBtn.addEventListener('click', function () {
     var text = els.inputTextarea.value;
     if (!hasConvertibleText(text)) return;
+    if (appState.liveMode) return;
     // Same gate the disabled state expresses: with live mode on the text
     // already converts as it is typed, so a click (or the Ctrl+Enter shortcut,
     // which calls .click()) must not start a second, manual run.
