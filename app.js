@@ -997,6 +997,22 @@ function persistState() {
   persistFontState();
 }
 
+var persistTimer = null;
+var PERSIST_DEBOUNCE_MS = 400;
+function schedulePersistState() {
+  clearTimeout(persistTimer);
+  persistTimer = setTimeout(function () {
+    persistTimer = null;
+    persistState();
+  }, PERSIST_DEBOUNCE_MS);
+}
+function flushPersistState() {
+  if (!persistTimer) return;
+  clearTimeout(persistTimer);
+  persistTimer = null;
+  persistState();
+}
+
 function restoreState() {
   try {
     var saved = localStorage.getItem(STORAGE_TEXT_KEY);
@@ -2456,6 +2472,8 @@ function findHeaderFooterParts(zip) {
   }).catch(function () { return []; });
 }
 
+var MAX_PLAIN_UPLOAD_BYTES = 8 * 1024 * 1024;
+
 function ingestFile(file) {
   if (!file) return;
   if (file.name.toLowerCase().endsWith('.doc') && !file.name.toLowerCase().endsWith('.docx')) {
@@ -2464,6 +2482,10 @@ function ingestFile(file) {
   }
   if (file.name.toLowerCase().endsWith('.docx')) {
     loadDocxFile(file);
+    return;
+  }
+  if (file.size > MAX_PLAIN_UPLOAD_BYTES) {
+    showToast('"' + (file.name || 'file') + '" too large — use a file under 8 MB');
     return;
   }
   var reader = new FileReader();
@@ -3341,7 +3363,7 @@ function wireEvents() {
 
   els.inputTextarea.addEventListener('input', function () {
     updateStats();
-    persistState();
+    schedulePersistState();
     // Live mode: preview the conversion while typing. Manual mode: wait for Convert.
     if (appState.liveMode) {
       setStatusIdle();
@@ -3373,6 +3395,10 @@ syncHeaderHeight();
 window.addEventListener('resize', updateDirectionPillPosition);
   window.addEventListener('online', updateOfflineIndicator);
   window.addEventListener('offline', updateOfflineIndicator);
+  window.addEventListener('pagehide', flushPersistState);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') flushPersistState();
+  });
 }
 
 
