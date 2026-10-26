@@ -1,7 +1,8 @@
 // Token coverage test: every colour on the page must be reachable from the
 // three theme tokens. Fails loudly if a colour is hardcoded somewhere.
 var fs = require('fs');
-var dir = 'E:/e/Rabbi/.archive/z1/Projects/Lipilab/Lipilab Signin signup/LipiLab-deploy/slop fix/';
+var path = require('path');
+var dir = path.join(__dirname, '..') + path.sep;
 var css = fs.readFileSync(dir + 'styles.css', 'utf8');
 var html = fs.readFileSync(dir + 'index.html', 'utf8');
 var fails = [];
