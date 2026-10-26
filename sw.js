@@ -1,9 +1,9 @@
-var CACHE = 'lipilab-v72';
+var CACHE = 'lipilab-v75';
 var PRECACHE = [
   './',
   'index.html',
-  'styles.css?v=122',
-  'app.js?v=57',
+  'styles.css?v=124',
+  'app.js?v=60',
   'engine.js?v=1',
   'partner.js?v=14',
   'vendor/jszip.min.js',
@@ -56,8 +56,10 @@ self.addEventListener('fetch', function (event) {
   if (isPage) {
     event.respondWith(
       fetch(req).then(function (res) {
-        var copy = res.clone();
-        caches.open(CACHE).then(function (cache) { cache.put(req, copy); });
+        if (res && res.ok) {
+          var copy = res.clone();
+          caches.open(CACHE).then(function (cache) { cache.put(req, copy); });
+        }
         return res;
       }).catch(function () {
         return caches.match('index.html').then(function (hit) {

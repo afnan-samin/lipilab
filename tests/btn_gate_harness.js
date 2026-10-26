@@ -212,7 +212,7 @@ function statusText() { return byId['processing-text'].textContent; }
   check('enabled tooltip restored', convertBtn.title === 'Convert (Ctrl+Enter)', 'title="' + convertBtn.title + '"');
 
   convertBtn.click();
-  check('manual click paints the converting feedback', statusText() === 'Converting\u2026' && percent.textContent === '0%', 'status="' + statusText() + '", percent="' + percent.textContent + '"');
+  check('manual click converts like live mode-change', /^Successfully converted to/.test(statusText()), 'status="' + statusText() + '", percent="' + percent.textContent + '"');
 
   await tick(40);
   check('conversion finishes with a success status', /^Successfully converted to/.test(statusText()), 'status="' + statusText() + '"');

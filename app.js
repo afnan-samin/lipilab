@@ -1096,10 +1096,6 @@ function hasConvertibleText(text) {
   return true;
 }
 
-/* A manual Convert click gets the same statusbar feedback live mode shows while
-   typing: the "Converting…" state (spinner + progress bar) is painted first,
-   then the run starts on the next frame and reports its own progress and
-   success exactly like the live path does. */
 function startManualConvert(label, run) {
   showProcessing(true, label, 0);
   requestAnimationFrame(run);
@@ -3125,11 +3121,12 @@ function wireEvents() {
   els.convertBtn.addEventListener('click', function () {
     var text = els.inputTextarea.value;
     if (!hasConvertibleText(text)) return;
+    if (appState.liveMode) return;
     // Same gate the disabled state expresses: with live mode on the text
     // already converts as it is typed, so a click (or the Ctrl+Enter shortcut,
     // which calls .click()) must not start a second, manual run.
     if (appState.docxZip) { startManualConvert('Converting DOCX…', convertDocxTemplate); return; }
-    startManualConvert('Converting…', convertPlainText);
+    convertPlainText();
   });
 
   els.pasteBtn.addEventListener('click', function () {
