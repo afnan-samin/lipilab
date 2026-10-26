@@ -56,7 +56,7 @@ check(
   'progress fill keeps live transition',
   /\.processing-progress__fill\{[^}]*transition:width 0\.12s linear/.test(css)
 );
-check('html cache-bust app.js v=61', /app\.js\?v=61/.test(html));
+check('html cache-bust app.js v=62', /app\.js\?v=62/.test(html));
 
 if (failed) {
   console.log(failed + ' failed');

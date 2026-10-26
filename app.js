@@ -950,18 +950,15 @@ function updateConvertBtnState() {
   // Live mode ON  -> Convert button disabled (conversion happens automatically).
   // Live mode OFF -> Convert button enabled.
   var liveOff = !appState.liveMode;
-  var allow = liveOff;
-  els.convertBtn.disabled = !allow;
-  els.convertBtn.classList.toggle('is-disabled', !allow);
-  els.convertBtn.setAttribute('aria-disabled', String(!allow));
+  els.convertBtn.disabled = !liveOff;
+  els.convertBtn.classList.toggle('is-disabled', !liveOff);
+  els.convertBtn.setAttribute('aria-disabled', String(!liveOff));
   // A disabled button that still advertises "Ctrl+Enter" reads as a bug, so say
   // why it cannot be pressed (and stay silent, i.e. keep the mode/base title,
   // whenever it can).
-  els.convertBtn.title = allow
+  els.convertBtn.title = liveOff
     ? convertBtnBaseTitle
-    : (appState.liveMode
-        ? 'Live mode is ON — text converts as you type (Ctrl+L for manual convert)'
-        : 'Free quota exceeded');
+    : 'Live mode is ON — text converts as you type (Ctrl+L for manual convert)';
 }
 
 /* Single source of truth for the Live toggle: flips the flag, paints the
