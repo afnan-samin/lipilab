@@ -53,7 +53,18 @@ function makeEl(id) {
     insertBefore: function (c) { this.children.push(c); return c; },
     removeChild: function (c) { return c; },
     remove: function () {},
-    querySelector: function () { return makeEl('q'); },
+    querySelector: function (sel) {
+      var q = makeEl('q');
+      this.children.push(q);
+      if (sel === '.notif__msg') {
+        var self = this;
+        Object.defineProperty(q, 'textContent', {
+          get: function () { return self._msg || ''; },
+          set: function (v) { self._msg = String(v); self.textContent = self._msg; }
+        });
+      }
+      return q;
+    },
     querySelectorAll: function () { return []; },
     getElementsByTagName: function () { return []; },
     closest: function () { return makeEl('closest'); },
@@ -363,17 +374,13 @@ function statusText() { return byId['processing-text'].textContent; }
   check('DOCX download reports success', statusText() === 'Download started successfully', 'status="' + statusText() + '"');
   check('PDF is wired as a format and still says coming soon', /id="dl-pdf" data-format="pdf"/.test(idxSrc), 'pdf wired');
 
-  // --- clear confirmation dialog -----------------------------------------
+  // Clear is immediate; confirm modal remains for drop-replace.
   byId['input-textarea'].value = 'doomed text';
   byId['clear-btn'].handlersFor('click').forEach(function (fn) { fn({}); });
-  check('clear asks for confirmation first', byId['confirm-modal'].hidden === false, 'hidden=' + byId['confirm-modal'].hidden);
-  check('clear did NOT wipe the text before confirming', byId['input-textarea'].value === 'doomed text', 'value="' + byId['input-textarea'].value + '"');
+  check('clear wipes immediately (no confirm)', byId['input-textarea'].value === '', 'value="' + byId['input-textarea'].value + '"');
   check('markup gives the confirm dialog a data-close backdrop', /id="confirm-modal"[\s\S]*?class="dlg__backdrop" data-close/.test(idxSrc), 'data-close found');
-  byId['confirm-cancel-btn'].handlersFor('click').forEach(function (fn) { fn({}); });
-  check('Cancel keeps the text', byId['confirm-modal'].hidden === true && byId['input-textarea'].value === 'doomed text', 'value="' + byId['input-textarea'].value + '"');
-  byId['clear-btn'].handlersFor('click').forEach(function (fn) { fn({}); });
-  byId['confirm-ok-btn'].handlersFor('click').forEach(function (fn) { fn({}); });
-  check('Confirm clears the text', byId['input-textarea'].value === '', 'value="' + byId['input-textarea'].value + '"');
+  byId['undo-btn'].handlersFor('click').forEach(function (fn) { fn({}); });
+  check('undo restores the text', byId['input-textarea'].value === 'doomed text', 'value="' + byId['input-textarea'].value + '"');
 
   // --- static guards for the stale-status bug ----------------------------
   var cssSrc = fs.readFileSync(APP.replace(/app\.js$/, 'styles.css'), 'utf8');
