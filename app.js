@@ -2457,7 +2457,7 @@ function findHeaderFooterParts(zip) {
       if (type.indexOf('/header') > -1 || type.indexOf('/footer') > -1 ||
           type.indexOf('/footnotes') > -1 || type.indexOf('/endnotes') > -1 ||
           type.indexOf('/comments') > -1) {
-        var path = target.charAt(0) === '/' ? target.slice(1) : ('word/' + target);
+        var path = target.charAt(0) === '/' ? target.slice(1) : ('word/' + target.replace(/^(?:\.\/)+/, ''));
         if (zip.file(path)) parts.push(path);
       }
     });
