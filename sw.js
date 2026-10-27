@@ -1,9 +1,9 @@
-var CACHE = 'lipilab-v77';
+var CACHE = 'lipilab-v78';
 var PRECACHE = [
   './',
   'index.html',
   'styles.css?v=124',
-  'app.js?v=62',
+  'app.js?v=63',
   'engine.js?v=1',
   'partner.js?v=14',
   'vendor/jszip.min.js',
